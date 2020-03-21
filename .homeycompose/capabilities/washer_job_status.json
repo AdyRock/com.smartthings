@@ -1,0 +1,8 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Washer Job Status"
+  },
+  "getable": true,
+  "setable": false
+}

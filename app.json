@@ -1,0 +1,177 @@
+{
+  "id": "com.smartthings",
+  "version": "0.0.1",
+  "compatibility": ">=3.0.0",
+  "sdk": 2,
+  "name": {
+    "en": "SmartThings"
+  },
+  "description": {
+    "en": "Add devices from SmartThings to Homey"
+  },
+  "category": [
+    "appliances"
+  ],
+  "permissions": [],
+  "images": {
+    "large": "/assets/images/large.png",
+    "small": "/assets/images/small.png"
+  },
+  "author": {
+    "name": "Adrian Rockall",
+    "email": "ady@rockall.plus.com"
+  },
+  "drivers": [
+    {
+      "id": "stDevice",
+      "name": {
+        "en": "SmartThings Device"
+      },
+      "class": "other",
+      "capabilities": [
+        "alarm_generic"
+      ],
+      "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "images": {
+        "large": "/drivers/stDevice/assets/images/large.png",
+        "small": "/drivers/stDevice/assets/images/small.png"
+      }
+    }
+  ],
+  "capabilities": {
+    "alarm_addWash": {
+      "type": "boolean",
+      "title": {
+        "en": "Add Wash Open"
+      },
+      "getable": true,
+      "setable": false
+    },
+    "completion_time": {
+      "type": "string",
+      "title": {
+        "en": "Completion Time"
+      },
+      "getable": true,
+      "setable": false
+    },
+    "measure_rinse_cycles": {
+      "type": "number",
+      "title": {
+        "en": "Rinse Cycles"
+      },
+      "decimals": 0,
+      "getable": true,
+      "setable": false
+    },
+    "measure_soil_level": {
+      "type": "string",
+      "title": {
+        "en": "Soil Level"
+      },
+      "getable": true,
+      "setable": false
+    },
+    "measure_spin_level": {
+      "type": "string",
+      "title": {
+        "en": "Spin Level"
+      },
+      "units": "RPM",
+      "getable": true,
+      "setable": false
+    },
+    "remote_status": {
+      "type": "boolean",
+      "title": {
+        "en": "Remote Control"
+      },
+      "getable": true,
+      "setable": false
+    },
+    "washer_job_status": {
+      "type": "string",
+      "title": {
+        "en": "Washer Job Status"
+      },
+      "getable": true,
+      "setable": false
+    },
+    "washer_mode": {
+      "type": "enum",
+      "title": {
+        "en": "Washer Mode"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "Table_00_Course_E3",
+          "title": {
+            "en": "regular"
+          }
+        },
+        {
+          "id": "Table_01_Course_E3",
+          "title": {
+            "en": "Heavy"
+          }
+        },
+        {
+          "id": "Table_02_Course_E3",
+          "title": {
+            "en": "Rinse"
+          }
+        },
+        {
+          "id": "Table_03_Course_E3",
+          "title": {
+            "en": "Spin Dry"
+          }
+        }
+      ]
+    },
+    "washer_status": {
+      "type": "enum",
+      "title": {
+        "en": "Washer Status"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "pause",
+          "title": {
+            "en": "Pause"
+          }
+        },
+        {
+          "id": "run",
+          "title": {
+            "en": "Run"
+          }
+        },
+        {
+          "id": "stop",
+          "title": {
+            "en": "Stop"
+          }
+        }
+      ]
+    }
+  }
+}

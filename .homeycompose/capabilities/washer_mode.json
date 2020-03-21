@@ -1,0 +1,34 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Washer Mode"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [{
+      "id": "Table_00_Course_E3",
+      "title": {
+        "en": "regular"
+      }
+    },
+    {
+      "id": "Table_01_Course_E3",
+      "title": {
+        "en": "Heavy"
+      }
+    },
+    {
+      "id": "Table_02_Course_E3",
+      "title": {
+        "en": "Rinse"
+      }
+    },
+    {
+      "id": "Table_03_Course_E3",
+      "title": {
+        "en": "Spin Dry"
+      }
+    }
+  ]
+}

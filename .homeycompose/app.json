@@ -1,0 +1,24 @@
+{
+    "id": "com.smartthings",
+    "version": "0.0.1",
+    "compatibility": ">=3.0.0",
+    "sdk": 2,
+    "name": {
+      "en": "SmartThings"
+    },
+    "description": {
+      "en": "Add devices from SmartThings to Homey"
+    },
+    "category": [
+      "appliances"
+    ],
+    "permissions": [],
+    "images": {
+      "large": "/assets/images/large.png",
+      "small": "/assets/images/small.png"
+    },
+    "author": {
+      "name": "Adrian Rockall",
+      "email": "ady@rockall.plus.com"
+    }
+}  

@@ -1,0 +1,26 @@
+{
+  "id": "stDevice",
+  "name": {
+    "en": "SmartThings Device"
+  },
+  "class": "other",
+  "capabilities": [
+    "alarm_generic"
+  ],
+"pair": [{
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": {
+        "next": "add_devices"
+      }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ],
+  "images": {
+    "large": "/drivers/stDevice/assets/images/large.png",
+    "small": "/drivers/stDevice/assets/images/small.png"
+  }
+}
