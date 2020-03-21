@@ -12,6 +12,14 @@ const CapabilityMap = [{
 		capabilities: ["dim"]
 	},
 	{
+		id: "contactSensor",
+		capabilities: ["alarm_contact"]
+	},
+	{
+		id: "battery",
+		capabilities: ["measure_battery"]
+	},
+	{
 		id: "powerConsumptionReport",
 		capabilities: ["measure_power", "meter_power"]
 	},
