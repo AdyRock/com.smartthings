@@ -20,6 +20,10 @@ const CapabilityMap = [{
 		capabilities: ["measure_battery"]
 	},
 	{
+		id: "presenceSensor",
+		capabilities: ["alarm_presence"]
+	},
+	{
 		id: "powerConsumptionReport",
 		capabilities: ["measure_power", "meter_power"]
 	},

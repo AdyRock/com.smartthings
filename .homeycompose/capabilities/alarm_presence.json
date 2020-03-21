@@ -1,0 +1,8 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Presence"
+  },
+  "getable": true,
+  "setable": false
+}

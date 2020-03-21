@@ -59,6 +59,14 @@
       "getable": true,
       "setable": false
     },
+    "alarm_presence": {
+      "type": "boolean",
+      "title": {
+        "en": "Presence"
+      },
+      "getable": true,
+      "setable": false
+    },
     "completion_time": {
       "type": "string",
       "title": {

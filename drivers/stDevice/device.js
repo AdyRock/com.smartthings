@@ -159,6 +159,16 @@ class STDevice extends Homey.Device {
 					}
 				}
 			}
+
+			if (this.hasCapability('alarm_presence')) {
+				let result = await Homey.app.getCapabilityValue(devData.id, "presenceSensor");
+				if (result) {
+					let value = Number(result.presence.value);
+					await this.setCapabilityValue('alarm_presence', value === 'present');
+				}
+				//await Homey.app.getCapabilityValue(devData.id, "occupancySensor");
+			}
+
 		} catch (err) {
 			this.log(err);
 		}
