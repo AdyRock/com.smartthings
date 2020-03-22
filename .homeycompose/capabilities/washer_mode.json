@@ -9,25 +9,85 @@
   "values": [{
       "id": "Table_00_Course_E3",
       "title": {
-        "en": "regular"
+        "en": "Daily Wash"
       }
     },
     {
-      "id": "Table_01_Course_E3",
+      "id": "Table_00_Course_DC",
       "title": {
-        "en": "Heavy"
+        "en": "15' Quick Wash"
       }
     },
     {
-      "id": "Table_02_Course_E3",
+      "id": "Table_00_Course_D0",
       "title": {
-        "en": "Rinse"
+        "en": "Cotton"
       }
     },
     {
-      "id": "Table_03_Course_E3",
+      "id": "Table_00_Course_D2",
       "title": {
-        "en": "Spin Dry"
+        "en": "Synthetics"
+      }
+    },
+    {
+      "id": "Table_00_CourseD3",
+      "title": {
+        "en": "Delicates"
+      }
+    },
+    {
+      "id": "Table_00_Course_D7",
+      "title": {
+        "en": "Outdoor Care"
+      }
+    },
+    {
+      "id": "Table_00_Course_D4",
+      "title": {
+        "en": "Rinse + Spin"
+      }
+    },
+    {
+      "id": "Table_00_Course_D8",
+      "title": {
+        "en": "Wool"
+      }
+    },
+    {
+      "id": "Table_00_Course_C7",
+      "title": {
+        "en": "Eco Drum Clean"
+      }
+    },
+    {
+      "id": "Table_00_Course_E7",
+      "title": {
+        "en": "Speed Wash + Dry"
+      }
+    },
+    {
+      "id": "Table_00_Course_CA",
+      "title": {
+        "en": "Air Wash"
+      }
+    },
+    {
+      "id": "Table_00_Course_51",
+      "title": {
+        "en": "Synthetics Dry"
+      }
+    },
+    {
+      "id": "Table_00_Course_50",
+      "title": {
+        "en": "Cotton Dry"
+      }
+    },
+    {
+      "id": "Table_00_Course_DA",
+      "title": {
+        "en": "Super Eco Wash"
       }
     }
   ]

@@ -1,9 +1,0 @@
-{
-  "type": "string",
-  "title": {
-    "en": "Spin Level"
-  },
-  "units": "RPM",
-  "getable": true,
-  "setable": false
-}

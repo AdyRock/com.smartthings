@@ -1,0 +1,52 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Water Temperature"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [{
+      "id": "none",
+      "title": {
+        "en": "None"
+      }
+    },
+    {
+      "id": "cold",
+      "title": {
+        "en": "Cold"
+      }
+    },
+    {
+      "id": "20",
+      "title": {
+        "en": "20 °C"
+      }
+    },
+    {
+      "id": "30",
+      "title": {
+        "en": "30 °C"
+      }
+    },
+    {
+      "id": "40",
+      "title": {
+        "en": "40 °C"
+      }
+    },
+    {
+      "id": "60",
+      "title": {
+        "en": "60 °C"
+      }
+    },
+    {
+      "id": "90",
+      "title": {
+        "en": "90 °C"
+      }
+    }
+  ]
+}

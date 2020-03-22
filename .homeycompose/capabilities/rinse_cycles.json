@@ -1,0 +1,46 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Rinse Cycles"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [{
+      "id": "0",
+      "title": {
+        "en": "0"
+      }
+    },
+    {
+      "id": "1",
+      "title": {
+        "en": "1"
+      }
+    },
+    {
+      "id": "2",
+      "title": {
+        "en": "2"
+      }
+    },
+    {
+      "id": "3",
+      "title": {
+        "en": "3"
+      }
+    },
+    {
+      "id": "4",
+      "title": {
+        "en": "4"
+      }
+    },
+    {
+      "id": "5",
+      "title": {
+        "en": "5"
+      }
+    }
+  ]
+}

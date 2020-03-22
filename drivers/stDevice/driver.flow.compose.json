@@ -1,0 +1,37 @@
+{
+    "triggers": [{
+        "id": "washer_status_changed",
+        "title": {
+            "en": "The washer status changed"
+        },
+        "args": [{
+                "name": "device",
+                "type": "device",
+                "filter": "driver_id=stDevice"
+            },
+            {
+                "name": "state",
+                "type": "dropdown",
+                "values": [{
+                        "id": "pause",
+                        "title": {
+                            "en": "Paused"
+                        }
+                    },
+                    {
+                        "id": "run",
+                        "title": {
+                            "en": "Running"
+                        }
+                    },
+                    {
+                        "id": "stop",
+                        "title": {
+                            "en": "Stopped"
+                        }
+                    }
+                ]
+            }
+        ]
+    }]
+}

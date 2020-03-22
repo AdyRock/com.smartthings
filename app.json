@@ -1,6 +1,6 @@
 {
   "id": "com.smartthings",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "compatibility": ">=3.0.0",
   "sdk": 2,
   "name": {
@@ -21,6 +21,52 @@
     "name": "Adrian Rockall",
     "email": "ady@rockall.plus.com"
   },
+  "flow": {
+    "triggers": [
+      {
+        "id": "washer_status_changed",
+        "title": {
+          "en": "The washer status changed"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=stDevice"
+          },
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=stDevice"
+          },
+          {
+            "name": "state",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "pause",
+                "title": {
+                  "en": "Paused"
+                }
+              },
+              {
+                "id": "run",
+                "title": {
+                  "en": "Running"
+                }
+              },
+              {
+                "id": "stop",
+                "title": {
+                  "en": "Stopped"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
   "drivers": [
     {
       "id": "stDevice",
@@ -29,8 +75,19 @@
       },
       "class": "other",
       "capabilities": [
-        "alarm_generic"
+        "onoff",
+        "meter_power.delta"
       ],
+      "capabilitiesOptions": {
+        "meter_power.delta": {
+          "title": {
+            "en": "Power for last wash"
+          },
+          "units": {
+            "en": "W"
+          }
+        }
+      },
       "pair": [
         {
           "id": "list_devices",
@@ -51,14 +108,6 @@
     }
   ],
   "capabilities": {
-    "alarm_addWash": {
-      "type": "boolean",
-      "title": {
-        "en": "Add Wash Open"
-      },
-      "getable": true,
-      "setable": false
-    },
     "alarm_presence": {
       "type": "boolean",
       "title": {
@@ -75,32 +124,6 @@
       "getable": true,
       "setable": false
     },
-    "measure_rinse_cycles": {
-      "type": "number",
-      "title": {
-        "en": "Rinse Cycles"
-      },
-      "decimals": 0,
-      "getable": true,
-      "setable": false
-    },
-    "measure_soil_level": {
-      "type": "string",
-      "title": {
-        "en": "Soil Level"
-      },
-      "getable": true,
-      "setable": false
-    },
-    "measure_spin_level": {
-      "type": "string",
-      "title": {
-        "en": "Spin Level"
-      },
-      "units": "RPM",
-      "getable": true,
-      "setable": false
-    },
     "remote_status": {
       "type": "boolean",
       "title": {
@@ -108,6 +131,106 @@
       },
       "getable": true,
       "setable": false
+    },
+    "rinse_cycles": {
+      "type": "enum",
+      "title": {
+        "en": "Rinse Cycles"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "0",
+          "title": {
+            "en": "0"
+          }
+        },
+        {
+          "id": "1",
+          "title": {
+            "en": "1"
+          }
+        },
+        {
+          "id": "2",
+          "title": {
+            "en": "2"
+          }
+        },
+        {
+          "id": "3",
+          "title": {
+            "en": "3"
+          }
+        },
+        {
+          "id": "4",
+          "title": {
+            "en": "4"
+          }
+        },
+        {
+          "id": "5",
+          "title": {
+            "en": "5"
+          }
+        }
+      ]
+    },
+    "spin_level": {
+      "type": "enum",
+      "title": {
+        "en": "Spin Level"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "rinseHold",
+          "title": {
+            "en": "Rinse Hold"
+          }
+        },
+        {
+          "id": "noSpin",
+          "title": {
+            "en": "No Spin"
+          }
+        },
+        {
+          "id": "400",
+          "title": {
+            "en": "400 RPM"
+          }
+        },
+        {
+          "id": "800",
+          "title": {
+            "en": "800 RPM"
+          }
+        },
+        {
+          "id": "1200",
+          "title": {
+            "en": "1200 RPM"
+          }
+        },
+        {
+          "id": "1400",
+          "title": {
+            "en": "1400 RPM"
+          }
+        },
+        {
+          "id": "1600",
+          "title": {
+            "en": "1600 RPM"
+          }
+        }
+      ]
     },
     "washer_job_status": {
       "type": "string",
@@ -129,25 +252,85 @@
         {
           "id": "Table_00_Course_E3",
           "title": {
-            "en": "regular"
+            "en": "Daily Wash"
           }
         },
         {
-          "id": "Table_01_Course_E3",
+          "id": "Table_00_Course_DC",
           "title": {
-            "en": "Heavy"
+            "en": "15' Quick Wash"
           }
         },
         {
-          "id": "Table_02_Course_E3",
+          "id": "Table_00_Course_D0",
           "title": {
-            "en": "Rinse"
+            "en": "Cotton"
           }
         },
         {
-          "id": "Table_03_Course_E3",
+          "id": "Table_00_Course_D2",
           "title": {
-            "en": "Spin Dry"
+            "en": "Synthetics"
+          }
+        },
+        {
+          "id": "Table_00_CourseD3",
+          "title": {
+            "en": "Delicates"
+          }
+        },
+        {
+          "id": "Table_00_Course_D7",
+          "title": {
+            "en": "Outdoor Care"
+          }
+        },
+        {
+          "id": "Table_00_Course_D4",
+          "title": {
+            "en": "Rinse + Spin"
+          }
+        },
+        {
+          "id": "Table_00_Course_D8",
+          "title": {
+            "en": "Wool"
+          }
+        },
+        {
+          "id": "Table_00_Course_C7",
+          "title": {
+            "en": "Eco Drum Clean"
+          }
+        },
+        {
+          "id": "Table_00_Course_E7",
+          "title": {
+            "en": "Speed Wash + Dry"
+          }
+        },
+        {
+          "id": "Table_00_Course_CA",
+          "title": {
+            "en": "Air Wash"
+          }
+        },
+        {
+          "id": "Table_00_Course_51",
+          "title": {
+            "en": "Synthetics Dry"
+          }
+        },
+        {
+          "id": "Table_00_Course_50",
+          "title": {
+            "en": "Cotton Dry"
+          }
+        },
+        {
+          "id": "Table_00_Course_DA",
+          "title": {
+            "en": "Super Eco Wash"
           }
         }
       ]
@@ -177,6 +360,59 @@
           "id": "stop",
           "title": {
             "en": "Stop"
+          }
+        }
+      ]
+    },
+    "water_temperature": {
+      "type": "enum",
+      "title": {
+        "en": "Water Temperature"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "none",
+          "title": {
+            "en": "None"
+          }
+        },
+        {
+          "id": "cold",
+          "title": {
+            "en": "Cold"
+          }
+        },
+        {
+          "id": "20",
+          "title": {
+            "en": "20 °C"
+          }
+        },
+        {
+          "id": "30",
+          "title": {
+            "en": "30 °C"
+          }
+        },
+        {
+          "id": "40",
+          "title": {
+            "en": "40 °C"
+          }
+        },
+        {
+          "id": "60",
+          "title": {
+            "en": "60 °C"
+          }
+        },
+        {
+          "id": "90",
+          "title": {
+            "en": "90 °C"
           }
         }
       ]

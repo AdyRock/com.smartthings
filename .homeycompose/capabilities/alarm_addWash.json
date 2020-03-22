@@ -1,8 +1,0 @@
-{
-  "type": "boolean",
-  "title": {
-    "en": "Add Wash Open"
-  },
-  "getable": true,
-  "setable": false
-}

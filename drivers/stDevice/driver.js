@@ -5,7 +5,7 @@ const Homey = require('homey');
 class STDriver extends Homey.Driver {
 	
 	onInit() {
-		this.log('MyDriver has been inited');
+		this.log('STDriver has been inited');
 	}
 
 	// this is the easiest method to overwrite, when only the template 'Drivers-Pairing-System-Views' is being used.

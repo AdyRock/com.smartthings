@@ -6,7 +6,11 @@ class STDevice extends Homey.Device {
 
 	onInit() {
 		this.log('STDevice has been inited');
-
+		this.deviceOn = true;
+		this.remoteControlEnabled = false;
+		this.washerSpinLevel = '1400';
+		this.washerWaterTemperature = '40';
+		this.machineState = "stop";
 
 		// register a capability listeners
 		if (this.hasCapability('onoff')) {
@@ -17,12 +21,20 @@ class STDevice extends Homey.Device {
 			this.registerCapabilityListener('dim', this.onCapabilityDim.bind(this));
 		}
 
-		if (this.hasCapability('washer_mode')) {
-			this.registerCapabilityListener('washer_mode', this.onCapabilityWasherMode.bind(this));
+		if (this.hasCapability('rinse_cycles')) {
+			this.registerCapabilityListener('rinse_cycles', this.onCapabilityRinseCycles.bind(this));
+		}
+
+		if (this.hasCapability('spin_level')) {
+			this.registerCapabilityListener('spin_level', this.onCapabilitySpinLevel.bind(this));
 		}
 
 		if (this.hasCapability('washer_status')) {
 			this.registerCapabilityListener('washer_status', this.onCapabilityWasherStatus.bind(this));
+		}
+
+		if (this.hasCapability('water_temperature')) {
+			this.registerCapabilityListener('water_temperature', this.onCapabilityWasherWaterTemperature.bind(this));
 		}
 
 		this.getDeviceValues();
@@ -43,130 +55,147 @@ class STDevice extends Homey.Device {
 		try {
 			const devData = this.getData();
 
-			if (this.hasCapability('onoff')) {
-				// Get the device on / off state
-				let result = await Homey.app.getCapabilityValue(devData.id, "switch");
-				if (result) {
-					let value = result.switch.value;
-					await this.setCapabilityValue('onoff', value == 'on');
-				}
-			}
-
 			if (this.hasCapability('dim')) {
 				// Get the device dim state
-				let result = await Homey.app.getCapabilityValue(devData.id, "switchLevel");
+				let result = await Homey.app.getDeviceCapabilityValue(devData.id, "switchLevel");
 				if (result) {
-					let value = result.level.value;
-					await this.setCapabilityValue('dim', value / 100);
+					this.setCapabilityValue('dim', result.level.value / 100);
 				}
 			}
 
 			if (this.hasCapability('alarm_contact')) {
 				// Get the device dim state
-				let result = await Homey.app.getCapabilityValue(devData.id, "contactSensor");
+				let result = await Homey.app.getDeviceCapabilityValue(devData.id, "contactSensor");
 				if (result) {
-					let value = result.contact.value;
-					await this.setCapabilityValue('alarm_contact', value === 'open');
+					this.setCapabilityValue('alarm_contact', result.contact.value === 'open');
 				}
 			}
 
 			if (this.hasCapability('measure_battery')) {
 				// Get the device dim state
-				let result = await Homey.app.getCapabilityValue(devData.id, "battery");
+				let result = await Homey.app.getDeviceCapabilityValue(devData.id, "battery");
 				if (result) {
-					let value = result.battery.value;
-					await this.setCapabilityValue('measure_battery', value);
+					this.setCapabilityValue('measure_battery', result.battery.value);
 				}
 			}
 
 			if (this.hasCapability('measure_power')) {
-				let result = await Homey.app.getCapabilityValue(devData.id, "powerConsumptionReport");
+				let result = await Homey.app.getDeviceCapabilityValue(devData.id, "powerConsumptionReport");
 				if (result) {
-					let value = result.powerConsumption.value.power;
-					await this.setCapabilityValue('measure_power', value);
+					this.setCapabilityValue('measure_power', result.powerConsumption.value.power);
 
-					value = result.powerConsumption.value.energy;
-					await this.setCapabilityValue('meter_power', value / 1000);
+					this.setCapabilityValue('meter_power.delta', result.powerConsumption.value.deltaEnergy);
+
+					this.setCapabilityValue('meter_power', result.powerConsumption.value.energy / 1000);
 				}
 			}
 
-			if (this.hasCapability('washer_mode')) {
+			// To reduce idle traffic only check washer capabilities if it is switched on
+			if (this.deviceOn && this.hasCapability('washer_mode')) {
 				// Get the device washer mode state
-				let result = await Homey.app.getCapabilityValue(devData.id, "washerMode");
+				let result = await Homey.app.getDeviceCapabilityValue(devData.id, "washerMode");
 				if (result) {
-					let value = result.washerMode.value;
-					await this.setCapabilityValue('washer_mode', value);
+					this.setCapabilityValue('washer_mode', result.washerMode.value);
 				}
 
 				// Check for other washer capabilities
 
 				if (this.hasCapability('washer_status')) {
 					// Get the device washer mode state
-					let result = await Homey.app.getCapabilityValue(devData.id, "washerOperatingState");
+					let result = await Homey.app.getDeviceCapabilityValue(devData.id, "washerOperatingState");
 					if (result) {
 						this.log("washerOperatingState= ", JSON.stringify(result));
 
-						let value = result.machineState.value;
-						await this.setCapabilityValue('washer_status', value);
+						this.setCapabilityValue('washer_status', result.machineState.value);
+						if (this.machineState != result.machineState.value) {
+							this.machineState = result.machineState.value;
+							let tokens = {
+								'state': this.machineState
+							}
 
-						value = result.washerJobState.value;
-						await this.setCapabilityValue('washer_job_status', value);
+							let washerStatusStartTrigger = new Homey.FlowCardTrigger('washer_status_changed');
+							washerStatusStartTrigger
+								.register()
+								.trigger(tokens)
+								.catch(this.error)
+								.then(this.log)
+						}
 
-						value = result.completionTime.value;
+						this.setCapabilityValue('washer_job_status', result.washerJobState.value);
+
+						let value = result.completionTime.value;
 						value = value.replace("T", " ");
 						value = value.substr(0, value.length - 5);
-						await this.setCapabilityValue('completion_time', value);
+						this.setCapabilityValue('completion_time', value);
+					}
+				}
+
+				if (this.hasCapability('water_temperature')) {
+					let result = await Homey.app.getDeviceCapabilityValue(devData.id, "custom.washerWaterTemperature");
+					if (result) {
+						this.washerWaterTemperature = result.washerWaterTemperature.value; 
+						this.setCapabilityValue('water_temperature', this.washerWaterTemperature);
 					}
 				}
 
 				if (this.hasCapability('remote_status')) {
-					let result = await Homey.app.getCapabilityValue(devData.id, "remoteControlStatus");
+					let result = await Homey.app.getDeviceCapabilityValue(devData.id, "remoteControlStatus");
 					if (result) {
-						let value = result.remoteControlEnabled.value;
-						await this.setCapabilityValue('remote_status', value === 'true');
+						this.remoteControlEnabled = (result.remoteControlEnabled.value === 'true');
+						this.setCapabilityValue('remote_status', this.remoteControlEnabled);
+						if (this.remoteControlEnabled){
+							this.setWarning( null, null );
+						}
 					}
 				}
 
 				if (this.hasCapability('alarm_addWash')) {
-					let result = await Homey.app.getCapabilityValue(devData.id, "custom.washerAddwashAlarm");
+					let result = await Homey.app.getDeviceCapabilityValue(devData.id, "custom.washerAddwashAlarm");
 					if (result) {
-						let value = result.washerAddwashAlarm.value;
-						await this.setCapabilityValue('alarm_addWash', value === 'true');
+						this.setCapabilityValue('alarm_addWash', result.washerAddwashAlarm.value === 'true');
 					}
 				}
 
-				if (this.hasCapability('measure_spin_level')) {
-					let result = await Homey.app.getCapabilityValue(devData.id, "custom.washerSpinLevel");
+				if (this.hasCapability('spin_level')) {
+					let result = await Homey.app.getDeviceCapabilityValue(devData.id, "custom.washerSpinLevel");
 					if (result) {
-						let value = result.washerSpinLevel.value;
-						await this.setCapabilityValue('measure_spin_level', value);
+						this.washerSpinLevel = result.washerSpinLevel.value;
+						this.setCapabilityValue('spin_level', this.washerSpinLevel);
 					}
 				}
 
 				if (this.hasCapability('measure_soil_level')) {
-					let result = await Homey.app.getCapabilityValue(devData.id, "custom.washerSoilLevel");
+					let result = await Homey.app.getDeviceCapabilityValue(devData.id, "custom.washerSoilLevel");
 					if (result) {
-						let value = result.washerSoilLevel.value;
-						await this.setCapabilityValue('measure_soil_level', value);
+						this.setCapabilityValue('measure_soil_level', result.washerSoilLevel.value);
 					}
 				}
 
-				if (this.hasCapability('measure_rinse_cycles')) {
-					let result = await Homey.app.getCapabilityValue(devData.id, "custom.washerRinseCycles");
+				if (this.hasCapability('rinse_cycles')) {
+					let result = await Homey.app.getDeviceCapabilityValue(devData.id, "custom.washerRinseCycles");
 					if (result) {
-						let value = Number(result.washerRinseCycles.value);
-						await this.setCapabilityValue('measure_rinse_cycles', value);
+						this.washerRinseCycles = result.washerRinseCycles.value;
+						this.setCapabilityValue('rinse_cycles', this.washerRinseCycles);
 					}
 				}
 			}
 
 			if (this.hasCapability('alarm_presence')) {
-				let result = await Homey.app.getCapabilityValue(devData.id, "presenceSensor");
+				let result = await Homey.app.getDeviceCapabilityValue(devData.id, "presenceSensor");
 				if (result) {
-					let value = Number(result.presence.value);
-					await this.setCapabilityValue('alarm_presence', value === 'present');
+					this.setCapabilityValue('alarm_presence', result.presence.value === 'present');
 				}
-				//await Homey.app.getCapabilityValue(devData.id, "occupancySensor");
+				//await Homey.app.getDeviceCapabilityValue(devData.id, "occupancySensor");
+			}
+
+			// Putting onoff at the end ensure that parameters that are not normally updated when it is off get one chance to initialise
+			if (this.hasCapability('onoff')) {
+				// Get the device on / off state
+				let result = await Homey.app.getDeviceCapabilityValue(devData.id, "switch");
+				if (result) {
+					this.deviceOn = (result.switch.value == 'on');
+					this.setCapabilityValue('onoff', this.deviceOn);
+				}
 			}
 
 		} catch (err) {
@@ -196,7 +225,7 @@ class STDevice extends Homey.Device {
 			}
 
 			// Set the switch Value on the device using the unique feature ID stored during pairing
-			await Homey.app.setCapabilityValue(devData.id, body);
+			await Homey.app.setDeviceCapabilityValue(devData.id, body);
 		} catch (err) {
 			//this.setUnavailable();
 			Homey.app.updateLog(this.getName() + " onCapabilityOnoff Error " + JSON.stringify(err));
@@ -224,21 +253,26 @@ class STDevice extends Homey.Device {
 			const devData = this.getData();
 
 			// Set the dim Value on the device using the unique feature ID stored during pairing
-			await Homey.app.setCapabilityValue(devData.id, body);
+			await Homey.app.setDeviceCapabilityValue(devData.id, body);
 		} catch (err) {
 			//this.setUnavailable();
 			Homey.app.updateLog(this.getName() + " onCapabilityOnDimError " + JSON.stringify(err));
 		}
 	}
 
-	async onCapabilityWasherMode(value, opts) {
-		this.log('onCapabilityWasherMode: ', value);
+	async onCapabilityRinseCycles(value, opts) {
+		this.log('onCapabilityRinseCycles: ', value);
 		try {
+			if (!this.deviceOn || !this.remoteControlEnabled) {
+				this.setWarning( "Remote control not enabled", null );
+				return;
+			}
+
 			let body = {
 				"commands": [{
 					"component": "main",
-					"capability": "washerMode",
-					"command": "setWasherMode",
+					"capability": "custom.washerRinseCycles",
+					"command": "setWasherRinseCycles",
 					"arguments": [
 						value
 					]
@@ -249,16 +283,51 @@ class STDevice extends Homey.Device {
 			const devData = this.getData();
 
 			// Set the dim Value on the device using the unique feature ID stored during pairing
-			await Homey.app.setCapabilityValue(devData.id, body);
+			await Homey.app.setDeviceCapabilityValue(devData.id, body);
 		} catch (err) {
 			//this.setUnavailable();
-			Homey.app.updateLog(this.getName() + " onCapabilityWasherMode " + JSON.stringify(err));
+			Homey.app.updateLog(this.getName() + " onCapabilityRinseCycles " + JSON.stringify(err));
+		}
+	}
+
+	async onCapabilitySpinLevel(value, opts) {
+		this.log('onCapabilitySpinLevel: ', value);
+		try {
+			if (!this.deviceOn || !this.remoteControlEnabled) {
+				this.setWarning( "Remote control not enabled", null );
+				return;
+			}
+
+			let body = {
+				"commands": [{
+					"component": "main",
+					"capability": "custom.washerSpinLevel",
+					"command": "setWasherSpinLevel",
+					"arguments": [
+						value
+					]
+				}]
+			}
+
+			// Get the device information stored during pairing
+			const devData = this.getData();
+
+			// Set the dim Value on the device using the unique feature ID stored during pairing
+			await Homey.app.setDeviceCapabilityValue(devData.id, body);
+		} catch (err) {
+			//this.setUnavailable();
+			Homey.app.updateLog(this.getName() + " onCapabilitySpinLevel " + JSON.stringify(err));
 		}
 	}
 
 	async onCapabilityWasherStatus(value, opts) {
 		this.log('onCapabilityWasherStatus: ', value);
 		try {
+			if (!this.deviceOn || !this.remoteControlEnabled) {
+				this.setWarning( "Remote control not enabled", null );
+				return;
+			}
+
 			let body = {
 				"commands": [{
 					"component": "main",
@@ -274,7 +343,37 @@ class STDevice extends Homey.Device {
 			const devData = this.getData();
 
 			// Set the dim Value on the device using the unique feature ID stored during pairing
-			await Homey.app.setCapabilityValue(devData.id, body);
+			await Homey.app.setDeviceCapabilityValue(devData.id, body);
+		} catch (err) {
+			//this.setUnavailable();
+			Homey.app.updateLog(this.getName() + " onCapabilityWasherStatus " + JSON.stringify(err));
+		}
+	}
+
+	async onCapabilityWasherWaterTemperature(value, opts) {
+		this.log('onCapabilityWasherWaterTemperature: ', value);
+		try {
+			if (!this.deviceOn || !this.remoteControlEnabled) {
+				this.setWarning( "Remote control not enabled", null );
+				return;
+			}
+
+			let body = {
+				"commands": [{
+					"component": "main",
+					"capability": "washerWaterTemperature",
+					"command": "setWasherWaterTemperature",
+					"arguments": [
+						value
+					]
+				}]
+			}
+
+			// Get the device information stored during pairing
+			const devData = this.getData();
+
+			// Set the dim Value on the device using the unique feature ID stored during pairing
+			await Homey.app.setDeviceCapabilityValue(devData.id, body);
 		} catch (err) {
 			//this.setUnavailable();
 			Homey.app.updateLog(this.getName() + " onCapabilityWasherStatus " + JSON.stringify(err));

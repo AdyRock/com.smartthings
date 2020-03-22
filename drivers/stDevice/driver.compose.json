@@ -5,9 +5,20 @@
   },
   "class": "other",
   "capabilities": [
-    "alarm_generic"
+    "onoff",
+    "meter_power.delta"
   ],
-"pair": [{
+  "capabilitiesOptions": {
+    "meter_power.delta": {
+      "title": {
+        "en": "Power for last wash"
+      },
+      "units": {
+        "en": "W"
+      }
+    }
+  },
+  "pair": [{
       "id": "list_devices",
       "template": "list_devices",
       "navigation": {

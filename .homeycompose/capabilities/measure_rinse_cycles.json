@@ -1,9 +1,0 @@
-{
-  "type": "number",
-  "title": {
-    "en": "Rinse Cycles"
-  },
-  "decimals": 0,
-  "getable": true,
-  "setable": false
-}
