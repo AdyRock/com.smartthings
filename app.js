@@ -1,7 +1,6 @@
 'use strict';
 const Homey = require('homey');
 const https = require("https");
-const POLL_INTERVAL = 3000;
 
 const CapabilityMap2 = {
 	"switch": {
@@ -51,7 +50,20 @@ const CapabilityMap2 = {
 	"washerMode": {
 		capabilities: ["washer_status"],
 		icon: "washingmachine.svg"
+	},
+	"audioVolume": {
+		capabilities: ['volume_set'],
+		icon: ""
+	},
+	"tvChannel": {
+		capabilities: ['channel_down', 'channel_up'],
+		icon: "television.svg"
+	},
+	"audioMute": {
+		capabilities: ['volume_mute'],
+		icon: ""
 	}
+
 }
 
 class MyApp extends Homey.App {
@@ -100,13 +112,13 @@ class MyApp extends Homey.App {
 		let searchResult = await Homey.app.GetURL(url);
 		if (searchResult) {
 			let searchData = JSON.parse(searchResult.body);
-			//Homey.app.updateLog(JSON.stringify(searchData, null, 2));
+			Homey.app.updateLog(JSON.stringify(searchData, null, 2));
 			const devices = [];
 
 			// Create an array of devices
 			for (const device of searchData['items']) {
 				Homey.app.updateLog("Found device: ");
-				Homey.app.updateLog(device);
+				Homey.app.updateLog(JSON.stringify(device, null, 2));
 
 				var data = {};
 				data = {
@@ -125,9 +137,7 @@ class MyApp extends Homey.App {
 					const capabilityMapEntry = CapabilityMap2[deviceCapability['id']];
 					if (capabilityMapEntry != null) {
 						//Add to the table
-						Homey.app.updateLog(capabilityMapEntry);
-						if (capabilityMapEntry.icon)
-						{
+						if (capabilityMapEntry.icon) {
 							iconName = capabilityMapEntry.icon;
 						}
 						capabilityMapEntry.capabilities.forEach(element => {

@@ -37,6 +37,25 @@ class STDevice extends Homey.Device {
 			this.registerCapabilityListener('water_temperature', this.onCapabilityWasherWaterTemperature.bind(this));
 		}
 
+		if (this.hasCapability('onoff')) {
+			this.registerCapabilityListener('onoff', this.onCapabilityOnoff.bind(this));
+		}
+
+		if (this.hasCapability('volume_set')) {
+			this.registerCapabilityListener('volume_set', this.onCapabilityVolume.bind(this));
+		}
+
+		if (this.hasCapability('volume_mute')) {
+			this.registerCapabilityListener('volume_mute', this.onCapabilityVolumeMute.bind(this));
+		}
+
+		if (this.hasCapability('channel_down')) {
+			this.registerCapabilityListener('channel_down', this.onCapabilityChannelDown.bind(this));
+		}
+
+		if (this.hasCapability('channel_up')) {
+			this.registerCapabilityListener('channel_up', this.onCapabilityChannelUp.bind(this));
+		}
 		this.getDeviceValues();
 	}
 
@@ -60,6 +79,22 @@ class STDevice extends Homey.Device {
 				let result = await Homey.app.getDeviceCapabilityValue(devData.id, "switchLevel");
 				if (result) {
 					this.setCapabilityValue('dim', result.level.value / 100);
+				}
+			}
+
+			if (this.hasCapability('volume_set')) {
+				// Get the device dim state
+				let result = await Homey.app.getDeviceCapabilityValue(devData.id, "audioVolume");
+				if (result) {
+					this.setCapabilityValue('volume_set', result.volume.value / 100);
+				}
+			}
+
+			if (this.hasCapability('volume_mute')) {
+				// Get the device dim state
+				let result = await Homey.app.getDeviceCapabilityValue(devData.id, "audioMute");
+				if (result) {
+					this.setCapabilityValue('volume_mute', result.mute.value === 'muted');
 				}
 			}
 
@@ -133,7 +168,7 @@ class STDevice extends Homey.Device {
 				if (this.hasCapability('water_temperature')) {
 					let result = await Homey.app.getDeviceCapabilityValue(devData.id, "custom.washerWaterTemperature");
 					if (result) {
-						this.washerWaterTemperature = result.washerWaterTemperature.value; 
+						this.washerWaterTemperature = result.washerWaterTemperature.value;
 						this.setCapabilityValue('water_temperature', this.washerWaterTemperature);
 					}
 				}
@@ -143,8 +178,8 @@ class STDevice extends Homey.Device {
 					if (result) {
 						this.remoteControlEnabled = (result.remoteControlEnabled.value === 'true');
 						this.setCapabilityValue('remote_status', this.remoteControlEnabled);
-						if (this.remoteControlEnabled){
-							this.setWarning( null, null );
+						if (this.remoteControlEnabled) {
+							this.setWarning(null, null);
 						}
 					}
 				}
@@ -264,7 +299,7 @@ class STDevice extends Homey.Device {
 		this.log('onCapabilityRinseCycles: ', value);
 		try {
 			if (!this.deviceOn || !this.remoteControlEnabled) {
-				this.setWarning( "Remote control not enabled", null );
+				this.setWarning("Remote control not enabled", null);
 				return;
 			}
 
@@ -294,7 +329,7 @@ class STDevice extends Homey.Device {
 		this.log('onCapabilitySpinLevel: ', value);
 		try {
 			if (!this.deviceOn || !this.remoteControlEnabled) {
-				this.setWarning( "Remote control not enabled", null );
+				this.setWarning("Remote control not enabled", null);
 				return;
 			}
 
@@ -324,7 +359,7 @@ class STDevice extends Homey.Device {
 		this.log('onCapabilityWasherStatus: ', value);
 		try {
 			if (!this.deviceOn || !this.remoteControlEnabled) {
-				this.setWarning( "Remote control not enabled", null );
+				this.setWarning("Remote control not enabled", null);
 				return;
 			}
 
@@ -354,7 +389,7 @@ class STDevice extends Homey.Device {
 		this.log('onCapabilityWasherWaterTemperature: ', value);
 		try {
 			if (!this.deviceOn || !this.remoteControlEnabled) {
-				this.setWarning( "Remote control not enabled", null );
+				this.setWarning("Remote control not enabled", null);
 				return;
 			}
 
@@ -377,6 +412,105 @@ class STDevice extends Homey.Device {
 		} catch (err) {
 			//this.setUnavailable();
 			Homey.app.updateLog(this.getName() + " onCapabilityWasherStatus " + JSON.stringify(err));
+		}
+	}
+
+	// this method is called when the Homey device has requested a volume level change ( 0 to 1)
+	async onCapabilityVolume(value, opts) {
+		try {
+			// Homey return a value of 0 to 1 but the real device requires a value of 0 to 100
+			value *= 100;
+
+			let body = {
+				"commands": [{
+					"component": "main",
+					"capability": "audioVolume",
+					"command": "setVolume",
+					"arguments": [
+						Math.round(value)
+					]
+				}]
+			}
+
+			// Get the device information stored during pairing
+			const devData = this.getData();
+
+			// Set the dim Value on the device using the unique feature ID stored during pairing
+			await Homey.app.setDeviceCapabilityValue(devData.id, body);
+		} catch (err) {
+			//this.setUnavailable();
+			Homey.app.updateLog(this.getName() + " onCapabilityOnDimError " + JSON.stringify(err));
+		}
+	}
+
+	// this method is called when the Homey device has requested the volume to be muted
+	async onCapabilityVolumeMute(value, opts) {
+		try {
+			let body = {
+				"commands": [{
+					"component": "main",
+					"capability": "audioMute",
+					"command": "setMute",
+					"arguments": [
+						value ? "muted" : "unmuted"
+					]
+				}]
+			}
+
+			// Get the device information stored during pairing
+			const devData = this.getData();
+
+			// Set the dim Value on the device using the unique feature ID stored during pairing
+			await Homey.app.setDeviceCapabilityValue(devData.id, body);
+		} catch (err) {
+			//this.setUnavailable();
+			Homey.app.updateLog(this.getName() + " onCapabilityOnDimError " + JSON.stringify(err));
+		}
+	}
+
+	// this method is called when the Homey device has requested the previous channel
+	async onCapabilityChannelDown(value, opts) {
+		try {
+			let body = {
+				"commands": [{
+					"component": "main",
+					"capability": "tvChannel",
+					"command": "channelDown",
+					"arguments": []
+				}]
+			}
+
+			// Get the device information stored during pairing
+			const devData = this.getData();
+
+			// Set the dim Value on the device using the unique feature ID stored during pairing
+			await Homey.app.setDeviceCapabilityValue(devData.id, body);
+		} catch (err) {
+			//this.setUnavailable();
+			Homey.app.updateLog(this.getName() + " onCapabilityOnDimError " + JSON.stringify(err));
+		}
+	}
+
+	// this method is called when the Homey device has requested the next channel
+	async onCapabilityChannelUp(value, opts) {
+		try {
+			let body = {
+				"commands": [{
+					"component": "main",
+					"capability": "tvChannel",
+					"command": "channelUp",
+					"arguments": []
+				}]
+			}
+
+			// Get the device information stored during pairing
+			const devData = this.getData();
+
+			// Set the dim Value on the device using the unique feature ID stored during pairing
+			await Homey.app.setDeviceCapabilityValue(devData.id, body);
+		} catch (err) {
+			//this.setUnavailable();
+			Homey.app.updateLog(this.getName() + " onCapabilityOnDimError " + JSON.stringify(err));
 		}
 	}
 }
