@@ -52,7 +52,7 @@ const CapabilityMap2 = {
 		icon: "washingmachine.svg"
 	},
 	"audioVolume": {
-		capabilities: ['volume_set'],
+		capabilities: ['volume_set', 'volume_down', 'volume_up'],
 		icon: ""
 	},
 	"tvChannel": {

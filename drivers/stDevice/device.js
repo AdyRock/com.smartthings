@@ -45,6 +45,14 @@ class STDevice extends Homey.Device {
 			this.registerCapabilityListener('volume_set', this.onCapabilityVolume.bind(this));
 		}
 
+		if (this.hasCapability('volume_down')) {
+			this.registerCapabilityListener('volume_down', this.onCapabilityVolumeDown.bind(this));
+		}
+
+		if (this.hasCapability('volume_up')) {
+			this.registerCapabilityListener('volume_down', this.onCapabilityVolumeUp.bind(this));
+		}
+
 		if (this.hasCapability('volume_mute')) {
 			this.registerCapabilityListener('volume_mute', this.onCapabilityVolumeMute.bind(this));
 		}
@@ -439,7 +447,53 @@ class STDevice extends Homey.Device {
 			await Homey.app.setDeviceCapabilityValue(devData.id, body);
 		} catch (err) {
 			//this.setUnavailable();
-			Homey.app.updateLog(this.getName() + " onCapabilityOnDimError " + JSON.stringify(err));
+			Homey.app.updateLog(this.getName() + " onCapabilityVolume " + JSON.stringify(err));
+		}
+	}
+
+	// this method is called when the Homey device has requested the previous channel
+	async onCapabilityVolumeDown(value, opts) {
+		try {
+			let body = {
+				"commands": [{
+					"component": "main",
+					"capability": "audioVolume",
+					"command": "volumeDown",
+					"arguments": []
+				}]
+			}
+
+			// Get the device information stored during pairing
+			const devData = this.getData();
+
+			// Set the dim Value on the device using the unique feature ID stored during pairing
+			await Homey.app.setDeviceCapabilityValue(devData.id, body);
+		} catch (err) {
+			//this.setUnavailable();
+			Homey.app.updateLog(this.getName() + " onCapabilityVolumeDown " + JSON.stringify(err));
+		}
+	}
+
+	// this method is called when the Homey device has requested the next channel
+	async onCapabilityVolumeUp(value, opts) {
+		try {
+			let body = {
+				"commands": [{
+					"component": "main",
+					"capability": "audioVolume",
+					"command": "volumeUp",
+					"arguments": []
+				}]
+			}
+
+			// Get the device information stored during pairing
+			const devData = this.getData();
+
+			// Set the dim Value on the device using the unique feature ID stored during pairing
+			await Homey.app.setDeviceCapabilityValue(devData.id, body);
+		} catch (err) {
+			//this.setUnavailable();
+			Homey.app.updateLog(this.getName() + " onCapabilityVolumeUp " + JSON.stringify(err));
 		}
 	}
 
@@ -464,7 +518,7 @@ class STDevice extends Homey.Device {
 			await Homey.app.setDeviceCapabilityValue(devData.id, body);
 		} catch (err) {
 			//this.setUnavailable();
-			Homey.app.updateLog(this.getName() + " onCapabilityOnDimError " + JSON.stringify(err));
+			Homey.app.updateLog(this.getName() + " onCapabilityVolumeMute " + JSON.stringify(err));
 		}
 	}
 
@@ -487,7 +541,7 @@ class STDevice extends Homey.Device {
 			await Homey.app.setDeviceCapabilityValue(devData.id, body);
 		} catch (err) {
 			//this.setUnavailable();
-			Homey.app.updateLog(this.getName() + " onCapabilityOnDimError " + JSON.stringify(err));
+			Homey.app.updateLog(this.getName() + " onCapabilityChannelDown " + JSON.stringify(err));
 		}
 	}
 
@@ -510,7 +564,7 @@ class STDevice extends Homey.Device {
 			await Homey.app.setDeviceCapabilityValue(devData.id, body);
 		} catch (err) {
 			//this.setUnavailable();
-			Homey.app.updateLog(this.getName() + " onCapabilityOnDimError " + JSON.stringify(err));
+			Homey.app.updateLog(this.getName() + " onCapabilityChannelUp " + JSON.stringify(err));
 		}
 	}
 }
