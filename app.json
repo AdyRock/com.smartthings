@@ -1,6 +1,6 @@
 {
   "id": "com.smartthings",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "compatibility": ">=3.0.0",
   "sdk": 2,
   "name": {
@@ -24,23 +24,46 @@
   "flow": {
     "triggers": [
       {
-        "id": "washer_status_changed",
         "title": {
-          "en": "The washer status changed"
+          "en": "The presence status has changed"
         },
+        "hint": {
+          "en": "This card starts a Flow when the presence status changes."
+        },
+        "tokens": [
+          {
+            "name": "presence_status",
+            "type": "boolean",
+            "title": {
+              "en": "Arrived"
+            }
+          }
+        ],
         "args": [
           {
-            "type": "device",
             "name": "device",
-            "filter": "driver_id=stDevice"
-          },
+            "type": "device",
+            "filter": "driver_id=stDevice&capabilities=alarm_presence"
+          }
+        ],
+        "id": "presenceStatus_changed"
+      },
+      {
+        "title": {
+          "en": "The washer status changed to"
+        },
+        "hint": {
+          "en": "This card starts a Flow when the washing machine switches to the selected mode."
+        },
+        "tokens": [],
+        "args": [
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=stDevice"
+            "filter": "driver_id=stDevice&capabilities=washer_status"
           },
           {
-            "name": "state",
+            "name": "washer_status",
             "type": "dropdown",
             "values": [
               {
@@ -63,7 +86,8 @@
               }
             ]
           }
-        ]
+        ],
+        "id": "washer_status_changed"
       }
     ]
   },

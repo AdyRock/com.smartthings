@@ -126,36 +126,42 @@ class MyApp extends Homey.App {
 				};
 
 				var iconName = "";
-				var components = device['components'];
-				var mainComponent = components[0];
-				// Find supported capabilities
-				var deviceCapabilities = mainComponent['capabilities'];
 				var capabilities = [];
+				var components = device['components'];
+				for (const component of components) {
+					var subCapability = "";
 
-				for (const deviceCapability of deviceCapabilities) {
+					if (component.id != 'main')
+					{
+						subCapability = "." + component.id;
+					}
 
-					const capabilityMapEntry = CapabilityMap2[deviceCapability['id']];
-					if (capabilityMapEntry != null) {
-						//Add to the table
-						if (capabilityMapEntry.icon) {
-							iconName = capabilityMapEntry.icon;
+					// Find supported capabilities
+					var deviceCapabilities = component['capabilities'];
+					for (const deviceCapability of deviceCapabilities) {
+
+						const capabilityMapEntry = CapabilityMap2[deviceCapability['id']];
+						if (capabilityMapEntry != null) {
+							//Add to the table
+							if (capabilityMapEntry.icon) {
+								iconName = capabilityMapEntry.icon;
+							}
+							capabilityMapEntry.capabilities.forEach(element => {
+								capabilities.push(element + subCapability);
+							});
 						}
-						capabilityMapEntry.capabilities.forEach(element => {
-							capabilities.push(element);
-						});
+					}
+					if (capabilities.length > 0) {
+						// Add this devic to the table
+						devices.push({
+							"name": device['label'],
+							"icon": iconName, // relative to: /drivers/<driver_id>/assets/
+							"capabilities": capabilities,
+							data
+						})
 					}
 				}
-				if (capabilities.length > 0) {
-					// Add this device to the table
-					devices.push({
-						"name": device['label'],
-						"icon": iconName, // relative to: /drivers/<driver_id>/assets/
-						"capabilities": capabilities,
-						data
-					})
-				}
 			}
-
 			return devices;
 		} else {
 			Homey.app.updateLog("Getting API Key returned NULL");
@@ -164,6 +170,19 @@ class MyApp extends Homey.App {
 				statusMessage: "HTTPS Error: Nothing returned"
 			});
 		}
+	}
+
+	async getAllDeviceCapabilitiesValues(DeviceID) {
+		//https://api.smartthings.com/v1/devices/{deviceId}/status
+		let url = "devices/" + DeviceID + "/status";
+		let result = await this.GetURL(url);
+		if (result) {
+			let searchData = JSON.parse(result.body);
+			Homey.app.updateLog(JSON.stringify(searchData, null, 2));
+			return searchData;
+		}
+
+		return -1;
 	}
 
 	async getDeviceCapabilityValue(DeviceID, CapabilityID) {
