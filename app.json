@@ -32,7 +32,7 @@
         },
         "tokens": [
           {
-            "name": "presence_status",
+            "name": "value",
             "type": "boolean",
             "title": {
               "en": "Arrived"
@@ -63,7 +63,7 @@
             "filter": "driver_id=stDevice&capabilities=washer_status"
           },
           {
-            "name": "washer_status",
+            "name": "value",
             "type": "dropdown",
             "values": [
               {

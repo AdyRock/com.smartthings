@@ -103,8 +103,16 @@ class MyApp extends Homey.App {
 			}
 		}
 
+		let id = Homey.env.WEBHOOK_ID;
+		let secret = Homey.env.WEBHOOK_SECRET;
+		let data = {
+			id: 'abcdef'
+		}
+
 		this.updateLog('************** App has initialised. ***************');
 	}
+
+
 
 	async getDevices() {
 		//https://api.smartthings.com/v1/devices
@@ -131,8 +139,7 @@ class MyApp extends Homey.App {
 				for (const component of components) {
 					var subCapability = "";
 
-					if (component.id != 'main')
-					{
+					if (component.id != 'main') {
 						subCapability = "." + component.id;
 					}
 
@@ -388,7 +395,7 @@ class MyApp extends Homey.App {
 	}
 
 	updateLog(newMessage) {
-		Homey.app.log(newMessage);
+//		Homey.app.log(newMessage);
 
 		if (Homey.ManagerSettings.get('logEnabled')) {
 			//Homey.app.log(newMessage);

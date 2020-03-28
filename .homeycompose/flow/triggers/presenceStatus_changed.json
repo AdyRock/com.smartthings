@@ -6,7 +6,7 @@
         "en": "This card starts a Flow when the presence status changes."
     },
     "tokens": [{
-        "name": "presence_status",
+        "name": "value",
         "type": "boolean",
         "title": {"en": "Arrived"}
     }],
