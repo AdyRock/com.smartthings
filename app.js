@@ -68,7 +68,7 @@ const CapabilityMap2 = {
 
 class MyApp extends Homey.App {
 
-	onInit() {
+	async onInit() {
 		this.log('SmartThings is running...');
 
 		this.BearerToken = Homey.ManagerSettings.get('BearerToken');
@@ -83,6 +83,11 @@ class MyApp extends Homey.App {
 			if (setting != 'diaglog') {
 				Homey.app.log("Setting " + setting + " has changed.");
 
+				if (setting === 'BearerToken')
+				{
+					this.BearerToken = Homey.ManagerSettings.get('BearerToken');
+				}
+				
 				if (setting === 'pollInterval') {
 					clearTimeout(Homey.app.timerID);
 					if (Homey.app.BearerToken && !Homey.app.timerProcessing) {
@@ -101,12 +106,6 @@ class MyApp extends Homey.App {
 				this.updateLog("Start Polling");
 				this.timerID = setTimeout(this.onPoll, 10000);
 			}
-		}
-
-		let id = Homey.env.WEBHOOK_ID;
-		let secret = Homey.env.WEBHOOK_SECRET;
-		let data = {
-			id: 'abcdef'
 		}
 
 		this.updateLog('************** App has initialised. ***************');
@@ -395,7 +394,7 @@ class MyApp extends Homey.App {
 	}
 
 	updateLog(newMessage) {
-//		Homey.app.log(newMessage);
+		//Homey.app.log(newMessage);
 
 		if (Homey.ManagerSettings.get('logEnabled')) {
 			//Homey.app.log(newMessage);

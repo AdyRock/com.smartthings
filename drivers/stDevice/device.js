@@ -67,7 +67,7 @@ const capabilityMap1 = {
 		dataEntry: ['washerOperatingState', 'machineState', 'value'],
 		divider: 0,
 		boolCompare: '',
-		flowTrigger: this.flowTrigger_WasherStatus
+		flowTrigger: 'washer_status_changed'
 	},
 	"washer_job_status": {
 		dataEntry: ['washerOperatingState', 'washerJobState', 'value'],
@@ -88,10 +88,10 @@ const capabilityMap1 = {
 		flowTrigger: null
 	},
 	"completion_time": {
-	 	dataEntry: ['washerOperatingState', 'completionTime', 'value'],
-	 	divider: 0,
-	 	boolCompare: '',
-	 	flowTrigger: null
+		dataEntry: ['washerOperatingState', 'completionTime', 'value'],
+		divider: 0,
+		boolCompare: '',
+		flowTrigger: null
 	},
 	"spin_level": {
 		dataEntry: ['custom.washerSpinLevel', 'washerSpinLevel', 'value'],
@@ -109,13 +109,13 @@ const capabilityMap1 = {
 		dataEntry: ['presenceSensor', 'presence', 'value'],
 		divider: 0,
 		boolCompare: 'present',
-		flowTrigger: this.flowTrigger_PresenceStatus
+		flowTrigger: 'presenceStatus_changed'
 	}
 };
 
 class STDevice extends Homey.Device {
 
-	onInit() {
+	async onInit() {
 		this.log('STDevice has been inited');
 		this.deviceOn = true;
 		this.remoteControlEnabled = false;
@@ -123,17 +123,21 @@ class STDevice extends Homey.Device {
 		this.washerWaterTemperature = '40';
 		this.machineState = "stop";
 		this.presence = "";
+		this.lastValues = {};
 
-		this.flowTrigger_WasherStatus = new Homey.FlowCardTriggerDevice('washer_status_changed');
-		this.flowTrigger_WasherStatus
+		this.flowTriggers = {
+			'washer_status_changed': new Homey.FlowCardTriggerDevice('washer_status_changed'),
+			'presenceStatus_changed': new Homey.FlowCardTriggerDevice('presenceStatus_changed')
+		};
+
+		this.flowTriggers.washer_status_changed
 			.register()
 			.registerRunListener((args, state) => {
 				// If true, this flow should run
 				return Promise.resolve(args.value === state.value);
 			});
 
-		this.flowTrigger_PresenceStatus = new Homey.FlowCardTriggerDevice('presenceStatus_changed');
-		this.flowTrigger_PresenceStatus
+		this.flowTriggers.presenceStatus_changed
 			.register();
 
 		// register a capability listeners
@@ -220,13 +224,11 @@ class STDevice extends Homey.Device {
 					// Lookup the capability in the map
 					var capabilityName = [];
 					var mapEntry = capabilityMap1[capability];
-					if (mapEntry == null)
-					{
+					if (mapEntry == null) {
 						//Not found so try to break up any sub capability parts
 						var capabilityName = capability.split(".");
 						mapEntry = capabilityMap1[capabilityName[0]];
-						if (mapEntry == null)
-						{
+						if (mapEntry == null) {
 							return;
 						}
 					}
@@ -238,13 +240,12 @@ class STDevice extends Homey.Device {
 							// there is a sub capability so set that as the component
 							value = components['capabilityName[1]'];
 						}
-						
-						if (value == null)
-						{
+
+						if (value == null) {
 							value = components.main;
 						}
 
-						mapEntry.dataEntry.forEach( entry => {
+						mapEntry.dataEntry.forEach(entry => {
 							value = value[entry];
 						})
 
@@ -253,14 +254,20 @@ class STDevice extends Homey.Device {
 							this.setCapabilityValue(capability, value);
 
 							if (mapEntry.flowTrigger) {
-								if (this.lastValue[capability] != value) {
-									this.lastValues[capability] = value;
+								//this.log("Trigger Check: ", capability, " = ", value + " was " + this.lastValues[capability]);
+								if (!this.lastValues.hasOwnProperty(capability) || (this.lastValues[capability] != value)) {
+									Object.defineProperty(this.lastValues, capability, {
+										value: value,
+										writeable: true
+									});
+
+									this.log("Trigger change: ", capability, " = ", value);
 
 									let tokens = {
 										'value': value
 									}
 
-									mapEntry.flowTrigger
+									this.flowTriggers[mapEntry.flowTrigger]
 										.trigger(this, tokens)
 										.catch(this.error)
 								}
@@ -273,14 +280,20 @@ class STDevice extends Homey.Device {
 							this.setCapabilityValue(capability, value);
 
 							if (mapEntry.flowTrigger) {
-								if (this.lastValue[capability] != value) {
-									this.lastValues[capability] = value;
+								//this.log("Trigger Check: ", capability, " = ", value + " was " + this.lastValues[capability]);
+								if (!this.lastValues.hasOwnProperty(capability) || (this.lastValues[capability] != value)) {
+									Object.defineProperty(this.lastValues, capability, {
+										value: value,
+										writeable: true
+									});
+
+									this.log("Trigger change: ", capability, " = ", value);
 
 									let state = {
 										'value': value
 									}
 
-									mapEntry.flowTrigger
+									this.flowTriggers[mapEntry.flowTrigger]
 										.trigger(this, {}, state)
 										.catch(this.error)
 								}
@@ -289,8 +302,7 @@ class STDevice extends Homey.Device {
 						}
 					}
 				});
-			}
-			else{
+			} else {
 				this.setUnavailable();
 			}
 		} catch (err) {
