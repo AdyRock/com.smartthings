@@ -91,7 +91,8 @@ const capabilityMap1 = {
 		dataEntry: ['washerOperatingState', 'completionTime', 'value'],
 		divider: 0,
 		boolCompare: '',
-		flowTrigger: null
+		flowTrigger: null,
+		dateTime: true
 	},
 	"spin_level": {
 		dataEntry: ['custom.washerSpinLevel', 'washerSpinLevel', 'value'],
@@ -277,6 +278,18 @@ class STDevice extends Homey.Device {
 							if (mapEntry.divider > 0) {
 								value /= mapEntry.divider;
 							}
+							else if (mapEntry['dateTime']) {
+								// Format date and time to fit
+								if (value.length > 5) {
+									value = value.substr(0, value.length - 8);
+									// make an array of date, time so they can be reversed then if the text does not fit at least the time is displayed
+									let dateTime = value.split("T");
+									let dateSections = dateTime[0].split("-");
+									value = dateTime[1] + " " + dateSections[2] + "-" + dateSections[1];
+									this.log( "date/time: ", value);
+								}
+							}
+
 							this.setCapabilityValue(capability, value);
 
 							if (mapEntry.flowTrigger) {
