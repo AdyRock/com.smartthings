@@ -80,7 +80,7 @@ class MyApp extends Homey.App {
 
 		// Callback for app settings changed
 		Homey.ManagerSettings.on('set', async function (setting) {
-			if (setting != 'diaglog') {
+			if (setting != 'diagLog') {
 				Homey.app.log("Setting " + setting + " has changed.");
 
 				if (setting === 'BearerToken')

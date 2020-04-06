@@ -223,6 +223,8 @@ class STDevice extends Homey.Device {
 				// Update each capability
 				this.getCapabilities().forEach(capability => {
 					// Lookup the capability in the map
+					Homey.app.updateLog("Capability Processing: " + capability);
+
 					var capabilityName = [];
 					var mapEntry = capabilityMap1[capability];
 					if (mapEntry == null) {
@@ -230,6 +232,7 @@ class STDevice extends Homey.Device {
 						var capabilityName = capability.split(".");
 						mapEntry = capabilityMap1[capabilityName[0]];
 						if (mapEntry == null) {
+							Homey.app.updateLog("Capability Map entry not found for: " + capability);
 							return;
 						}
 					}
@@ -250,16 +253,19 @@ class STDevice extends Homey.Device {
 							value = value[entry];
 						})
 
+						Homey.app.updateLog("Capability: " + capability + " - Value: " + value);
+
 						if (mapEntry.boolCompare) {
 							value = (value === mapEntry.boolCompare);
 							this.setCapabilityValue(capability, value);
+							Homey.app.updateLog("Set Capability: " + capability + " - Value: " + value);
 
 							if (mapEntry.flowTrigger) {
 								//this.log("Trigger Check: ", capability, " = ", value + " was " + this.lastValues[capability]);
 								if (!this.lastValues.hasOwnProperty(capability) || (this.lastValues[capability] != value)) {
 									Object.defineProperty(this.lastValues, capability, {
 										value: value,
-										writeable: true
+										writable: true
 									});
 
 									this.log("Trigger change: ", capability, " = ", value);
@@ -277,28 +283,28 @@ class STDevice extends Homey.Device {
 						} else {
 							if (mapEntry.divider > 0) {
 								value /= mapEntry.divider;
-							}
-							else if (mapEntry['dateTime']) {
+							} else if (mapEntry['dateTime']) {
 								// Format date and time to fit
 								if (value.length > 5) {
-									value = value.substr(0, value.length - 8);
-									// make an array of date, time so they can be reversed then if the text does not fit at least the time is displayed
-									let dateTime = value.split("T");
-									let dateSections = dateTime[0].split("-");
-									value = dateTime[1] + " " + dateSections[2] + "-" + dateSections[1];
-									this.log( "date/time: ", value);
+									var d = new Date(value);
+									value = d.getHours() + ":" + (d.getMinutes() < 10 ? "0" : "") + d.getMinutes() + " " + (d.getDate() < 10 ? "0" : "") + d.getDate() + "-" + (d.getMonth() < 10 ? "0" : "") + d.getMonth();
 								}
 							}
 
 							this.setCapabilityValue(capability, value);
+							Homey.app.updateLog("Set Capability: " + capability + " - Value: " + value);
 
 							if (mapEntry.flowTrigger) {
 								//this.log("Trigger Check: ", capability, " = ", value + " was " + this.lastValues[capability]);
 								if (!this.lastValues.hasOwnProperty(capability) || (this.lastValues[capability] != value)) {
-									Object.defineProperty(this.lastValues, capability, {
-										value: value,
-										writeable: true
-									});
+									if (!this.lastValues.hasOwnProperty(capability)) {
+										Object.defineProperty(this.lastValues, capability, {
+											value: value,
+											writable: true
+										});
+									} else {
+										this.lastValues[capability] = value;
+									}
 
 									this.log("Trigger change: ", capability, " = ", value);
 
