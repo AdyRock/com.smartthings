@@ -13,6 +13,11 @@
     "appliances"
   ],
   "permissions": [],
+  "bugs":
+  {
+      "url": "https://github.com/AdyRock/com.smartthings/issues"
+  },
+  "source": "https://github.com/AdyRock/com.smartthings",
   "images": {
     "large": "/assets/images/large.png",
     "small": "/assets/images/small.png"
