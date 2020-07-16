@@ -1,410 +1,542 @@
 'use strict';
-const Homey = require('homey');
-const https = require("https");
+const Homey = require( 'homey' );
+const https = require( "https" );
 
 const CapabilityMap2 = {
-	"switch": {
-		capabilities: ["onoff"],
-		icon: "socket.svg"
-	},
-	"switchLevel": {
-		capabilities: ["dim"],
-		icon: "light.svg"
-	},
-	"contactSensor": {
-		capabilities: ["alarm_contact"],
-		icon: "door.svg"
-	},
-	"battery": {
-		capabilities: ["measure_battery"],
-		icon: ""
-	},
-	"presenceSensor": {
-		capabilities: ["alarm_presence"],
-		icon: "presence.svg"
-	},
-	"powerConsumptionReport": {
-		capabilities: ["measure_power", "meter_power", "meter_power.delta"],
-		icon: ""
-	},
-	"remoteControlStatus": {
-		capabilities: ["remote_status"],
-		icon: ""
-	},
-	"washerOperatingState": {
-		capabilities: ["washer_mode", "washer_job_status", "completion_time"],
-		icon: ""
-	},
-	"custom.washerWaterTemperature": {
-		capabilities: ["water_temperature"],
-		icon: ""
-	},
-	"custom.washerSpinLevel": {
-		capabilities: ["spin_level"],
-		icon: ""
-	},
-	"custom.washerRinseCycles": {
-		capabilities: ["rinse_cycles"],
-		icon: ""
-	},
-	"washerMode": {
-		capabilities: ["washer_status"],
-		icon: "washingmachine.svg"
-	},
-	"audioVolume": {
-		capabilities: ['volume_set', 'volume_down', 'volume_up'],
-		icon: ""
-	},
-	"tvChannel": {
-		capabilities: ['channel_down', 'channel_up'],
-		icon: "television.svg"
-	},
-	"audioMute": {
-		capabilities: ['volume_mute'],
-		icon: ""
-	}
+    "switch":
+    {
+        capabilities: [ "onoff" ],
+        icon: "socket.svg"
+    },
+    "switchLevel":
+    {
+        capabilities: [ "dim" ],
+        icon: "light.svg"
+    },
+    "contactSensor":
+    {
+        capabilities: [ "alarm_contact" ],
+        icon: "door.svg"
+    },
+    "battery":
+    {
+        capabilities: [ "measure_battery" ],
+        icon: ""
+    },
+    "presenceSensor":
+    {
+        capabilities: [ "alarm_presence" ],
+        icon: "presence.svg"
+    },
+    "powerConsumptionReport":
+    {
+        capabilities: [ "measure_power", "meter_power", "meter_power.delta" ],
+        icon: ""
+    },
+    "remoteControlStatus":
+    {
+        capabilities: [ "remote_status" ],
+        icon: ""
+    },
+    "washerOperatingState":
+    {
+        capabilities: [ "washer_mode", "washer_job_status", "completion_time" ],
+        icon: ""
+    },
+    "custom.washerWaterTemperature":
+    {
+        capabilities: [ "water_temperature" ],
+        icon: ""
+    },
+    "custom.washerSpinLevel":
+    {
+        capabilities: [ "spin_level" ],
+        icon: ""
+    },
+    "custom.washerRinseCycles":
+    {
+        capabilities: [ "rinse_cycles" ],
+        icon: ""
+    },
+    "washerMode":
+    {
+        capabilities: [ "washer_status" ],
+        icon: "washingmachine.svg"
+    },
+    "audioVolume":
+    {
+        capabilities: [ 'volume_set', 'volume_down', 'volume_up' ],
+        icon: ""
+    },
+    "tvChannel":
+    {
+        capabilities: [ 'channel_down', 'channel_up' ],
+        icon: "television.svg"
+    },
+    "audioMute":
+    {
+        capabilities: [ 'volume_mute' ],
+        icon: ""
+    }
 
 }
 
-class MyApp extends Homey.App {
+class MyApp extends Homey.App
+{
+    async onInit()
+    {
+        this.log( 'SmartThings is running...' );
+        Homey.ManagerSettings.unset( 'UnsupportedDevices' );
 
-	async onInit() {
-		this.log('SmartThings is running...');
+        this.BearerToken = Homey.ManagerSettings.get( 'BearerToken' );
+        if ( Homey.ManagerSettings.get( 'pollInterval' ) < 1 )
+        {
+            Homey.ManagerSettings.set( 'pollInterval', 5 );
+        }
 
-		this.BearerToken = Homey.ManagerSettings.get('BearerToken');
-		if (Homey.ManagerSettings.get('pollInterval') < 1) {
-			Homey.ManagerSettings.set('pollInterval', 5);
-		}
+        this.log( "SmartThings has started with Key: " + this.BearerToken + " Polling every " + Homey.ManagerSettings.get( 'pollInterval' ) + " seconds" );
 
-		this.log("SmartThings has started with Key: " + this.BearerToken + " Polling every " + Homey.ManagerSettings.get('pollInterval') + " seconds");
+        // Callback for app settings changed
+        Homey.ManagerSettings.on( 'set', async function( setting )
+        {
+            if ( setting != 'diagLog' )
+            {
+                Homey.app.log( "Setting " + setting + " has changed." );
 
-		// Callback for app settings changed
-		Homey.ManagerSettings.on('set', async function (setting) {
-			if (setting != 'diagLog') {
-				Homey.app.log("Setting " + setting + " has changed.");
+                if ( setting === 'BearerToken' )
+                {
+                    this.BearerToken = Homey.ManagerSettings.get( 'BearerToken' );
+                }
 
-				if (setting === 'BearerToken')
-				{
-					this.BearerToken = Homey.ManagerSettings.get('BearerToken');
-				}
-				
-				if (setting === 'pollInterval') {
-					clearTimeout(Homey.app.timerID);
-					if (Homey.app.BearerToken && !Homey.app.timerProcessing) {
-						if (Homey.ManagerSettings.get('pollInterval') > 1) {
-							Homey.app.timerID = setTimeout(Homey.app.onPoll, Homey.ManagerSettings.get('pollInterval') * 1000);
-						}
-					}
-				}
-			}
-		});
+                if ( setting === 'pollInterval' )
+                {
+                    clearTimeout( Homey.app.timerID );
+                    if ( Homey.app.BearerToken && !Homey.app.timerProcessing )
+                    {
+                        if ( Homey.ManagerSettings.get( 'pollInterval' ) > 1 )
+                        {
+                            Homey.app.timerID = setTimeout( Homey.app.onPoll, Homey.ManagerSettings.get( 'pollInterval' ) * 1000 );
+                        }
+                    }
+                }
+            }
+        } );
 
-		this.onPoll = this.onPoll.bind(this);
+        this.onPoll = this.onPoll.bind( this );
 
-		if (this.BearerToken) {
-			if (Homey.ManagerSettings.get('pollInterval') > 1) {
-				this.updateLog("Start Polling");
-				this.timerID = setTimeout(this.onPoll, 10000);
-			}
-		}
+        if ( this.BearerToken )
+        {
+            if ( Homey.ManagerSettings.get( 'pollInterval' ) > 1 )
+            {
+                this.updateLog( "Start Polling" );
+                this.timerID = setTimeout( this.onPoll, 10000 );
+            }
+        }
 
-		this.updateLog('************** App has initialised. ***************');
-	}
+        this.updateLog( '************** App has initialised. ***************' );
+    }
 
+    async getDevices()
+    {
+        //https://api.smartthings.com/v1/devices
+        const url = "devices";
+        let searchResult = await Homey.app.GetURL( url );
+        if ( searchResult )
+        {
+            let searchData = JSON.parse( searchResult.body );
+            Homey.ManagerSettings.set( 'detectedDevices', JSON.stringify( searchData, null, 2 ) );
+            const devices = [];
 
+            // Create an array of devices
+            for ( const device of searchData[ 'items' ] )
+            {
+                Homey.app.updateLog( "Found device: " );
+                Homey.app.updateLog( JSON.stringify( device, null, 2 ) );
 
-	async getDevices() {
-		//https://api.smartthings.com/v1/devices
-		const url = "devices";
-		let searchResult = await Homey.app.GetURL(url);
-		if (searchResult) {
-			let searchData = JSON.parse(searchResult.body);
-			Homey.app.updateLog(JSON.stringify(searchData, null, 2));
-			const devices = [];
+                var data = {};
+                data = {
+                    "id": device[ 'deviceId' ],
+                };
 
-			// Create an array of devices
-			for (const device of searchData['items']) {
-				Homey.app.updateLog("Found device: ");
-				Homey.app.updateLog(JSON.stringify(device, null, 2));
+                var iconName = "";
+                var capabilities = [];
+                var components = device[ 'components' ];
+                for ( const component of components )
+                {
+                    var subCapability = "";
 
-				var data = {};
-				data = {
-					"id": device['deviceId'],
-				};
+                    if ( component.id != 'main' )
+                    {
+                        subCapability = "." + component.id;
+                    }
 
-				var iconName = "";
-				var capabilities = [];
-				var components = device['components'];
-				for (const component of components) {
-					var subCapability = "";
+                    // Find supported capabilities
+                    var deviceCapabilities = component[ 'capabilities' ];
+                    for ( const deviceCapability of deviceCapabilities )
+                    {
+                        const capabilityMapEntry = CapabilityMap2[ deviceCapability[ 'id' ] ];
+                        if ( capabilityMapEntry != null )
+                        {
+                            //Add to the table
+                            if ( capabilityMapEntry.icon )
+                            {
+                                iconName = capabilityMapEntry.icon;
+                            }
+                            capabilityMapEntry.capabilities.forEach( element =>
+                            {
+                                capabilities.push( element + subCapability );
+                            } );
+                        }
+                    }
+                    if ( capabilities.length > 0 )
+                    {
+                        // Add this devic to the table
+                        devices.push(
+                        {
+                            "name": device[ 'label' ],
+                            "icon": iconName, // relative to: /drivers/<driver_id>/assets/
+                            "capabilities": capabilities,
+                            data
+                        } )
+                    }
+                }
+            }
+            return devices;
+        }
+        else
+        {
+            Homey.app.updateLog( "Getting API Key returned NULL" );
+            reject(
+            {
+                statusCode: -3,
+                statusMessage: "HTTPS Error: Nothing returned"
+            } );
+        }
+    }
 
-					if (component.id != 'main') {
-						subCapability = "." + component.id;
-					}
+    async getAllDeviceCapabilitiesValues( DeviceID )
+    {
+        //https://api.smartthings.com/v1/devices/{deviceId}/status
+        let url = "devices/" + DeviceID + "/status";
+        let result = await this.GetURL( url );
+        if ( result )
+        {
+            let searchData = JSON.parse( result.body );
+            Homey.app.updateLog( JSON.stringify( searchData, null, 2 ) );
+            return searchData;
+        }
 
-					// Find supported capabilities
-					var deviceCapabilities = component['capabilities'];
-					for (const deviceCapability of deviceCapabilities) {
+        return -1;
+    }
 
-						const capabilityMapEntry = CapabilityMap2[deviceCapability['id']];
-						if (capabilityMapEntry != null) {
-							//Add to the table
-							if (capabilityMapEntry.icon) {
-								iconName = capabilityMapEntry.icon;
-							}
-							capabilityMapEntry.capabilities.forEach(element => {
-								capabilities.push(element + subCapability);
-							});
-						}
-					}
-					if (capabilities.length > 0) {
-						// Add this devic to the table
-						devices.push({
-							"name": device['label'],
-							"icon": iconName, // relative to: /drivers/<driver_id>/assets/
-							"capabilities": capabilities,
-							data
-						})
-					}
-				}
-			}
-			return devices;
-		} else {
-			Homey.app.updateLog("Getting API Key returned NULL");
-			reject({
-				statusCode: -3,
-				statusMessage: "HTTPS Error: Nothing returned"
-			});
-		}
-	}
+    async getDeviceCapabilityValue( DeviceID, CapabilityID )
+    {
+        //https://api.smartthings.com/v1/devices/{deviceId}/components/{componentId}/capabilities/{capabilityId}/status
+        let url = "devices/" + DeviceID + "/components/main/capabilities/" + CapabilityID + "/status";
+        let result = await this.GetURL( url );
+        if ( result )
+        {
+            let searchData = JSON.parse( result.body );
+            Homey.app.updateLog( JSON.stringify( searchData, null, 2 ) );
+            return searchData;
+        }
 
-	async getAllDeviceCapabilitiesValues(DeviceID) {
-		//https://api.smartthings.com/v1/devices/{deviceId}/status
-		let url = "devices/" + DeviceID + "/status";
-		let result = await this.GetURL(url);
-		if (result) {
-			let searchData = JSON.parse(result.body);
-			Homey.app.updateLog(JSON.stringify(searchData, null, 2));
-			return searchData;
-		}
+        return -1;
+    }
 
-		return -1;
-	}
+    async setDeviceCapabilityValue( DeviceID, Commands )
+    {
+        //https://api.smartthings.com/v1/devices/{deviceId}/commands
+        let url = "devices/" + DeviceID + "/commands";
+        let result = await this.PostURL( url, Commands );
+        if ( result )
+        {
+            let searchData = JSON.parse( result.body );
+            Homey.app.updateLog( JSON.stringify( searchData, null, 2 ) );
+            return searchData;
+        }
 
-	async getDeviceCapabilityValue(DeviceID, CapabilityID) {
-		//https://api.smartthings.com/v1/devices/{deviceId}/components/{componentId}/capabilities/{capabilityId}/status
-		let url = "devices/" + DeviceID + "/components/main/capabilities/" + CapabilityID + "/status";
-		let result = await this.GetURL(url);
-		if (result) {
-			let searchData = JSON.parse(result.body);
-			Homey.app.updateLog(JSON.stringify(searchData, null, 2));
-			return searchData;
-		}
+        return -1;
+    }
 
-		return -1;
-	}
+    async GetURL( url )
+    {
+        Homey.app.updateLog( url );
 
-	async setDeviceCapabilityValue(DeviceID, Commands) {
-		//https://api.smartthings.com/v1/devices/{deviceId}/commands
-		let url = "devices/" + DeviceID + "/commands";
-		let result = await this.PostURL(url, Commands);
-		if (result) {
-			let searchData = JSON.parse(result.body);
-			Homey.app.updateLog(JSON.stringify(searchData, null, 2));
-			return searchData;
-		}
+        return new Promise( ( resolve, reject ) =>
+        {
+            try
+            {
+                if ( !Homey.app.BearerToken )
+                {
+                    reject(
+                    {
+                        statusCode: 401,
+                        statusMessage: "HTTPS: No Token specified"
+                    } );
+                }
 
-		return -1;
-	}
+                let https_options = {
+                    host: "api.smartthings.com",
+                    path: "/v1/" + url,
+                    headers:
+                    {
+                        "Authorization": "Bearer " + Homey.app.BearerToken,
+                    },
+                }
 
-	async GetURL(url) {
-		Homey.app.updateLog(url);
+                https.get( https_options, ( res ) =>
+                {
+                    if ( res.statusCode === 200 )
+                    {
+                        let body = [];
+                        res.on( 'data', ( chunk ) =>
+                        {
+                            body.push( chunk );
+                        } );
+                        res.on( 'end', () =>
+                        {
+                            resolve(
+                            {
+                                "body": Buffer.concat( body )
+                            } );
+                        } );
+                    }
+                    else
+                    {
+                        let message = "";
+                        if ( res.statusCode === 204 )
+                        {
+                            message = "No Data Found";
+                        }
+                        else if ( res.statusCode === 400 )
+                        {
+                            message = "Bad request";
+                        }
+                        else if ( res.statusCode === 401 )
+                        {
+                            message = "Unauthorized";
+                        }
+                        else if ( res.statusCode === 403 )
+                        {
+                            message = "Forbidden";
+                        }
+                        else if ( res.statusCode === 404 )
+                        {
+                            message = "Not Found";
+                        }
+                        Homey.app.updateLog( "HTTPS Error: " + res.statusCode + ": " + message );
+                        reject(
+                        {
+                            statusCode: res.statusCode,
+                            statusMessage: "HTTPS Error: " + message
+                        } );
+                    }
+                } ).on( 'error', ( err ) =>
+                {
+                    Homey.app.updateLog( err );
+                    reject(
+                    {
+                        statusCode: -1,
+                        statusMessage: "HTTPS Catch : " + err
+                    } );
+                } );
+            }
+            catch ( err )
+            {
+                Homey.app.updateLog( err );
+                reject(
+                {
+                    statusCode: -2,
+                    statusMessage: "HTTPS Catch: " + err
+                } );
+            }
+        } );
+    }
 
-		return new Promise((resolve, reject) => {
-			try {
-				if (!Homey.app.BearerToken) {
-					reject({
-						statusCode: 401,
-						statusMessage: "HTTPS: No Token specified"
-					});
-				}
+    async PostURL( url, body )
+    {
+        Homey.app.updateLog( url );
+        let bodyText = JSON.stringify( body );
+        Homey.app.updateLog( bodyText );
 
-				let https_options = {
-					host: "api.smartthings.com",
-					path: "/v1/" + url,
-					headers: {
-						"Authorization": "Bearer " + Homey.app.BearerToken,
-					},
-				}
+        return new Promise( ( resolve, reject ) =>
+        {
+            try
+            {
+                if ( !Homey.app.BearerToken )
+                {
+                    reject(
+                    {
+                        statusCode: 401,
+                        statusMessage: "HTTPS: No Token specified"
+                    } );
+                }
 
-				https.get(https_options, (res) => {
-					if (res.statusCode === 200) {
-						let body = [];
-						res.on('data', (chunk) => {
-							body.push(chunk);
-						});
-						res.on('end', () => {
-							resolve({
-								"body": Buffer.concat(body)
-							});
-						});
-					} else {
-						let message = "";
-						if (res.statusCode === 204) {
-							message = "No Data Found";
-						} else if (res.statusCode === 400) {
-							message = "Bad request";
-						} else if (res.statusCode === 401) {
-							message = "Unauthorized";
-						} else if (res.statusCode === 403) {
-							message = "Forbidden";
-						} else if (res.statusCode === 404) {
-							message = "Not Found";
-						}
-						Homey.app.updateLog("HTTPS Error: " + res.statusCode + ": " + message);
-						reject({
-							statusCode: res.statusCode,
-							statusMessage: "HTTPS Error: " + message
-						});
-					}
-				}).on('error', (err) => {
-					Homey.app.updateLog(err);
-					reject({
-						statusCode: -1,
-						statusMessage: "HTTPS Catch : " + err
-					});
-				});
-			} catch (err) {
-				Homey.app.updateLog(err);
-				reject({
-					statusCode: -2,
-					statusMessage: "HTTPS Catch: " + err
-				});
-			}
-		});
-	}
+                let https_options = {
+                    host: "api.smartthings.com",
+                    path: "/v1/" + url,
+                    method: "POST",
+                    headers:
+                    {
+                        "Authorization": "Bearer " + Homey.app.BearerToken,
+                        "contentType": "application/json; charset=utf-8",
+                        "Content-Length": bodyText.length
+                    },
+                }
 
-	async PostURL(url, body) {
-		Homey.app.updateLog(url);
-		let bodyText = JSON.stringify(body);
-		Homey.app.updateLog(bodyText);
+                Homey.app.updateLog( https_options );
 
-		return new Promise((resolve, reject) => {
-			try {
-				if (!Homey.app.BearerToken) {
-					reject({
-						statusCode: 401,
-						statusMessage: "HTTPS: No Token specified"
-					});
-				}
+                let req = https.request( https_options, ( res ) =>
+                {
+                    if ( res.statusCode === 200 )
+                    {
+                        let body = [];
+                        res.on( 'data', ( chunk ) =>
+                        {
+                            Homey.app.updateLog( "retrieve data" );
+                            body.push( chunk );
+                        } );
+                        res.on( 'end', () =>
+                        {
+                            Homey.app.updateLog( "Done retrieval of data" );
+                            resolve(
+                            {
+                                "body": Buffer.concat( body )
+                            } );
+                        } );
+                    }
+                    else
+                    {
+                        let message = "";
+                        if ( res.statusCode === 204 )
+                        {
+                            message = "No Data Found";
+                        }
+                        else if ( res.statusCode === 400 )
+                        {
+                            message = "Bad request";
+                        }
+                        else if ( res.statusCode === 401 )
+                        {
+                            message = "Unauthorized";
+                        }
+                        else if ( res.statusCode === 403 )
+                        {
+                            message = "Forbidden";
+                        }
+                        else if ( res.statusCode === 404 )
+                        {
+                            message = "Not Found";
+                        }
+                        Homey.app.updateLog( "HTTPS Error: " + res.statusCode + ": " + message );
+                        reject(
+                        {
+                            statusCode: res.statusCode,
+                            statusMessage: "HTTPS Error: " + message
+                        } );
+                    }
+                } ).on( 'error', ( err ) =>
+                {
+                    Homey.app.updateLog( err );
+                    reject(
+                    {
+                        statusCode: -1,
+                        statusMessage: "HTTPS Catch : " + err
+                    } );
+                } );
+                req.write( bodyText );
+                req.end();
+            }
+            catch ( err )
+            {
+                Homey.app.updateLog( this.varToString( err ) );
+                reject(
+                {
+                    statusCode: -2,
+                    statusMessage: "HTTPS Catch: " + err
+                } );
+            }
+        } );
+    }
 
-				let https_options = {
-					host: "api.smartthings.com",
-					path: "/v1/" + url,
-					method: "POST",
-					headers: {
-						"Authorization": "Bearer " + Homey.app.BearerToken,
-						"contentType": "application/json; charset=utf-8",
-						"Content-Length": bodyText.length
-					},
-				}
+    async onPoll()
+    {
+        Homey.app.timerProcessing = true;
+        const promises = [];
+        try
+        {
+            // Fetch the list of drivers for this app
+            const drivers = Homey.ManagerDrivers.getDrivers();
+            for ( const driver in drivers )
+            {
+                let devices = Homey.ManagerDrivers.getDriver( driver ).getDevices();
+                for ( var i = 0; i < devices.length; i++ )
+                {
+                    let device = devices[ i ];
+                    if ( device.getDeviceValues )
+                    {
+                        promises.push( device.getDeviceValues() );
+                    }
+                }
+            }
 
-				Homey.app.updateLog(https_options);
+            await Promise.all( promises );
 
-				let req = https.request(https_options, (res) => {
-					if (res.statusCode === 200) {
-						let body = [];
-						res.on('data', (chunk) => {
-							Homey.app.updateLog("retrieve data");
-							body.push(chunk);
-						});
-						res.on('end', () => {
-							Homey.app.updateLog("Done retrieval of data");
-							resolve({
-								"body": Buffer.concat(body)
-							});
-						});
-					} else {
-						let message = "";
-						if (res.statusCode === 204) {
-							message = "No Data Found";
-						} else if (res.statusCode === 400) {
-							message = "Bad request";
-						} else if (res.statusCode === 401) {
-							message = "Unauthorized";
-						} else if (res.statusCode === 403) {
-							message = "Forbidden";
-						} else if (res.statusCode === 404) {
-							message = "Not Found";
-						}
-						Homey.app.updateLog("HTTPS Error: " + res.statusCode + ": " + message);
-						reject({
-							statusCode: res.statusCode,
-							statusMessage: "HTTPS Error: " + message
-						});
-					}
-				}).on('error', (err) => {
-					Homey.app.updateLog(err);
-					reject({
-						statusCode: -1,
-						statusMessage: "HTTPS Catch : " + err
-					});
-				});
-				req.write(bodyText);
-				req.end();
-			} catch (err) {
-				Homey.app.updateLog(err);
-				reject({
-					statusCode: -2,
-					statusMessage: "HTTPS Catch: " + err
-				});
-			}
-		});
-	}
+        }
+        catch ( err )
+        {
+            Homey.app.updateLog( "Polling Error: " + this.varToString( err ) );
+        }
 
-	async onPoll() {
-		Homey.app.timerProcessing = true;
-		const promises = [];
-		try {
-			// Fetch the list of drivers for this app
-			const drivers = Homey.ManagerDrivers.getDrivers();
-			for (const driver in drivers) {
-				let devices = Homey.ManagerDrivers.getDriver(driver).getDevices();
-				for (var i = 0; i < devices.length; i++) {
-					let device = devices[i];
-					if (device.getDeviceValues) {
-						promises.push(device.getDeviceValues());
-					}
-				}
-			}
+        var nextInterval = Number( Homey.ManagerSettings.get( 'pollInterval' ) ) * 1000;
+        if ( nextInterval < 1000 )
+        {
+            nextInterval = 5000;
+        }
+        Homey.app.updateLog( "Next Interval = " + nextInterval, true );
+        Homey.app.timerID = setTimeout( Homey.app.onPoll, nextInterval );
+        Homey.app.timerProcessing = false;
+    }
 
-			await Promise.all(promises);
+    varToString( source )
+    {
+        if ( source === null )
+        {
+            return "null";
+        }
+        if ( source === undefined )
+        {
+            return "undefined";
+        }
+        if ( typeof( source ) === "object" )
+        {
+            return JSON.stringify( source, null, 2 );
+        }
+        if ( typeof( source ) === "string" )
+        {
+            return source;
+        }
 
-		} catch (err) {
-			Homey.app.updateLog("Polling Error: " + err);
-		}
+        return source.toString();
+    }
 
-		var nextInterval = Number(Homey.ManagerSettings.get('pollInterval')) * 1000;
-		if (nextInterval < 1000) {
-			nextInterval = 5000;
-		}
-		Homey.app.updateLog("Next Interval = " + nextInterval, true);
-		Homey.app.timerID = setTimeout(Homey.app.onPoll, nextInterval);
-		Homey.app.timerProcessing = false;
-	}
-
-	updateLog(newMessage) {
-		//Homey.app.log(newMessage);
-
-		if (Homey.ManagerSettings.get('logEnabled')) {
-			//Homey.app.log(newMessage);
-			var oldText = Homey.ManagerSettings.get('diagLog');
-			oldText += "* ";
-			oldText += newMessage;
-			oldText += "\r\n";
-			Homey.ManagerSettings.set('diagLog', oldText);
-		}
-	}
+    updateLog( newMessage )
+    {
+        if ( Homey.ManagerSettings.get( 'logEnabled' ) )
+        {
+            //Homey.app.log(newMessage);
+            var oldText = Homey.ManagerSettings.get( 'diagLog' );
+            if ( oldText.length > 5000 )
+            {
+                oldText = "";
+            }
+            oldText += "* ";
+            oldText += newMessage;
+            oldText += "\r\n";
+            Homey.ManagerSettings.set( 'diagLog', oldText );
+        }
+    }
 
 }
 

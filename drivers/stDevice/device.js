@@ -22,13 +22,13 @@ const capabilityMap1 = {
 		flowTrigger: null
 	},
 	"volume_mute": {
-		dataEntry: ['audioMute', 'mute.', 'alue'],
+		dataEntry: ['audioMute', 'mute.', 'value'],
 		divider: 0,
 		boolCompare: 'muted',
 		flowTrigger: null
 	},
 	"alarm_contact": {
-		dataEntry: ['contactSensor', 'contact', '.value'],
+		dataEntry: ['contactSensor', 'contact', 'value'],
 		divider: 0,
 		boolCompare: 'open',
 		flowTrigger: ''
@@ -218,6 +218,7 @@ class STDevice extends Homey.Device {
 			let result = await Homey.app.getAllDeviceCapabilitiesValues(devData.id);
 			if (result) {
 				this.setAvailable();
+
 				const components = result['components'];
 
 				// Update each capability
@@ -325,7 +326,7 @@ class STDevice extends Homey.Device {
 				this.setUnavailable();
 			}
 		} catch (err) {
-			this.log(err);
+			this.log(Homey.app.varToString(err));
 		}
 	}
 
@@ -354,7 +355,7 @@ class STDevice extends Homey.Device {
 			await Homey.app.setDeviceCapabilityValue(devData.id, body);
 		} catch (err) {
 			//this.setUnavailable();
-			Homey.app.updateLog(this.getName() + " onCapabilityOnoff Error " + JSON.stringify(err));
+			Homey.app.updateLog(this.getName() + " onCapabilityOnoff Error " + Homey.app.varToString(err));
 		}
 	}
 
@@ -382,7 +383,7 @@ class STDevice extends Homey.Device {
 			await Homey.app.setDeviceCapabilityValue(devData.id, body);
 		} catch (err) {
 			//this.setUnavailable();
-			Homey.app.updateLog(this.getName() + " onCapabilityOnDimError " + JSON.stringify(err));
+			Homey.app.updateLog(this.getName() + " onCapabilityOnDimError " + Homey.app.varToString(err));
 		}
 	}
 
@@ -411,7 +412,7 @@ class STDevice extends Homey.Device {
 			await Homey.app.setDeviceCapabilityValue(devData.id, body);
 		} catch (err) {
 			//this.setUnavailable();
-			Homey.app.updateLog(this.getName() + " onCapabilityRinseCycles " + JSON.stringify(err));
+			Homey.app.updateLog(this.getName() + " onCapabilityRinseCycles " + Homey.app.varToString(err));
 		}
 	}
 
@@ -440,7 +441,7 @@ class STDevice extends Homey.Device {
 			await Homey.app.setDeviceCapabilityValue(devData.id, body);
 		} catch (err) {
 			//this.setUnavailable();
-			Homey.app.updateLog(this.getName() + " onCapabilitySpinLevel " + JSON.stringify(err));
+			Homey.app.updateLog(this.getName() + " onCapabilitySpinLevel " + Homey.app.varToString(err));
 		}
 	}
 
@@ -469,7 +470,7 @@ class STDevice extends Homey.Device {
 			await Homey.app.setDeviceCapabilityValue(devData.id, body);
 		} catch (err) {
 			//this.setUnavailable();
-			Homey.app.updateLog(this.getName() + " onCapabilityWasherStatus " + JSON.stringify(err));
+			Homey.app.updateLog(this.getName() + " onCapabilityWasherStatus " + Homey.app.varToString(err));
 		}
 	}
 
@@ -498,7 +499,7 @@ class STDevice extends Homey.Device {
 			await Homey.app.setDeviceCapabilityValue(devData.id, body);
 		} catch (err) {
 			//this.setUnavailable();
-			Homey.app.updateLog(this.getName() + " onCapabilityWasherStatus " + JSON.stringify(err));
+			Homey.app.updateLog(this.getName() + " onCapabilityWasherStatus " + Homey.app.varToString(err));
 		}
 	}
 
@@ -526,7 +527,7 @@ class STDevice extends Homey.Device {
 			await Homey.app.setDeviceCapabilityValue(devData.id, body);
 		} catch (err) {
 			//this.setUnavailable();
-			Homey.app.updateLog(this.getName() + " onCapabilityVolume " + JSON.stringify(err));
+			Homey.app.updateLog(this.getName() + " onCapabilityVolume " + Homey.app.varToString(err));
 		}
 	}
 
@@ -549,7 +550,7 @@ class STDevice extends Homey.Device {
 			await Homey.app.setDeviceCapabilityValue(devData.id, body);
 		} catch (err) {
 			//this.setUnavailable();
-			Homey.app.updateLog(this.getName() + " onCapabilityVolumeDown " + JSON.stringify(err));
+			Homey.app.updateLog(this.getName() + " onCapabilityVolumeDown " + Homey.app.varToString(err));
 		}
 	}
 
@@ -572,7 +573,7 @@ class STDevice extends Homey.Device {
 			await Homey.app.setDeviceCapabilityValue(devData.id, body);
 		} catch (err) {
 			//this.setUnavailable();
-			Homey.app.updateLog(this.getName() + " onCapabilityVolumeUp " + JSON.stringify(err));
+			Homey.app.updateLog(this.getName() + " onCapabilityVolumeUp " + Homey.app.varToString(err));
 		}
 	}
 
@@ -597,7 +598,7 @@ class STDevice extends Homey.Device {
 			await Homey.app.setDeviceCapabilityValue(devData.id, body);
 		} catch (err) {
 			//this.setUnavailable();
-			Homey.app.updateLog(this.getName() + " onCapabilityVolumeMute " + JSON.stringify(err));
+			Homey.app.updateLog(this.getName() + " onCapabilityVolumeMute " + Homey.app.varToString(err));
 		}
 	}
 
@@ -620,7 +621,7 @@ class STDevice extends Homey.Device {
 			await Homey.app.setDeviceCapabilityValue(devData.id, body);
 		} catch (err) {
 			//this.setUnavailable();
-			Homey.app.updateLog(this.getName() + " onCapabilityChannelDown " + JSON.stringify(err));
+			Homey.app.updateLog(this.getName() + " onCapabilityChannelDown " + Homey.app.varToString(err));
 		}
 	}
 
@@ -643,7 +644,7 @@ class STDevice extends Homey.Device {
 			await Homey.app.setDeviceCapabilityValue(devData.id, body);
 		} catch (err) {
 			//this.setUnavailable();
-			Homey.app.updateLog(this.getName() + " onCapabilityChannelUp " + JSON.stringify(err));
+			Homey.app.updateLog(this.getName() + " onCapabilityChannelUp " + Homey.app.varToString(err));
 		}
 	}
 }
