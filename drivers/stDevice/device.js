@@ -3,11 +3,11 @@
 const Homey = require('homey');
 
 const capabilityMap1 = {
-	"onoff": {
-		dataEntry: ['switch', 'switch', 'value'],
-		divider: 0,
-		boolCompare: 'on',
-		flowTrigger: null
+	"onoff": {												// Homey capability
+		dataEntry: ['switch', 'switch', 'value'],			// structure build, e.g. switch.switch.value
+		divider: 0,											// Factor to convert to homey units
+		boolCompare: 'on',									// The true state of a boolean value. E.g. ST returns on for true
+		flowTrigger: null									// The flow to trigger when the value changes
 	},
 	"dim": {
 		dataEntry: ['switchLevel', 'level', 'value'],
@@ -111,6 +111,54 @@ const capabilityMap1 = {
 		divider: 0,
 		boolCompare: 'present',
 		flowTrigger: 'presenceStatus_changed'
+	},
+	"aircon_mode" : {
+		dataEntry: ['airConditionerMode', 'airConditionerMode', 'value'],
+		divider: 0,
+		boolCompare: '',
+		flowTrigger: null
+	},
+	"aircon_fan_mode" : {
+		dataEntry: ['airConditionerFanMode', 'airConditionerFanMode', 'value'],
+		divider: 0,
+		boolCompare: '',
+		flowTrigger: null
+	},
+	"aircon_fan_oscillation_mode" : {
+		dataEntry: ['fanOscillationMode', 'fanOscillationMode', 'value'],
+		divider: 0,
+		boolCompare: '',
+		flowTrigger: null
+	},
+	"measure_temperature": {
+		dataEntry: ['temperatureMeasurement', 'temperature', 'value'],
+		divider: 0,
+		boolCompare: '',
+		flowTrigger: null
+	},
+	"target_temperature": {
+		dataEntry: ['thermostatCoolingSetpoint', 'thermostatSetpoint', 'value'],
+		divider: 0,
+		boolCompare: '',
+		flowTrigger: null
+	},
+	"measure_humidity": {
+		dataEntry: ['relativeHumidityMeasurement', 'humidity', 'value'],
+		divider: 100,
+		boolCompare: '',
+		flowTrigger: null
+	},
+	"measure_air_quality": {
+		dataEntry: ['airQualitySensor', 'airQuality', 'value'],
+		divider: 0,
+		boolCompare: '',
+		flowTrigger: null
+	},
+	"measure_odor": {
+		dataEntry: ['odorSensor', 'odorLevel', 'value'],
+		divider: 0,
+		boolCompare: '',
+		flowTrigger: null
 	}
 };
 
@@ -205,7 +253,7 @@ class STDevice extends Homey.Device {
 			this.setClass('sensor');
 		} else if (this.hasCapability('channel_down')) {
 			this.setClass('TV');
-		} else if (this.hasCapability('onoff') && !this.hasCapability('washer_mode')) {
+		} else if (this.hasCapability('onoff') && !this.hasCapability('washer_mode')  && !this.hasCapability('airCon_mode')) {
 			this.setClass('socket');
 		}
 	}
@@ -258,8 +306,8 @@ class STDevice extends Homey.Device {
 
 						if (mapEntry.boolCompare) {
 							value = (value === mapEntry.boolCompare);
-							this.setCapabilityValue(capability, value);
 							Homey.app.updateLog("Set Capability: " + capability + " - Value: " + value);
+							this.setCapabilityValue(capability, value);
 
 							if (mapEntry.flowTrigger) {
 								//this.log("Trigger Check: ", capability, " = ", value + " was " + this.lastValues[capability]);
@@ -292,8 +340,8 @@ class STDevice extends Homey.Device {
 								}
 							}
 
-							this.setCapabilityValue(capability, value);
 							Homey.app.updateLog("Set Capability: " + capability + " - Value: " + value);
+							this.setCapabilityValue(capability, value);
 
 							if (mapEntry.flowTrigger) {
 								//this.log("Trigger Check: ", capability, " = ", value + " was " + this.lastValues[capability]);

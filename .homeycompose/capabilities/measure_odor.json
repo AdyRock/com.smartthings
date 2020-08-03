@@ -1,0 +1,10 @@
+{
+    "type": "number",
+    "min": 0,
+    "title":
+    {
+        "en": "Odor"
+    },
+    "getable": true,
+    "setable": false
+}

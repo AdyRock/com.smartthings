@@ -1,0 +1,58 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Air Conditioner Mode"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [{
+      "id": "auto",
+      "title": {
+        "en": "Auto"
+      }
+    },
+    {
+      "id": "cool",
+      "title": {
+        "en": "Cool"
+      }
+    },
+    {
+      "id": "dry",
+      "title": {
+        "en": "Dry"
+      }
+    },
+    {
+      "id": "coolClean",
+      "title": {
+        "en": "Cool Clean"
+      }
+    },
+    {
+      "id": "dryClean",
+      "title": {
+        "en": "Dry Clean"
+      }
+    },
+    {
+      "id": "fanOnly",
+      "title": {
+        "en": "Fan Only"
+      }
+    },
+    {
+      "id": "heat",
+      "title": {
+        "en": "Heat"
+      }
+    },
+    {
+      "id": "heatClean",
+      "title": {
+        "en": "Heat Clean"
+      }
+    }
+  ]
+}

@@ -17,6 +17,20 @@ module.exports = [
             // access /?foo=bar as args.query.foo
         }
     },
+    {
+        method: 'GET',
+        path: '/getLog/',
+        fn: async function (args, callback) {
+            return callback(null, Homey.app.diagLog);
+        }
+    },
+    {
+        method: 'GET',
+        path: '/getDetect/',
+        fn: async function (args, callback) {
+            return callback(null, Homey.app.detectedDevices);
+        }
+    },
 
     {
         method: 'GET',
@@ -34,6 +48,14 @@ module.exports = [
         }
     },
 
+    {
+        method: 'POST',
+        path: '/clearLog/',
+        fn: function (args, callback) {
+            Homey.app.diagLog = "";
+            return callback(null, "ok");
+        }
+    },
     {
         method: 'POST',
         path: '/',

@@ -92,13 +92,18 @@
 
             document.getElementById( "defaultOpen" ).click();
 
+            Homey.on( 'com.smartthings.logupdated', function( data )
+            {
+                diagLogElement.value = data.log;
+            } );
+
+            Homey.on( 'com.smartthings.detectedDevicesUpdated', function( data )
+            {
+                detectedDevicesElement.value = data.devices;
+            } );
+
             Homey.on( 'settings.set', function()
             {
-                Homey.get( 'diagLog', function( err, diagLog )
-                {
-                    if ( err ) return Homey.alert( err );
-                    diagLogElement.value = diagLog;
-                } );
                 Homey.get( 'BearerToken', function( err, BearerToken )
                 {
                     if ( err ) return Homey.alert( err );
@@ -111,6 +116,7 @@
                 if ( err ) return Homey.alert( err );
                 BearerTokenElement.value = BearerToken;
             } );
+
             Homey.get( 'pollInterval', function( err, pollInterval )
             {
                 if ( err ) return Homey.alert( err );
@@ -118,9 +124,39 @@
             } );
 
             Homey.get( 'logEnabled', function( err, logEnabled )
+            {
+                if ( err ) return Homey.alert( err );
+                logEnabledElement.checked = logEnabled;
+            } );
+
+            Homey.api( 'GET', '/getLog/',
                 {
-                    if ( err ) return Homey.alert( err );
-                    logEnabledElement.checked = logEnabled;
+                    notify: true
+                }, function( err, result )
+                {
+                    if ( err )
+                    {
+                        return Homey.alert( err );
+                    }
+                    else
+                    {
+                        diagLogElement.value = result;
+                    }
+                } );
+
+                Homey.api( 'GET', '/getDetect/',
+                {
+                    notify: true
+                }, function( err, result )
+                {
+                    if ( err )
+                    {
+                        return Homey.alert( err );
+                    }
+                    else
+                    {
+                        detectedDevicesElement.value = result;
+                    }
                 } );
 
             saveElement.addEventListener( 'click', function( e )
@@ -151,11 +187,20 @@
 
             clearLogElement.addEventListener( 'click', function( e )
             {
-                Homey.set( 'diagLog', "", function( err )
+                Homey.api( 'POST', '/clearLog/',
                 {
-                    if ( err ) return Homey.alert( err );
+                    notify: true
+                }, function( err, result )
+                {
+                    if ( err )
+                    {
+                        return Homey.alert( err );
+                    }
+                    else
+                    {
+                        diagLogElement.value = "";
+                    }
                 } );
-                diagLogElement.value = "";
             } );
         };
 
@@ -202,12 +247,6 @@
             }
             else if ( tabPage == 'detected' )
             {
-                Homey.get( 'detectedDevices', function( err, detectedDevices )
-                {
-                    if ( err ) return Homey.alert( err );
-                    detectedDevicesElement.value = detectedDevices;
-                } );
-
                 // Make the detected devices text area fill the page
                 detectedDevicesElement.setAttribute( 'cols', detectedDevicesElement.parentElement.clientWidth / 8 );
                 detectedDevicesElement.style.height = ( window.innerHeight - detectedDevicesElement.offsetTop - 20 ) + 'px';

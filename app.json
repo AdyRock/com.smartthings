@@ -136,6 +136,111 @@
     }
   ],
   "capabilities": {
+    "aircon_fan_mode": {
+      "type": "enum",
+      "title": {
+        "en": "Air Conditioner Fan Mode"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "auto",
+          "title": {
+            "en": "Auto"
+          }
+        },
+        {
+          "id": "manual",
+          "title": {
+            "en": "Manual"
+          }
+        }
+      ]
+    },
+    "aircon_fan_oscillation_mode": {
+      "type": "enum",
+      "title": {
+        "en": "Fan Oscillation Mode"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "auto",
+          "title": {
+            "en": "Auto"
+          }
+        },
+        {
+          "id": "manual",
+          "title": {
+            "en": "Manual"
+          }
+        }
+      ]
+    },
+    "aircon_mode": {
+      "type": "enum",
+      "title": {
+        "en": "Air Conditioner Mode"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "auto",
+          "title": {
+            "en": "Auto"
+          }
+        },
+        {
+          "id": "cool",
+          "title": {
+            "en": "Cool"
+          }
+        },
+        {
+          "id": "dry",
+          "title": {
+            "en": "Dry"
+          }
+        },
+        {
+          "id": "coolClean",
+          "title": {
+            "en": "Cool Clean"
+          }
+        },
+        {
+          "id": "dryClean",
+          "title": {
+            "en": "Dry Clean"
+          }
+        },
+        {
+          "id": "fanOnly",
+          "title": {
+            "en": "Fan Only"
+          }
+        },
+        {
+          "id": "heat",
+          "title": {
+            "en": "Heat"
+          }
+        },
+        {
+          "id": "heatClean",
+          "title": {
+            "en": "Heat Clean"
+          }
+        }
+      ]
+    },
     "alarm_presence": {
       "type": "boolean",
       "title": {
@@ -148,6 +253,26 @@
       "type": "string",
       "title": {
         "en": "Completion Time"
+      },
+      "getable": true,
+      "setable": false
+    },
+    "measure_air_quality": {
+      "type": "number",
+      "title": {
+        "en": "Air Quality"
+      },
+      "units": {
+        "en": "CAQI"
+      },
+      "getable": true,
+      "setable": false
+    },
+    "measure_odor": {
+      "type": "number",
+      "min": 0,
+      "title": {
+        "en": "Odor"
       },
       "getable": true,
       "setable": false

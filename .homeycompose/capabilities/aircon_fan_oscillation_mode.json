@@ -1,0 +1,22 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Fan Oscillation Mode"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [{
+      "id": "auto",
+      "title": {
+        "en": "Auto"
+      }
+    },
+    {
+      "id": "manual",
+      "title": {
+        "en": "Manual"
+      }
+    }
+  ]
+}

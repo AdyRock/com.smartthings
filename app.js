@@ -77,16 +77,55 @@ const CapabilityMap2 = {
     {
         capabilities: [ 'volume_mute' ],
         icon: ""
+    },
+    "airConditionerMode":
+    {
+        capabilities: [ 'airCon_mode' ],
+        icon: "aircon.svg"
+    },
+    "airConditionerFanMode":
+    {
+        capabilities: [ 'aircon_fan_mode' ],
+        icon: ""
+    },
+    "fanOscillationMode":
+    {
+        capabilities: [ 'aircon_fan_oscillation_mode' ],
+        icon: ""
+    },
+    "temperatureMeasurement":
+    {
+        capabilities: [ 'measure_temperature' ],
+        icon: ""
+    },
+    "thermostatCoolingSetpoint":
+    {
+        capabilities: [ 'target_temperature' ],
+        icon: ""
+    },
+    "relativeHumidityMeasurement":
+    {
+        capabilities: [ 'measure_humidity' ],
+        icon: ""
+    },
+    "airQualitySensor":
+    {
+        capabilities: [ 'measure_air_quality' ],
+        icon: ""
+    },
+    "odorSensor":
+    {
+        capabilities: [ 'measure_odor' ],
+        icon: ""
     }
-
 }
 
 class MyApp extends Homey.App
 {
     async onInit()
     {
+        this.diagLog = "";
         this.log( 'SmartThings is running...' );
-        Homey.ManagerSettings.unset( 'UnsupportedDevices' );
 
         this.BearerToken = Homey.ManagerSettings.get( 'BearerToken' );
         if ( Homey.ManagerSettings.get( 'pollInterval' ) < 1 )
@@ -99,24 +138,21 @@ class MyApp extends Homey.App
         // Callback for app settings changed
         Homey.ManagerSettings.on( 'set', async function( setting )
         {
-            if ( setting != 'diagLog' )
+            Homey.app.log( "Setting " + setting + " has changed." );
+
+            if ( setting === 'BearerToken' )
             {
-                Homey.app.log( "Setting " + setting + " has changed." );
+                this.BearerToken = Homey.ManagerSettings.get( 'BearerToken' );
+            }
 
-                if ( setting === 'BearerToken' )
+            if ( setting === 'pollInterval' )
+            {
+                clearTimeout( Homey.app.timerID );
+                if ( Homey.app.BearerToken && !Homey.app.timerProcessing )
                 {
-                    this.BearerToken = Homey.ManagerSettings.get( 'BearerToken' );
-                }
-
-                if ( setting === 'pollInterval' )
-                {
-                    clearTimeout( Homey.app.timerID );
-                    if ( Homey.app.BearerToken && !Homey.app.timerProcessing )
+                    if ( Homey.ManagerSettings.get( 'pollInterval' ) > 1 )
                     {
-                        if ( Homey.ManagerSettings.get( 'pollInterval' ) > 1 )
-                        {
-                            Homey.app.timerID = setTimeout( Homey.app.onPoll, Homey.ManagerSettings.get( 'pollInterval' ) * 1000 );
-                        }
+                        Homey.app.timerID = setTimeout( Homey.app.onPoll, Homey.ManagerSettings.get( 'pollInterval' ) * 1000 );
                     }
                 }
             }
@@ -144,7 +180,9 @@ class MyApp extends Homey.App
         if ( searchResult )
         {
             let searchData = JSON.parse( searchResult.body );
-            Homey.ManagerSettings.set( 'detectedDevices', JSON.stringify( searchData, null, 2 ) );
+            this.detectedDevices = JSON.stringify( searchData, null, 2 );
+            Homey.ManagerApi.realtime('com.smartthings.detectedDevicesUpdated', {'devices': this.detectedDevices});
+
             const devices = [];
 
             // Create an array of devices
@@ -190,7 +228,7 @@ class MyApp extends Homey.App
                     }
                     if ( capabilities.length > 0 )
                     {
-                        // Add this devic to the table
+                        // Add this device to the table
                         devices.push(
                         {
                             "name": device[ 'label' ],
@@ -523,18 +561,18 @@ class MyApp extends Homey.App
 
     updateLog( newMessage )
     {
+        console.log( newMessage );
         if ( Homey.ManagerSettings.get( 'logEnabled' ) )
         {
             //Homey.app.log(newMessage);
-            var oldText = Homey.ManagerSettings.get( 'diagLog' );
-            if ( oldText.length > 5000 )
+            if ( this.diagLog.length > 30000 )
             {
-                oldText = "";
+                this.diagLog = "";
             }
-            oldText += "* ";
-            oldText += newMessage;
-            oldText += "\r\n";
-            Homey.ManagerSettings.set( 'diagLog', oldText );
+            this.diagLog += "* ";
+            this.diagLog += newMessage;
+            this.diagLog += "\r\n";
+            Homey.ManagerApi.realtime('com.smartthings.logupdated', {'log': this.diagLog});
         }
     }
 

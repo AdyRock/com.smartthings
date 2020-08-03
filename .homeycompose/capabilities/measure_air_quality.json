@@ -1,0 +1,10 @@
+{
+    "type": "number",
+    "title":
+    {
+        "en": "Air Quality"
+    },
+    "units": { "en": "CAQI" },
+    "getable": true,
+    "setable": false
+}
