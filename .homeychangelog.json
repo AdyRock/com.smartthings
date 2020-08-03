@@ -1,5 +1,8 @@
 {
   "0.0.5": {
     "en": "Limited size of log.\nResults of device search now added to 'Detected' tab of app configuration.\nFixed Contact Sensor problem"
+  },
+  "0.0.6": {
+    "en": "Added some Air Conditioner capabilities"
   }
 }
