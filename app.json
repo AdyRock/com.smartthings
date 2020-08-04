@@ -1,6 +1,6 @@
 {
   "id": "com.smartthings",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "compatibility": ">=3.0.0",
   "sdk": 2,
   "name": {
@@ -109,7 +109,7 @@
       "capabilitiesOptions": {
         "meter_power.delta": {
           "title": {
-            "en": "Power for last wash"
+            "en": "Power Delta"
           },
           "units": {
             "en": "W"
@@ -160,27 +160,12 @@
       ]
     },
     "aircon_fan_oscillation_mode": {
-      "type": "enum",
+      "type": "string",
       "title": {
         "en": "Fan Oscillation Mode"
       },
       "getable": true,
-      "setable": true,
-      "uiComponent": "picker",
-      "values": [
-        {
-          "id": "auto",
-          "title": {
-            "en": "Auto"
-          }
-        },
-        {
-          "id": "manual",
-          "title": {
-            "en": "Manual"
-          }
-        }
-      ]
+      "setable": false
     },
     "aircon_mode": {
       "type": "enum",
@@ -198,6 +183,12 @@
           }
         },
         {
+          "id": "aIComfort",
+          "title": {
+            "en": "AI Auto"
+          }
+        },
+        {
           "id": "cool",
           "title": {
             "en": "Cool"
@@ -210,19 +201,7 @@
           }
         },
         {
-          "id": "coolClean",
-          "title": {
-            "en": "Cool Clean"
-          }
-        },
-        {
-          "id": "dryClean",
-          "title": {
-            "en": "Dry Clean"
-          }
-        },
-        {
-          "id": "fanOnly",
+          "id": "wind",
           "title": {
             "en": "Fan Only"
           }
@@ -232,11 +211,58 @@
           "title": {
             "en": "Heat"
           }
+        }
+      ]
+    },
+    "aircon_option": {
+      "type": "enum",
+      "title": {
+        "en": "Air Conditioner Option"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "off",
+          "title": {
+            "en": "Off"
+          }
         },
         {
-          "id": "heatClean",
+          "id": "sleep",
           "title": {
-            "en": "Heat Clean"
+            "en": "Sleep"
+          }
+        },
+        {
+          "id": "quiet",
+          "title": {
+            "en": "Quiet"
+          }
+        },
+        {
+          "id": "smart",
+          "title": {
+            "en": "Smart"
+          }
+        },
+        {
+          "id": "speed",
+          "title": {
+            "en": "Speed"
+          }
+        },
+        {
+          "id": "windFree",
+          "title": {
+            "en": "Wind Free"
+          }
+        },
+        {
+          "id": "windFreeSleep",
+          "title": {
+            "en": "Wind Free Sleep"
           }
         }
       ]
@@ -253,6 +279,14 @@
       "type": "string",
       "title": {
         "en": "Completion Time"
+      },
+      "getable": true,
+      "setable": false
+    },
+    "dust_filter_status": {
+      "type": "string",
+      "title": {
+        "en": "Dust Filter Status"
       },
       "getable": true,
       "setable": false

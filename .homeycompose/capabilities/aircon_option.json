@@ -1,0 +1,52 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Air Conditioner Option"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [{
+      "id": "off",
+      "title": {
+        "en": "Off"
+      }
+    },
+    {
+      "id": "sleep",
+      "title": {
+        "en": "Sleep"
+      }
+    },
+    {
+      "id": "quiet",
+      "title": {
+        "en": "Quiet"
+      }
+    },
+    {
+      "id": "smart",
+      "title": {
+        "en": "Smart"
+      }
+    },
+    {
+      "id": "speed",
+      "title": {
+        "en": "Speed"
+      }
+    },
+    {
+      "id": "windFree",
+      "title": {
+        "en": "Wind Free"
+      }
+    },
+    {
+        "id": "windFreeSleep",
+        "title": {
+          "en": "Wind Free Sleep"
+        }
+      }
+    ]
+}

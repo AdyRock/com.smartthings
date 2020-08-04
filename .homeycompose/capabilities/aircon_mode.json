@@ -13,6 +13,12 @@
       }
     },
     {
+      "id": "aIComfort",
+      "title": {
+        "en": "AI Auto"
+      }
+    },
+    {
       "id": "cool",
       "title": {
         "en": "Cool"
@@ -25,19 +31,7 @@
       }
     },
     {
-      "id": "coolClean",
-      "title": {
-        "en": "Cool Clean"
-      }
-    },
-    {
-      "id": "dryClean",
-      "title": {
-        "en": "Dry Clean"
-      }
-    },
-    {
-      "id": "fanOnly",
+      "id": "wind",
       "title": {
         "en": "Fan Only"
       }
@@ -46,12 +40,6 @@
       "id": "heat",
       "title": {
         "en": "Heat"
-      }
-    },
-    {
-      "id": "heatClean",
-      "title": {
-        "en": "Heat Clean"
       }
     }
   ]

@@ -1,6 +1,6 @@
 {
   "id": "com.smartthings",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "compatibility": ">=3.0.0",
   "sdk": 2,
   "name": {

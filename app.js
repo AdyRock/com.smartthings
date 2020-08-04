@@ -5,117 +5,152 @@ const https = require( "https" );
 const CapabilityMap2 = {
     "switch":
     {
-        capabilities: [ "onoff" ],
-        icon: "socket.svg"
+        exclude: "", // Ignore if the device has this ST capability
+        capabilities: [ "onoff" ], // The list of Homey capabilities to add
+        icon: "socket.svg" // Icon to apply to the device
     },
     "switchLevel":
     {
+        exclude: "",
         capabilities: [ "dim" ],
         icon: "light.svg"
     },
     "contactSensor":
     {
+        exclude: "",
         capabilities: [ "alarm_contact" ],
         icon: "door.svg"
     },
     "battery":
     {
+        exclude: "",
         capabilities: [ "measure_battery" ],
         icon: ""
     },
     "presenceSensor":
     {
+        exclude: "",
         capabilities: [ "alarm_presence" ],
         icon: "presence.svg"
     },
     "powerConsumptionReport":
     {
+        exclude: "",
         capabilities: [ "measure_power", "meter_power", "meter_power.delta" ],
         icon: ""
     },
     "remoteControlStatus":
     {
+        exclude: "",
         capabilities: [ "remote_status" ],
         icon: ""
     },
     "washerOperatingState":
     {
+        exclude: "",
         capabilities: [ "washer_mode", "washer_job_status", "completion_time" ],
         icon: ""
     },
     "custom.washerWaterTemperature":
     {
+        exclude: "",
         capabilities: [ "water_temperature" ],
         icon: ""
     },
     "custom.washerSpinLevel":
     {
+        exclude: "",
         capabilities: [ "spin_level" ],
         icon: ""
     },
     "custom.washerRinseCycles":
     {
+        exclude: "",
         capabilities: [ "rinse_cycles" ],
         icon: ""
     },
     "washerMode":
     {
+        exclude: "",
         capabilities: [ "washer_status" ],
         icon: "washingmachine.svg"
     },
     "audioVolume":
     {
+        exclude: "airConditionerMode",
         capabilities: [ 'volume_set', 'volume_down', 'volume_up' ],
         icon: ""
     },
     "tvChannel":
     {
+        exclude: "",
         capabilities: [ 'channel_down', 'channel_up' ],
         icon: "television.svg"
     },
     "audioMute":
     {
+        exclude: "",
         capabilities: [ 'volume_mute' ],
         icon: ""
     },
     "airConditionerMode":
     {
-        capabilities: [ 'airCon_mode' ],
+        exclude: "",
+        capabilities: [ 'aircon_mode' ],
         icon: "aircon.svg"
     },
     "airConditionerFanMode":
     {
+        exclude: "",
         capabilities: [ 'aircon_fan_mode' ],
         icon: ""
     },
     "fanOscillationMode":
     {
+        exclude: "",
         capabilities: [ 'aircon_fan_oscillation_mode' ],
         icon: ""
     },
     "temperatureMeasurement":
     {
+        exclude: "",
         capabilities: [ 'measure_temperature' ],
         icon: ""
     },
     "thermostatCoolingSetpoint":
     {
+        exclude: "",
         capabilities: [ 'target_temperature' ],
         icon: ""
     },
     "relativeHumidityMeasurement":
     {
+        exclude: "",
         capabilities: [ 'measure_humidity' ],
         icon: ""
     },
-    "airQualitySensor":
+    "custom.dustFilter":
     {
-        capabilities: [ 'measure_air_quality' ],
+        exclude: "",
+        capabilities: [ 'dust_filter_status' ],
         icon: ""
     },
-    "odorSensor":
+    // "airQualitySensor":
+    // {
+    //     exclude: "",
+    //     capabilities: [ 'measure_air_quality' ],
+    //     icon: ""
+    // },
+    // "odorSensor":
+    // {
+    //     exclude: "",
+    //     capabilities: [ 'measure_odor' ],
+    //     icon: ""
+    // },
+    "custom.airConditionerOptionalMode":
     {
-        capabilities: [ 'measure_odor' ],
+        exclude: "",
+        capabilities: [ 'aircon_option'],
         icon: ""
     }
 }
@@ -181,7 +216,7 @@ class MyApp extends Homey.App
         {
             let searchData = JSON.parse( searchResult.body );
             this.detectedDevices = JSON.stringify( searchData, null, 2 );
-            Homey.ManagerApi.realtime('com.smartthings.detectedDevicesUpdated', {'devices': this.detectedDevices});
+            Homey.ManagerApi.realtime( 'com.smartthings.detectedDevicesUpdated', { 'devices': this.detectedDevices } );
 
             const devices = [];
 
@@ -215,15 +250,23 @@ class MyApp extends Homey.App
                         const capabilityMapEntry = CapabilityMap2[ deviceCapability[ 'id' ] ];
                         if ( capabilityMapEntry != null )
                         {
-                            //Add to the table
-                            if ( capabilityMapEntry.icon )
+                            // Make sure the entry has no exclusion condition or that the capabilities for the device does not have the excluded item
+                            if ( ( capabilityMapEntry.exclude == "" ) || ( deviceCapabilities.findIndex( element => element.id == capabilityMapEntry.exclude ) == -1 ) )
                             {
-                                iconName = capabilityMapEntry.icon;
+                                //Add to the table
+                                if ( capabilityMapEntry.icon )
+                                {
+                                    iconName = capabilityMapEntry.icon;
+                                }
+                                capabilityMapEntry.capabilities.forEach( element =>
+                                {
+                                    capabilities.push( element + subCapability );
+                                } );
                             }
-                            capabilityMapEntry.capabilities.forEach( element =>
+                            else
                             {
-                                capabilities.push( element + subCapability );
-                            } );
+                                Homey.app.updateLog( "Excluded Capability: " + deviceCapability[ 'id' ] );
+                            }
                         }
                     }
                     if ( capabilities.length > 0 )
@@ -565,14 +608,14 @@ class MyApp extends Homey.App
         if ( Homey.ManagerSettings.get( 'logEnabled' ) )
         {
             //Homey.app.log(newMessage);
-            if ( this.diagLog.length > 30000 )
-            {
-                this.diagLog = "";
-            }
             this.diagLog += "* ";
             this.diagLog += newMessage;
             this.diagLog += "\r\n";
-            Homey.ManagerApi.realtime('com.smartthings.logupdated', {'log': this.diagLog});
+            if ( this.diagLog.length > 60000 )
+            {
+                this.diagLog = this.diagLog.substr( -60000 );
+            }
+            Homey.ManagerApi.realtime( 'com.smartthings.logupdated', { 'log': this.diagLog } );
         }
     }
 

@@ -1,7 +1,7 @@
 {
   "type": "string",
   "title": {
-    "en": "Fan Oscillation Mode"
+    "en": "Dust Filter Status"
   },
   "getable": true,
   "setable": false
