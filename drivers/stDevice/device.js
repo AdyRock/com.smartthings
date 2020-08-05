@@ -160,7 +160,7 @@ const capabilityMap1 = {
     },
     "target_temperature":
     {
-        dataEntry: [ 'thermostatCoolingSetpoint', 'thermostatSetpoint', 'value' ],
+        dataEntry: [ 'thermostatCoolingSetpoint', 'coolingSetpoint', 'value' ],
         divider: 0,
         boolCompare: '',
         flowTrigger: null
@@ -301,17 +301,17 @@ class STDevice extends Homey.Device
         if ( this.hasCapability( 'target_temperature' ) )
         {
             this.registerCapabilityListener( 'target_temperature', this.onCapabilityTargetTemperature.bind( this ) );
-		}
+        }
 
         if ( this.hasCapability( 'aircon_mode' ) )
         {
             this.registerCapabilityListener( 'aircon_mode', this.onCapabilityAirConMode.bind( this ) );
-		}
-		
+        }
+
         if ( this.hasCapability( 'aircon_option' ) )
         {
             this.registerCapabilityListener( 'aircon_option', this.onCapabilityAirConOption.bind( this ) );
-		}
+        }
 
         this.getDeviceValues();
     }
@@ -358,125 +358,136 @@ class STDevice extends Homey.Device
                 // Update each capability
                 this.getCapabilities().forEach( capability =>
                 {
-                    // Lookup the capability in the map
-                    Homey.app.updateLog( "Capability Processing: " + capability );
-
-                    var capabilityName = [];
-                    var mapEntry = capabilityMap1[ capability ];
-                    if ( mapEntry == null )
+                    try
                     {
-                        //Not found so try to break up any sub capability parts
-                        var capabilityName = capability.split( "." );
-                        mapEntry = capabilityMap1[ capabilityName[ 0 ] ];
-                        if ( mapEntry == null )
+                        // Lookup the capability in the map
+                        Homey.app.updateLog( "Capability Processing: " + capability );
+
+                        var capabilityName = [];
+                        var mapEntry = capabilityMap1[ capability ];
+                        if ( !mapEntry )
                         {
-                            Homey.app.updateLog( "Capability Map entry not found for: " + capability );
-                            return;
-                        }
-                    }
-
-                    // get the entry from the table for this capability
-                    if ( mapEntry )
-                    {
-                        var value;
-                        if ( capabilityName.length > 1 )
-                        {
-                            // there is a sub capability so set that as the component
-                            value = components[ 'capabilityName[1]' ];
-                        }
-
-                        if ( value == null )
-                        {
-                            value = components.main;
-                        }
-
-                        mapEntry.dataEntry.forEach( entry =>
-                        {
-                            value = value[ entry ];
-                        } )
-
-                        Homey.app.updateLog( "Capability: " + capability + " - Value: " + value );
-
-                        if ( mapEntry.boolCompare )
-                        {
-                            value = ( value === mapEntry.boolCompare );
-                            Homey.app.updateLog( "Set Capability: " + capability + " - Value: " + value );
-                            this.setCapabilityValue( capability, value );
-
-                            if ( mapEntry.flowTrigger )
+                            //Not found so try to break up any sub capability parts
+                            var capabilityName = capability.split( "." );
+                            mapEntry = capabilityMap1[ capabilityName[ 0 ] ];
+                            if ( !mapEntry )
                             {
-                                //this.log("Trigger Check: ", capability, " = ", value + " was " + this.lastValues[capability]);
-                                if ( !this.lastValues.hasOwnProperty( capability ) || ( this.lastValues[ capability ] != value ) )
-                                {
-                                    Object.defineProperty( this.lastValues, capability,
-                                    {
-                                        value: value,
-                                        writable: true
-                                    } );
-
-                                    this.log( "Trigger change: ", capability, " = ", value );
-
-                                    let tokens = {
-                                        'value': value
-                                    }
-
-                                    this.flowTriggers[ mapEntry.flowTrigger ]
-                                        .trigger( this, tokens )
-                                        .catch( this.error )
-                                }
-
+                                Homey.app.updateLog( "Capability Map entry not found for: " + capability );
+                                return;
                             }
                         }
-                        else
+
+                        // get the entry from the table for this capability
+                        if ( mapEntry )
                         {
-                            if ( mapEntry.divider > 0 )
+                            var value;
+                            if ( capabilityName.length > 1 )
                             {
-                                value /= mapEntry.divider;
-                            }
-                            else if ( mapEntry[ 'dateTime' ] )
-                            {
-                                // Format date and time to fit
-                                if ( value.length > 5 )
-                                {
-                                    var d = new Date( value );
-                                    value = d.getHours() + ":" + ( d.getMinutes() < 10 ? "0" : "" ) + d.getMinutes() + " " + ( d.getDate() < 10 ? "0" : "" ) + d.getDate() + "-" + ( d.getMonth() < 10 ? "0" : "" ) + d.getMonth();
-                                }
+                                // there is a sub capability so set that as the component
+                                value = components[ 'capabilityName[1]' ];
                             }
 
-                            Homey.app.updateLog( "Set Capability: " + capability + " - Value: " + value );
-                            this.setCapabilityValue( capability, value );
-
-                            if ( mapEntry.flowTrigger )
+                            if ( value == null )
                             {
-                                //this.log("Trigger Check: ", capability, " = ", value + " was " + this.lastValues[capability]);
-                                if ( !this.lastValues.hasOwnProperty( capability ) || ( this.lastValues[ capability ] != value ) )
+                                value = components.main;
+                            }
+
+                            mapEntry.dataEntry.forEach( entry =>
+                            {
+                                value = value[ entry ];
+                            } )
+
+                            Homey.app.updateLog( "Capability: " + capability + " - Value: " + value );
+
+                            if ( mapEntry.boolCompare )
+                            {
+                                value = ( value === mapEntry.boolCompare );
+                                Homey.app.updateLog( "Set Capability: " + capability + " - Value: " + value );
+                                this.setCapabilityValue( capability, value );
+
+                                if ( mapEntry.flowTrigger )
                                 {
-                                    if ( !this.lastValues.hasOwnProperty( capability ) )
+                                    //this.log("Trigger Check: ", capability, " = ", value + " was " + this.lastValues[capability]);
+                                    if ( !this.lastValues.hasOwnProperty( capability ) || ( this.lastValues[ capability ] != value ) )
                                     {
                                         Object.defineProperty( this.lastValues, capability,
                                         {
                                             value: value,
                                             writable: true
                                         } );
+
+                                        this.log( "Trigger change: ", capability, " = ", value );
+
+                                        let tokens = {
+                                            'value': value
+                                        }
+
+                                        this.flowTriggers[ mapEntry.flowTrigger ]
+                                            .trigger( this, tokens )
+                                            .catch( this.error )
                                     }
-                                    else
+
+                                }
+                            }
+                            else
+                            {
+                                if ( mapEntry.divider > 0 )
+                                {
+                                    value /= mapEntry.divider;
+                                }
+                                else if ( mapEntry[ 'dateTime' ] )
+                                {
+                                    // Format date and time to fit
+                                    if ( value.length > 5 )
                                     {
-                                        this.lastValues[ capability ] = value;
+                                        var d = new Date( value );
+                                        value = d.getHours() + ":" + ( d.getMinutes() < 10 ? "0" : "" ) + d.getMinutes() + " " + ( d.getDate() < 10 ? "0" : "" ) + d.getDate() + "-" + ( d.getMonth() < 10 ? "0" : "" ) + d.getMonth();
                                     }
-
-                                    this.log( "Trigger change: ", capability, " = ", value );
-
-                                    let state = {
-                                        'value': value
-                                    }
-
-                                    this.flowTriggers[ mapEntry.flowTrigger ]
-                                        .trigger( this, {}, state )
-                                        .catch( this.error )
                                 }
 
+                                Homey.app.updateLog( "Set Capability: " + capability + " - Value: " + value );
+                                this.setCapabilityValue( capability, value );
+
+                                if ( mapEntry.flowTrigger )
+                                {
+                                    //this.log("Trigger Check: ", capability, " = ", value + " was " + this.lastValues[capability]);
+                                    if ( !this.lastValues.hasOwnProperty( capability ) || ( this.lastValues[ capability ] != value ) )
+                                    {
+                                        if ( !this.lastValues.hasOwnProperty( capability ) )
+                                        {
+                                            Object.defineProperty( this.lastValues, capability,
+                                            {
+                                                value: value,
+                                                writable: true
+                                            } );
+                                        }
+                                        else
+                                        {
+                                            this.lastValues[ capability ] = value;
+                                        }
+
+                                        this.log( "Trigger change: ", capability, " = ", value );
+
+                                        let state = {
+                                            'value': value
+                                        }
+
+                                        this.flowTriggers[ mapEntry.flowTrigger ]
+                                            .trigger( this, {}, state )
+                                            .catch( this.error )
+                                    }
+
+                                }
                             }
                         }
+                        else
+                        {
+                            Homey.app.updateLog( "Capability Map entry NOT found for: " + capability );
+                        }
+                    }
+                    catch ( err )
+                    {
+                        this.log( "getDeviceValues error: " + Homey.app.varToString( err ) );
                     }
                 } );
             }
@@ -487,7 +498,7 @@ class STDevice extends Homey.Device
         }
         catch ( err )
         {
-            this.log( Homey.app.varToString( err ) );
+            this.log( "getDeviceValues error: " + Homey.app.varToString( err ) );
         }
     }
 
@@ -885,7 +896,7 @@ class STDevice extends Homey.Device
                     "component": "main",
                     "capability": "thermostatCoolingSetpoint",
                     "command": "setCoolingSetpoint",
-                    "arguments": [value]
+                    "arguments": [ value ]
                 } ]
             }
 
@@ -898,7 +909,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            Homey.app.updateLog( this.getName() + " onCapabilityChannelUp " + Homey.app.varToString( err ) );
+            Homey.app.updateLog( this.getName() + " onCapabilityTargetTemperature " + Homey.app.varToString( err ) );
         }
     }
 
@@ -912,8 +923,8 @@ class STDevice extends Homey.Device
                 {
                     "component": "main",
                     "capability": "custom.airConditionerOptionalMode",
-                    "command": "setacOptionalMode",
-                    "arguments": [value]
+                    "command": "setAcOptionalMode",
+                    "arguments": [ value ]
                 } ]
             }
 
@@ -926,7 +937,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            Homey.app.updateLog( this.getName() + " onCapabilityChannelUp " + Homey.app.varToString( err ) );
+            Homey.app.updateLog( this.getName() + " onCapabilityAirConOption " + Homey.app.varToString( err ) );
         }
     }
 
@@ -940,8 +951,8 @@ class STDevice extends Homey.Device
                 {
                     "component": "main",
                     "capability": "airConditionerMode",
-                    "command": "setairConditionerMode",
-                    "arguments": [value]
+                    "command": "setAirConditionerMode",
+                    "arguments": [ value ]
                 } ]
             }
 
@@ -954,7 +965,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            Homey.app.updateLog( this.getName() + " onCapabilityChannelUp " + Homey.app.varToString( err ) );
+            Homey.app.updateLog( this.getName() + " onCapabilityAirConMode " + Homey.app.varToString( err ) );
         }
     }
 }

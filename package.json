@@ -4,5 +4,8 @@
   "main": "app.js",
   "devDependencies": {
     "homey": "^2.2.4"
+  },
+  "dependencies": {
+    "homey-log": "^1.0.6"
   }
 }
