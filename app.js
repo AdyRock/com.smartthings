@@ -153,6 +153,12 @@ const CapabilityMap2 = {
         exclude: "",
         capabilities: [ 'aircon_option'],
         icon: ""
+    },
+    "custom.autoCleaningMode":
+    {
+        exclude: "",
+        capabilities: [ 'aircon_auto_cleaning_mode'],
+        icon: ""
     }
 }
 

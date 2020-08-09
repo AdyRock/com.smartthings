@@ -168,20 +168,13 @@ const capabilityMap1 = {
     "measure_humidity":
     {
         dataEntry: [ 'relativeHumidityMeasurement', 'humidity', 'value' ],
-        divider: 100,
+        divider: 0,
         boolCompare: '',
         flowTrigger: null
     },
     "measure_air_quality":
     {
         dataEntry: [ 'airQualitySensor', 'airQuality', 'value' ],
-        divider: 0,
-        boolCompare: '',
-        flowTrigger: null
-    },
-    "measure_odor":
-    {
-        dataEntry: [ 'odorSensor', 'odorLevel', 'value' ],
         divider: 0,
         boolCompare: '',
         flowTrigger: null
@@ -199,7 +192,14 @@ const capabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: null
-    }
+    },
+    "aircon_auto_cleaning_mode":
+    {
+        dataEntry: [ 'custom.autoCleaningMode', 'autoCleaningMode', 'value' ],
+        divider: 0,
+        boolCompare: 'on',
+        flowTrigger: null
+    },
 };
 
 class STDevice extends Homey.Device
@@ -311,6 +311,16 @@ class STDevice extends Homey.Device
         if ( this.hasCapability( 'aircon_option' ) )
         {
             this.registerCapabilityListener( 'aircon_option', this.onCapabilityAirConOption.bind( this ) );
+        }
+
+        if ( this.hasCapability( 'aircon_auto_cleaning_mode' ) )
+        {
+            this.registerCapabilityListener( 'aircon_auto_cleaning_mode', this.onCapabilityAirCon_auto_cleaning_mode.bind( this ) );
+        }
+
+        if ( this.hasCapability( 'aircon_fan_oscillation_mode' ) )
+        {
+            this.registerCapabilityListener( 'aircon_fan_oscillation_mode', this.onCapabilityAirCon_fan_oscillation_mode.bind( this ) );
         }
 
         this.getDeviceValues();
@@ -953,6 +963,61 @@ class STDevice extends Homey.Device
                     "capability": "airConditionerMode",
                     "command": "setAirConditionerMode",
                     "arguments": [ value ]
+                } ]
+            }
+
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // Set the dim Value on the device using the unique feature ID stored during pairing
+            await Homey.app.setDeviceCapabilityValue( devData.id, body );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            Homey.app.updateLog( this.getName() + " onCapabilityAirConMode " + Homey.app.varToString( err ) );
+        }
+    }
+
+    // this method is called when the Homey device has requested a temperature set point change
+    async onCapabilityAirCon_fan_oscillation_mode( value, opts )
+    {
+        try
+        {
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "fanOscillationMode",
+                    "command": "setFanOscillationMode",
+                    "arguments": [ value ]
+                } ]
+            }
+
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // Set the dim Value on the device using the unique feature ID stored during pairing
+            await Homey.app.setDeviceCapabilityValue( devData.id, body );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            Homey.app.updateLog( this.getName() + " onCapabilityAirConMode " + Homey.app.varToString( err ) );
+        }
+    }
+
+    async onCapabilityAirCon_auto_cleaning_mode( value, opts )
+    {
+        try
+        {
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "custom.autoCleaningMode",
+                    "command": "setAutoCleaningMode",
+                    "arguments": [ value ? "on" : "off" ]
                 } ]
             }
 
