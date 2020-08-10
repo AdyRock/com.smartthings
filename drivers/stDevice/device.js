@@ -200,6 +200,13 @@ const capabilityMap1 = {
         boolCompare: 'on',
         flowTrigger: null
     },
+    "silent_mode":
+    {
+        dataEntry: [ 'audioVolume', 'volume', 'value' ],
+        divider: 0,
+        boolCompare: '0',
+        flowTrigger: null
+    }
 };
 
 class STDevice extends Homey.Device
@@ -323,6 +330,21 @@ class STDevice extends Homey.Device
             this.registerCapabilityListener( 'aircon_fan_oscillation_mode', this.onCapabilityAirCon_fan_oscillation_mode.bind( this ) );
         }
 
+        if ( this.hasCapability( 'silent_mode' ) )
+        {
+            this.registerCapabilityListener( 'silent_mode', this.onCapabilitySilent_mode.bind( this ) );
+        }
+
+        if ( this.hasCapability( 'ac_lights_on' ) )
+        {
+            this.registerCapabilityListener( 'ac_lights_on', this.onCapabilityAc_lights_on.bind( this ) );
+        }
+
+        if ( this.hasCapability( 'ac_lights_off' ) )
+        {
+            this.registerCapabilityListener( 'ac_lights_off', this.onCapabilityAc_lights_off.bind( this ) );
+        }
+
         this.getDeviceValues();
     }
 
@@ -347,6 +369,11 @@ class STDevice extends Homey.Device
         }
         else if ( this.hasCapability( 'aircon_mode' ) )
         {
+            if ( !this.hasCapability( 'ac_lights_on' ) )
+            {
+                this.addCapability( 'ac_lights_on' );
+                this.addCapability( 'ac_lights_off' );
+            }
             this.setClass( 'fan' );
         }
     }
@@ -1003,7 +1030,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            Homey.app.updateLog( this.getName() + " onCapabilityAirConMode " + Homey.app.varToString( err ) );
+            Homey.app.updateLog( this.getName() + " onCapabilityAirCon_fan_oscillation_mode " + Homey.app.varToString( err ) );
         }
     }
 
@@ -1030,7 +1057,88 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            Homey.app.updateLog( this.getName() + " onCapabilityAirConMode " + Homey.app.varToString( err ) );
+            Homey.app.updateLog( this.getName() + " onCapabilityAirCon_auto_cleaning_mode " + Homey.app.varToString( err ) );
+        }
+    }
+
+    async onCapabilitySilent_mode( value, opts )
+    {
+        try
+        {
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "audioVolume",
+                    "command": "setVolume",
+                    "arguments": [ value ? "0" : "100" ]
+                } ]
+            }
+
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // Set the dim Value on the device using the unique feature ID stored during pairing
+            await Homey.app.setDeviceCapabilityValue( devData.id, body );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            Homey.app.updateLog( this.getName() + " onCapabilitySilent_mode " + Homey.app.varToString( err ) );
+        }
+    }
+
+    async onCapabilityAc_lights_on( value, opts )
+    {
+        try
+        {
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "light",
+                    "command": "setLight",
+                    "arguments": "off"
+                } ]
+            }
+
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // Set the dim Value on the device using the unique feature ID stored during pairing
+            await Homey.app.setDeviceCapabilityValue( devData.id, body );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            Homey.app.updateLog( this.getName() + " onCapabilityAc_lights_on " + Homey.app.varToString( err ) );
+        }
+    }
+
+    async onCapabilityAc_lights_of( value, opts )
+    {
+        try
+        {
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "light",
+                    "command": "setLight",
+                    "arguments": "on"
+                } ]
+            }
+
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // Set the dim Value on the device using the unique feature ID stored during pairing
+            await Homey.app.setDeviceCapabilityValue( devData.id, body );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            Homey.app.updateLog( this.getName() + " onCapabilityAc_lights_of " + Homey.app.varToString( err ) );
         }
     }
 }

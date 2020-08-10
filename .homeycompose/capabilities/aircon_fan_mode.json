@@ -1,22 +1,46 @@
 {
-  "type": "enum",
-  "title": {
-    "en": "Air Conditioner Fan Mode"
-  },
-  "getable": true,
-  "setable": true,
-  "uiComponent": "picker",
-  "values": [{
-      "id": "auto",
-      "title": {
-        "en": "Auto"
-      }
+    "type": "enum",
+    "title":
+    {
+        "en": "Wind Strength"
+    },
+    "getable": true,
+    "setable": true,
+    "uiComponent": "picker",
+    "values": [
+    {
+        "id": "auto",
+        "title":
+        {
+            "en": "Auto"
+        }
     },
     {
-      "id": "manual",
-      "title": {
-        "en": "Manual"
-      }
-    }
-  ]
+        "id": "low",
+        "title":
+        {
+            "en": "Low"
+        }
+    },
+    {
+        "id": "medium",
+        "title":
+        {
+            "en": "Medium"
+        }
+    },
+    {
+        "id": "high",
+        "title":
+        {
+            "en": "High"
+        }
+    },
+    {
+        "id": "turbo",
+        "title":
+        {
+            "en": "Turbo"
+        }
+    } ]
 }

@@ -1,38 +1,39 @@
 {
-  "type": "enum",
-  "title": {
-    "en": "Wind Direction"
-  },
-  "getable": true,
-  "setable": true,
-  "uiComponent": "picker",
-  "values": [
-  {
-      "id": "vertical",
-      "title":
-      {
-          "en": "Vertical"
-      }
-  },
-  {
-      "id": "horizontal",
-      "title":
-      {
-          "en": "Horizontal"
-      }
-  },
-  {
-      "id": "fix",
-      "title":
-      {
-          "en": "Fix"
-      }
-  },
-  {
-      "id": "all",
-      "title":
-      {
-          "en": "All"
-      }
-  }]
+    "type": "enum",
+    "title":
+    {
+        "en": "Wind Direction"
+    },
+    "getable": true,
+    "setable": true,
+    "uiComponent": "picker",
+    "values": [
+    {
+        "id": "vertical",
+        "title":
+        {
+            "en": "Vertical"
+        }
+    },
+    {
+        "id": "horizontal",
+        "title":
+        {
+            "en": "Horizontal"
+        }
+    },
+    {
+        "id": "fixed",
+        "title":
+        {
+            "en": "Fixed"
+        }
+    },
+    {
+        "id": "all",
+        "title":
+        {
+            "en": "All"
+        }
+    } ]
 }

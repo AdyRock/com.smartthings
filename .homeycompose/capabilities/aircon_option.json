@@ -2,7 +2,7 @@
     "type": "enum",
     "title":
     {
-        "en": "Air Conditioner Option"
+        "en": "Options"
     },
     "getable": true,
     "setable": true,

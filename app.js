@@ -136,18 +136,6 @@ const CapabilityMap2 = {
         capabilities: [ 'dust_filter_status' ],
         icon: ""
     },
-    // "airQualitySensor":
-    // {
-    //     exclude: "",
-    //     capabilities: [ 'measure_air_quality' ],
-    //     icon: ""
-    // },
-    // "odorSensor":
-    // {
-    //     exclude: "",
-    //     capabilities: [ 'measure_odor' ],
-    //     icon: ""
-    // },
     "custom.airConditionerOptionalMode":
     {
         exclude: "",

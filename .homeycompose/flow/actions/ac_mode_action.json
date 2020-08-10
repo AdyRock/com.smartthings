@@ -1,0 +1,59 @@
+{
+    "title":
+    {
+        "en": "AC Mode"
+    },
+    "args": [
+    {
+        "type": "device",
+        "name": "device",
+        "filter": "driver_id=stDevice&class=fan"
+    },
+    {
+        "type": "dropdown",
+        "name": "ac_mode",
+        "values": [
+        {
+            "id": "auto",
+            "title":
+            {
+                "en": "Auto"
+            }
+        },
+        {
+            "id": "aIComfort",
+            "title":
+            {
+                "en": "AI Auto"
+            }
+        },
+        {
+            "id": "cool",
+            "title":
+            {
+                "en": "Cool"
+            }
+        },
+        {
+            "id": "dry",
+            "title":
+            {
+                "en": "Dry"
+            }
+        },
+        {
+            "id": "wind",
+            "title":
+            {
+                "en": "Fan Only"
+            }
+        },
+        {
+            "id": "heat",
+            "title":
+            {
+                "en": "Heat"
+            }
+        } ]
+    } ]
+}

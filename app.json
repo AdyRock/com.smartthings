@@ -93,6 +93,63 @@
         ],
         "id": "washer_status_changed"
       }
+    ],
+    "actions": [
+      {
+        "title": {
+          "en": "AC Mode"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=stDevice&class=fan"
+          },
+          {
+            "type": "dropdown",
+            "name": "ac_mode",
+            "values": [
+              {
+                "id": "auto",
+                "title": {
+                  "en": "Auto"
+                }
+              },
+              {
+                "id": "aIComfort",
+                "title": {
+                  "en": "AI Auto"
+                }
+              },
+              {
+                "id": "cool",
+                "title": {
+                  "en": "Cool"
+                }
+              },
+              {
+                "id": "dry",
+                "title": {
+                  "en": "Dry"
+                }
+              },
+              {
+                "id": "wind",
+                "title": {
+                  "en": "Fan Only"
+                }
+              },
+              {
+                "id": "heat",
+                "title": {
+                  "en": "Heat"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "ac_mode_action"
+      }
     ]
   },
   "drivers": [
@@ -136,10 +193,37 @@
     }
   ],
   "capabilities": {
+    "ac_lights_off": {
+      "type": "boolean",
+      "title": {
+        "en": "Lights Off"
+      },
+      "getable": false,
+      "setable": true,
+      "uiComponent": "button"
+    },
+    "ac_lights_on": {
+      "type": "boolean",
+      "title": {
+        "en": "Lights On"
+      },
+      "getable": false,
+      "setable": true,
+      "uiComponent": "button"
+    },
+    "aircon_auto_cleaning_mode": {
+      "type": "boolean",
+      "title": {
+        "en": "Cleaning Mode"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "toggle"
+    },
     "aircon_fan_mode": {
       "type": "enum",
       "title": {
-        "en": "Air Conditioner Fan Mode"
+        "en": "Wind Strength"
       },
       "getable": true,
       "setable": true,
@@ -152,25 +236,70 @@
           }
         },
         {
-          "id": "manual",
+          "id": "low",
           "title": {
-            "en": "Manual"
+            "en": "Low"
+          }
+        },
+        {
+          "id": "medium",
+          "title": {
+            "en": "Medium"
+          }
+        },
+        {
+          "id": "high",
+          "title": {
+            "en": "High"
+          }
+        },
+        {
+          "id": "turbo",
+          "title": {
+            "en": "Turbo"
           }
         }
       ]
     },
     "aircon_fan_oscillation_mode": {
-      "type": "string",
+      "type": "enum",
       "title": {
-        "en": "Fan Oscillation Mode"
+        "en": "Wind Direction"
       },
       "getable": true,
-      "setable": false
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "vertical",
+          "title": {
+            "en": "Vertical"
+          }
+        },
+        {
+          "id": "horizontal",
+          "title": {
+            "en": "Horizontal"
+          }
+        },
+        {
+          "id": "fixed",
+          "title": {
+            "en": "Fixed"
+          }
+        },
+        {
+          "id": "all",
+          "title": {
+            "en": "All"
+          }
+        }
+      ]
     },
     "aircon_mode": {
       "type": "enum",
       "title": {
-        "en": "Air Conditioner Mode"
+        "en": "Mode"
       },
       "getable": true,
       "setable": true,
@@ -217,7 +346,7 @@
     "aircon_option": {
       "type": "enum",
       "title": {
-        "en": "Air Conditioner Option"
+        "en": "Options"
       },
       "getable": true,
       "setable": true,
@@ -365,6 +494,15 @@
           }
         }
       ]
+    },
+    "silent_mode": {
+      "type": "boolean",
+      "title": {
+        "en": "Cleaning Mode"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "toggle"
     },
     "spin_level": {
       "type": "enum",

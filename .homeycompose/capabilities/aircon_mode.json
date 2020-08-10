@@ -1,7 +1,7 @@
 {
   "type": "enum",
   "title": {
-    "en": "Air Conditioner Mode"
+    "en": "Mode"
   },
   "getable": true,
   "setable": true,
