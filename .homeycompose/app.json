@@ -3,6 +3,7 @@
   "version": "0.0.9",
   "compatibility": ">=3.0.0",
   "sdk": 2,
+  "brandColor": "#FF7D4B",
   "name": {
     "en": "SmartThings"
   },
