@@ -97,13 +97,167 @@
     "actions": [
       {
         "title": {
-          "en": "AC Mode"
+          "en": "AC Cleaning Mode"
         },
         "args": [
           {
             "type": "device",
             "name": "device",
             "filter": "driver_id=stDevice&class=fan"
+          },
+          {
+            "type": "dropdown",
+            "name": "ac_auto_cleaning_option",
+            "values": [
+              {
+                "id": "off",
+                "title": {
+                  "en": "Off"
+                }
+              },
+              {
+                "id": "auto",
+                "title": {
+                  "en": "Auto"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "ac_auto_cleaning_mode_action"
+      },
+      {
+        "title": {
+          "en": "AC Wind Speed"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=stDevice&class=fan"
+          },
+          {
+            "type": "dropdown",
+            "name": "ac_fan_mode",
+            "values": [
+              {
+                "id": "auto",
+                "title": {
+                  "en": "Auto"
+                }
+              },
+              {
+                "id": "low",
+                "title": {
+                  "en": "Low"
+                }
+              },
+              {
+                "id": "medium",
+                "title": {
+                  "en": "Medium"
+                }
+              },
+              {
+                "id": "high",
+                "title": {
+                  "en": "High"
+                }
+              },
+              {
+                "id": "turbo",
+                "title": {
+                  "en": "Turbo"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "ac_fan_mode_action"
+      },
+      {
+        "title": {
+          "en": "AC Wind Direction"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=stDevice&class=fan"
+          },
+          {
+            "type": "dropdown",
+            "name": "ac_fan_oscillation_mode",
+            "values": [
+              {
+                "id": "vertical",
+                "title": {
+                  "en": "Vertical"
+                }
+              },
+              {
+                "id": "horizontal",
+                "title": {
+                  "en": "Horizontal"
+                }
+              },
+              {
+                "id": "fixed",
+                "title": {
+                  "en": "Fixed"
+                }
+              },
+              {
+                "id": "all",
+                "title": {
+                  "en": "All"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "ac_fan_oscillation_mode_action"
+      },
+      {
+        "title": {
+          "en": "AC Lights"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=stDevice&class=fan"
+          },
+          {
+            "type": "dropdown",
+            "name": "ac_lights_option",
+            "values": [
+              {
+                "id": "off",
+                "title": {
+                  "en": "Off"
+                }
+              },
+              {
+                "id": "on",
+                "title": {
+                  "en": "On"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "ac_lights_action"
+      },
+      {
+        "title": {
+          "en": "AC Mode"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=stDevice"
           },
           {
             "type": "dropdown",
@@ -149,6 +303,67 @@
           }
         ],
         "id": "ac_mode_action"
+      },
+      {
+        "title": {
+          "en": "AC Options"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=stDevice&class=fan"
+          },
+          {
+            "type": "dropdown",
+            "name": "ac_option",
+            "values": [
+              {
+                "id": "off",
+                "title": {
+                  "en": "Off"
+                }
+              },
+              {
+                "id": "sleep",
+                "title": {
+                  "en": "Sleep"
+                }
+              },
+              {
+                "id": "quiet",
+                "title": {
+                  "en": "Quiet"
+                }
+              },
+              {
+                "id": "smart",
+                "title": {
+                  "en": "Smart"
+                }
+              },
+              {
+                "id": "speed",
+                "title": {
+                  "en": "Speed"
+                }
+              },
+              {
+                "id": "windFree",
+                "title": {
+                  "en": "Wind Free"
+                }
+              },
+              {
+                "id": "windFreeSleep",
+                "title": {
+                  "en": "Wind Free Sleep"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "ac_options_action"
       }
     ]
   },
@@ -225,6 +440,7 @@
       "title": {
         "en": "Wind Strength"
       },
+      "icon": "/assets/wind_strength.svg",
       "getable": true,
       "setable": true,
       "uiComponent": "picker",
@@ -266,6 +482,7 @@
       "title": {
         "en": "Wind Direction"
       },
+      "icon": "/assets/wind_direction.svg",
       "getable": true,
       "setable": true,
       "uiComponent": "picker",
@@ -401,6 +618,7 @@
       "title": {
         "en": "Presence"
       },
+      "icon": "/assets/presence.svg",
       "getable": true,
       "setable": false
     },
@@ -409,6 +627,7 @@
       "title": {
         "en": "Completion Time"
       },
+      "icon": "/assets/finish_time.svg",
       "getable": true,
       "setable": false
     },
@@ -417,6 +636,7 @@
       "title": {
         "en": "Dust Filter Status"
       },
+      "icon": "/assets/dust_filter.svg",
       "getable": true,
       "setable": false
     },
@@ -445,6 +665,7 @@
       "title": {
         "en": "Remote Control"
       },
+      "icon": "/assets/remote_control.svg",
       "getable": true,
       "setable": false
     },
@@ -562,6 +783,7 @@
       "title": {
         "en": "Washer Job Status"
       },
+      "icon": "/assets/wash_status.svg",
       "getable": true,
       "setable": false
     },
@@ -694,6 +916,7 @@
       "title": {
         "en": "Water Temperature"
       },
+      "icon": "/assets/thermometer.svg",
       "getable": true,
       "setable": true,
       "uiComponent": "picker",

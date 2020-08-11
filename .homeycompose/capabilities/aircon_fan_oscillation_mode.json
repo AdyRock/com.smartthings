@@ -4,6 +4,7 @@
     {
         "en": "Wind Direction"
     },
+    "icon": "/assets/wind_direction.svg",
     "getable": true,
     "setable": true,
     "uiComponent": "picker",

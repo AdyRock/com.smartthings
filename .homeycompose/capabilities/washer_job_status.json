@@ -3,6 +3,7 @@
   "title": {
     "en": "Washer Job Status"
   },
+  "icon": "/assets/wash_status.svg",
   "getable": true,
   "setable": false
 }

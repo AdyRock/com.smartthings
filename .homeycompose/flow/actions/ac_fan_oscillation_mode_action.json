@@ -1,0 +1,45 @@
+{
+    "title":
+    {
+        "en": "AC Wind Direction"
+    },
+    "args": [
+    {
+        "type": "device",
+        "name": "device",
+        "filter": "driver_id=stDevice&class=fan"
+    },
+    {
+        "type": "dropdown",
+        "name": "ac_fan_oscillation_mode",
+        "values": [
+        {
+            "id": "vertical",
+            "title":
+            {
+                "en": "Vertical"
+            }
+        },
+        {
+            "id": "horizontal",
+            "title":
+            {
+                "en": "Horizontal"
+            }
+        },
+        {
+            "id": "fixed",
+            "title":
+            {
+                "en": "Fixed"
+            }
+        },
+        {
+            "id": "all",
+            "title":
+            {
+                "en": "All"
+            }
+        } ]
+    } ]
+}

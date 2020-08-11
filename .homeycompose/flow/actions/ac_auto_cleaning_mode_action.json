@@ -1,0 +1,31 @@
+{
+    "title":
+    {
+        "en": "AC Cleaning Mode"
+    },
+    "args": [
+    {
+        "type": "device",
+        "name": "device",
+        "filter": "driver_id=stDevice&class=fan"
+    },
+    {
+        "type": "dropdown",
+        "name": "ac_auto_cleaning_option",
+        "values": [
+        {
+            "id": "off",
+            "title":
+            {
+                "en": "Off"
+            }
+        },
+        {
+            "id": "auto",
+            "title":
+            {
+                "en": "Auto"
+            }
+        } ]
+    } ]
+}

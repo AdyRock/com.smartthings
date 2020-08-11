@@ -1,0 +1,66 @@
+{
+    "title":
+    {
+        "en": "AC Options"
+    },
+    "args": [
+    {
+        "type": "device",
+        "name": "device",
+        "filter": "driver_id=stDevice&class=fan"
+    },
+    {
+        "type": "dropdown",
+        "name": "ac_option",
+        "values": [
+        {
+            "id": "off",
+            "title":
+            {
+                "en": "Off"
+            }
+        },
+        {
+            "id": "sleep",
+            "title":
+            {
+                "en": "Sleep"
+            }
+        },
+        {
+            "id": "quiet",
+            "title":
+            {
+                "en": "Quiet"
+            }
+        },
+        {
+            "id": "smart",
+            "title":
+            {
+                "en": "Smart"
+            }
+        },
+        {
+            "id": "speed",
+            "title":
+            {
+                "en": "Speed"
+            }
+        },
+        {
+            "id": "windFree",
+            "title":
+            {
+                "en": "Wind Free"
+            }
+        },
+        {
+            "id": "windFreeSleep",
+            "title":
+            {
+                "en": "Wind Free Sleep"
+            }
+        } ]
+    } ]
+}

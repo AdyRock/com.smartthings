@@ -1,17 +1,17 @@
 {
     "title":
     {
-        "en": "AC Mode"
+        "en": "AC Wind Speed"
     },
     "args": [
     {
         "type": "device",
         "name": "device",
-        "filter": "driver_id=stDevice"
+        "filter": "driver_id=stDevice&class=fan"
     },
     {
         "type": "dropdown",
-        "name": "ac_mode",
+        "name": "ac_fan_mode",
         "values": [
         {
             "id": "auto",
@@ -21,38 +21,31 @@
             }
         },
         {
-            "id": "aIComfort",
+            "id": "low",
             "title":
             {
-                "en": "AI Auto"
+                "en": "Low"
             }
         },
         {
-            "id": "cool",
+            "id": "medium",
             "title":
             {
-                "en": "Cool"
+                "en": "Medium"
             }
         },
         {
-            "id": "dry",
+            "id": "high",
             "title":
             {
-                "en": "Dry"
+                "en": "High"
             }
         },
         {
-            "id": "wind",
+            "id": "turbo",
             "title":
             {
-                "en": "Fan Only"
-            }
-        },
-        {
-            "id": "heat",
-            "title":
-            {
-                "en": "Heat"
+                "en": "Turbo"
             }
         } ]
     } ]

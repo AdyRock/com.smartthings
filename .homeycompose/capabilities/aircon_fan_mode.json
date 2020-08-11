@@ -4,6 +4,7 @@
     {
         "en": "Wind Strength"
     },
+    "icon": "/assets/wind_strength.svg",
     "getable": true,
     "setable": true,
     "uiComponent": "picker",

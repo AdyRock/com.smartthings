@@ -3,6 +3,7 @@
   "title": {
     "en": "Remote Control"
   },
+  "icon": "/assets/remote_control.svg",
   "getable": true,
   "setable": false
 }

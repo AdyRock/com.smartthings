@@ -1115,7 +1115,7 @@ class STDevice extends Homey.Device
         }
     }
 
-    async onCapabilityAc_lights_of( value, opts )
+    async onCapabilityAc_lights_off( value, opts )
     {
         try
         {
@@ -1138,7 +1138,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            Homey.app.updateLog( this.getName() + " onCapabilityAc_lights_of " + Homey.app.varToString( err ) );
+            Homey.app.updateLog( this.getName() + " onCapabilityAc_lights_off " + Homey.app.varToString( err ) );
         }
     }
 }

@@ -9,6 +9,9 @@
     "en": "Added more Air Conditioner features (WIP)"
   },
   "0.0.8": {
-    "en": "Fixed premature exit from capability processing loop if an error occurs\nAdded set functions for temperature, mode and optional mode\nFixed name error in capability lookup table"
+    "en": "Fixed premature exit from capability processing loop if an error occurs\nAdded set functions for temperature, mode and optional mode\nFixed name error in capability lookup table (WIP)"
+  },
+  "0.0.9": {
+    "en": "Added more AC controls and flow cards (WIP)"
   }
 }
