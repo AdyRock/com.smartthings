@@ -3,7 +3,6 @@
   "title": {
     "en": "Water Temperature"
   },
-  "icon": "/assets/thermometer.svg",
   "getable": true,
   "setable": true,
   "uiComponent": "picker",
