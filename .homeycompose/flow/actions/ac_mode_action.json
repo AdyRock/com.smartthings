@@ -7,7 +7,7 @@
     {
         "type": "device",
         "name": "device",
-        "filter": "driver_id=stDevice"
+        "filter": "driver_id=stDevice&class=fan"
     },
     {
         "type": "dropdown",

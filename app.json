@@ -30,6 +30,31 @@
     "triggers": [
       {
         "title": {
+          "en": "The dust filter status has changed"
+        },
+        "hint": {
+          "en": "This card starts a Flow when the dust filter status changes."
+        },
+        "tokens": [
+          {
+            "name": "value",
+            "type": "boolean",
+            "title": {
+              "en": "Status"
+            }
+          }
+        ],
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=stDevice&capabilities=dust_filter_status"
+          }
+        ],
+        "id": "dustStatus_changed"
+      },
+      {
+        "title": {
           "en": "The presence status has changed"
         },
         "hint": {
@@ -258,7 +283,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=stDevice"
+            "filter": "driver_id=stDevice&class=fan"
           },
           {
             "type": "dropdown",
@@ -365,6 +390,37 @@
           }
         ],
         "id": "ac_options_action"
+      },
+      {
+        "title": {
+          "en": "AC Sound Mode"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=stDevice&class=fan"
+          },
+          {
+            "type": "dropdown",
+            "name": "ac_sound_option",
+            "values": [
+              {
+                "id": "off",
+                "title": {
+                  "en": "Off"
+                }
+              },
+              {
+                "id": "on",
+                "title": {
+                  "en": "On"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "ac_sound_mode_action"
       }
     ]
   },
@@ -395,6 +451,9 @@
           "template": "list_devices",
           "navigation": {
             "next": "add_devices"
+          },
+          "options": {
+            "singular": true
           }
         },
         {
@@ -718,7 +777,7 @@
     "silent_mode": {
       "type": "boolean",
       "title": {
-        "en": "Cleaning Mode"
+        "en": "Silent Mode"
       },
       "getable": true,
       "setable": true,

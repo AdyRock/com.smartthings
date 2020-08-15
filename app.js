@@ -1,4 +1,9 @@
 'use strict';
+
+if (process.env.DEBUG === '1') {
+	require('inspector').open(9222, '0.0.0.0')
+}
+
 const Homey = require( 'homey' );
 const https = require( "https" );
 const Log = require('homey-log').Log;
@@ -6,144 +11,168 @@ const Log = require('homey-log').Log;
 const CapabilityMap2 = {
     "switch":
     {
+        class: "",
         exclude: "", // Ignore if the device has this ST capability
         capabilities: [ "onoff" ], // The list of Homey capabilities to add
         icon: "socket.svg" // Icon to apply to the device
     },
     "switchLevel":
     {
+        class: "light",
         exclude: "",
         capabilities: [ "dim" ],
         icon: "light.svg"
     },
     "contactSensor":
     {
+        class: "sensor",
         exclude: "",
         capabilities: [ "alarm_contact" ],
         icon: "door.svg"
     },
     "battery":
     {
+        class: "",
         exclude: "",
         capabilities: [ "measure_battery" ],
         icon: ""
     },
     "presenceSensor":
     {
+        class: "sensor",
         exclude: "",
         capabilities: [ "alarm_presence" ],
         icon: "presence.svg"
     },
     "powerConsumptionReport":
     {
+        class: "",
         exclude: "",
         capabilities: [ "measure_power", "meter_power", "meter_power.delta" ],
         icon: ""
     },
     "remoteControlStatus":
     {
+        class: "",
         exclude: "",
         capabilities: [ "remote_status" ],
         icon: ""
     },
     "washerOperatingState":
     {
+        class: "",
         exclude: "",
         capabilities: [ "washer_mode", "washer_job_status", "completion_time" ],
         icon: ""
     },
     "custom.washerWaterTemperature":
     {
+        class: "",
         exclude: "",
         capabilities: [ "water_temperature" ],
         icon: ""
     },
     "custom.washerSpinLevel":
     {
+        class: "",
         exclude: "",
         capabilities: [ "spin_level" ],
         icon: ""
     },
     "custom.washerRinseCycles":
     {
+        class: "",
         exclude: "",
         capabilities: [ "rinse_cycles" ],
         icon: ""
     },
     "washerMode":
     {
+        class: "other",
         exclude: "",
         capabilities: [ "washer_status" ],
         icon: "washingmachine.svg"
     },
     "audioVolume":
     {
+        class: "TV",
         exclude: "airConditionerMode",
         capabilities: [ 'volume_set', 'volume_down', 'volume_up' ],
         icon: ""
     },
     "tvChannel":
     {
+        class: "",
         exclude: "",
         capabilities: [ 'channel_down', 'channel_up' ],
         icon: "television.svg"
     },
     "audioMute":
     {
+        class: "",
         exclude: "",
         capabilities: [ 'volume_mute' ],
         icon: ""
     },
     "airConditionerMode":
     {
+        class: "fan",
         exclude: "",
-        capabilities: [ 'aircon_mode' ],
+        capabilities: [ 'aircon_mode', 'ac_lights_on', 'ac_lights_off', 'silent_mode' ],
         icon: "aircon.svg"
     },
     "airConditionerFanMode":
     {
+        class: "",
         exclude: "",
         capabilities: [ 'aircon_fan_mode' ],
         icon: ""
     },
     "fanOscillationMode":
     {
+        class: "",
         exclude: "",
         capabilities: [ 'aircon_fan_oscillation_mode' ],
         icon: ""
     },
     "temperatureMeasurement":
     {
+        class: "",
         exclude: "",
         capabilities: [ 'measure_temperature' ],
         icon: ""
     },
     "thermostatCoolingSetpoint":
     {
+        class: "",
         exclude: "",
         capabilities: [ 'target_temperature' ],
         icon: ""
     },
     "relativeHumidityMeasurement":
     {
+        class: "",
         exclude: "",
         capabilities: [ 'measure_humidity' ],
         icon: ""
     },
     "custom.dustFilter":
     {
+        class: "",
         exclude: "",
         capabilities: [ 'dust_filter_status' ],
         icon: ""
     },
     "custom.airConditionerOptionalMode":
     {
+        class: "",
         exclude: "",
         capabilities: [ 'aircon_option'],
         icon: ""
     },
     "custom.autoCleaningMode":
     {
+        class: "",
         exclude: "",
         capabilities: [ 'aircon_auto_cleaning_mode'],
         icon: ""
@@ -155,7 +184,7 @@ class MyApp extends Homey.App
     async onInit()
     {
         this.diagLog = "";
-        this.log( 'SmartThings is running...' );
+        this.log( 'SmartThings is starting...' );
 
         this.BearerToken = Homey.ManagerSettings.get( 'BearerToken' );
         if ( Homey.ManagerSettings.get( 'pollInterval' ) < 1 )
@@ -168,7 +197,7 @@ class MyApp extends Homey.App
         // Callback for app settings changed
         Homey.ManagerSettings.on( 'set', async function( setting )
         {
-            Homey.app.log( "Setting " + setting + " has changed." );
+            Homey.app.updateLog( "Setting " + setting + " has changed." );
 
             if ( setting === 'BearerToken' )
             {
@@ -230,8 +259,10 @@ class MyApp extends Homey.App
                 var iconName = "";
                 var capabilities = [];
                 var components = device[ 'components' ];
+
                 for ( const component of components )
                 {
+                    let className = 'socket';
                     var subCapability = "";
 
                     if ( component.id != 'main' )
@@ -249,6 +280,11 @@ class MyApp extends Homey.App
                             // Make sure the entry has no exclusion condition or that the capabilities for the device does not have the excluded item
                             if ( ( capabilityMapEntry.exclude == "" ) || ( deviceCapabilities.findIndex( element => element.id == capabilityMapEntry.exclude ) == -1 ) )
                             {
+                                if ( capabilityMapEntry.class != "" )
+                                {
+                                    className = capabilityMapEntry.class;
+                                }
+
                                 //Add to the table
                                 if ( capabilityMapEntry.icon )
                                 {
@@ -272,6 +308,7 @@ class MyApp extends Homey.App
                         {
                             "name": device[ 'label' ],
                             "icon": iconName, // relative to: /drivers/<driver_id>/assets/
+                            "class": className,
                             "capabilities": capabilities,
                             data
                         } )
@@ -600,10 +637,9 @@ class MyApp extends Homey.App
 
     updateLog( newMessage )
     {
-        console.log( newMessage );
         if ( Homey.ManagerSettings.get( 'logEnabled' ) )
         {
-            //Homey.app.log(newMessage);
+            console.log( newMessage );
             this.diagLog += "* ";
             this.diagLog += newMessage;
             this.diagLog += "\r\n";

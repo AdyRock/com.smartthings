@@ -1,0 +1,31 @@
+{
+    "title":
+    {
+        "en": "AC Sound Mode"
+    },
+    "args": [
+    {
+        "type": "device",
+        "name": "device",
+        "filter": "driver_id=stDevice&class=fan"
+    },
+    {
+        "type": "dropdown",
+        "name": "ac_sound_option",
+        "values": [
+        {
+            "id": "off",
+            "title":
+            {
+                "en": "Off"
+            }
+        },
+        {
+            "id": "on",
+            "title":
+            {
+                "en": "On"
+            }
+        } ]
+    } ]
+}

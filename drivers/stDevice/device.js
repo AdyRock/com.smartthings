@@ -191,7 +191,7 @@ const capabilityMap1 = {
         dataEntry: [ 'custom.dustFilter', 'dustFilterStatus', 'value' ],
         divider: 0,
         boolCompare: '',
-        flowTrigger: null
+        flowTrigger: 'dustStatus_changed'
     },
     "aircon_auto_cleaning_mode":
     {
@@ -214,7 +214,7 @@ class STDevice extends Homey.Device
 
     async onInit()
     {
-        this.log( 'STDevice has been inited' );
+        this.log( 'STDevice is initialising' );
         this.deviceOn = true;
         this.remoteControlEnabled = false;
         this.washerSpinLevel = '1400';
@@ -225,7 +225,8 @@ class STDevice extends Homey.Device
 
         this.flowTriggers = {
             'washer_status_changed': new Homey.FlowCardTriggerDevice( 'washer_status_changed' ),
-            'presenceStatus_changed': new Homey.FlowCardTriggerDevice( 'presenceStatus_changed' )
+            'presenceStatus_changed': new Homey.FlowCardTriggerDevice( 'presenceStatus_changed' ),
+            'dustStatus_changed': new Homey.FlowCardTriggerDevice( 'dustStatus_changed' )
         };
 
         this.flowTriggers.washer_status_changed
@@ -237,6 +238,9 @@ class STDevice extends Homey.Device
             } );
 
         this.flowTriggers.presenceStatus_changed
+            .register();
+
+        this.flowTriggers.dustStatus_changed
             .register();
 
         // register a capability listeners
@@ -350,32 +354,6 @@ class STDevice extends Homey.Device
 
     async onAdded()
     {
-        // Try to select the best class based on the capabilities that have been found
-        if ( this.hasCapability( 'dim' ) )
-        {
-            this.setClass( 'light' );
-        }
-        else if ( this.hasCapability( 'contactSensor' ) )
-        {
-            this.setClass( 'sensor' );
-        }
-        else if ( this.hasCapability( 'channel_down' ) )
-        {
-            this.setClass( 'TV' );
-        }
-        else if ( this.hasCapability( 'onoff' ) && !this.hasCapability( 'washer_mode' ) && !this.hasCapability( 'airCon_mode' ) )
-        {
-            this.setClass( 'socket' );
-        }
-        else if ( this.hasCapability( 'aircon_mode' ) )
-        {
-            if ( !this.hasCapability( 'ac_lights_on' ) )
-            {
-                this.addCapability( 'ac_lights_on' );
-                this.addCapability( 'ac_lights_off' );
-            }
-            this.setClass( 'fan' );
-        }
     }
 
     async getDeviceValues()
@@ -444,7 +422,7 @@ class STDevice extends Homey.Device
 
                                 if ( mapEntry.flowTrigger )
                                 {
-                                    //this.log("Trigger Check: ", capability, " = ", value + " was " + this.lastValues[capability]);
+                                    Homey.app.updateLog("Trigger Check: " + capability + " = " + value + " was " + this.lastValues[capability]);
                                     if ( !this.lastValues.hasOwnProperty( capability ) || ( this.lastValues[ capability ] != value ) )
                                     {
                                         Object.defineProperty( this.lastValues, capability,
@@ -453,7 +431,7 @@ class STDevice extends Homey.Device
                                             writable: true
                                         } );
 
-                                        this.log( "Trigger change: ", capability, " = ", value );
+                                        Homey.app.updateLog( "Trigger change: " + capability, " = " + value );
 
                                         let tokens = {
                                             'value': value
@@ -487,7 +465,7 @@ class STDevice extends Homey.Device
 
                                 if ( mapEntry.flowTrigger )
                                 {
-                                    //this.log("Trigger Check: ", capability, " = ", value + " was " + this.lastValues[capability]);
+                                    Homey.app.updateLog("Trigger Check: " + capability + " = ", value + " was " + this.lastValues[capability]);
                                     if ( !this.lastValues.hasOwnProperty( capability ) || ( this.lastValues[ capability ] != value ) )
                                     {
                                         if ( !this.lastValues.hasOwnProperty( capability ) )
@@ -503,7 +481,7 @@ class STDevice extends Homey.Device
                                             this.lastValues[ capability ] = value;
                                         }
 
-                                        this.log( "Trigger change: ", capability, " = ", value );
+                                        Homey.app.updateLog( "Trigger change: " + capability + " = " + value );
 
                                         let state = {
                                             'value': value
@@ -524,7 +502,7 @@ class STDevice extends Homey.Device
                     }
                     catch ( err )
                     {
-                        this.log( "getDeviceValues error: " + Homey.app.varToString( err ) );
+                        Homey.app.updateLog( "getDeviceValues error: " + Homey.app.varToString( err ) );
                     }
                 } );
             }
@@ -535,7 +513,7 @@ class STDevice extends Homey.Device
         }
         catch ( err )
         {
-            this.log( "getDeviceValues error: " + Homey.app.varToString( err ) );
+            Homey.app.updateLog( "getDeviceValues error: " + Homey.app.varToString( err ) );
         }
     }
 
@@ -1044,7 +1022,7 @@ class STDevice extends Homey.Device
                     "component": "main",
                     "capability": "custom.autoCleaningMode",
                     "command": "setAutoCleaningMode",
-                    "arguments": [ value ? "on" : "off" ]
+                    "arguments": [ value ? "auto" : "off" ]
                 } ]
             }
 
