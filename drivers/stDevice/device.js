@@ -1080,7 +1080,7 @@ class STDevice extends Homey.Device
                     "mode/vs/0",
                     {
                       "x.com.samsung.da.options": [
-                        "Light_On
+                        "Light_On"
                       ]
                     }
                   ]
