@@ -1047,9 +1047,9 @@ class STDevice extends Homey.Device
                 "commands": [
                 {
                     "component": "main",
-                    "capability": "audioVolume",
-                    "command": "setVolume",
-                    "arguments": [ value ? "0" : "100" ]
+                    "capability": "audioMute",
+                    "command": "setMute",
+                    "arguments": [ value ? "mute" : "unmute" ]
                 } ]
             }
 
@@ -1071,13 +1071,20 @@ class STDevice extends Homey.Device
         try
         {
             let body = {
-                "commands": [
+              "commands": [
                 {
-                    "component": "main",
-                    "capability": "light",
-                    "command": "setLight",
-                    "arguments": "off"
-                } ]
+                  "component": "main",
+                  "capability": "execute",
+                  "command": "execute",
+                  "arguments": [
+                    "mode/vs/0",
+                    {
+                      "x.com.samsung.da.options": [
+                        "Light_On
+                      ]
+                    }
+                  ]
+                }]
             }
 
             // Get the device information stored during pairing
@@ -1101,9 +1108,16 @@ class STDevice extends Homey.Device
                 "commands": [
                 {
                     "component": "main",
-                    "capability": "light",
-                    "command": "setLight",
-                    "arguments": "on"
+                    "capability": "execute",
+                    "command": "execute",
+                    "arguments": [
+                      "mode/vs/0",
+                      {
+                        "x.com.samsung.da.options": [
+                          "Light_Off"
+                        ]
+                      }
+                    ]
                 } ]
             }
 
