@@ -16,5 +16,8 @@
   },
   "0.0.13": {
     "en": "Fixed Lights and sound On/Off (WIP)"
+  },
+  "0.0.14": {
+    "en": "Added energy meter and motion sensor"
   }
 }
