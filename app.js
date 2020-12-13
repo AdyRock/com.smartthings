@@ -6,7 +6,6 @@ if (process.env.DEBUG === '1') {
 
 const Homey = require( 'homey' );
 const https = require( "https" );
-const Log = require('homey-log').Log;
 
 const CapabilityMap2 = {
     "switch":
@@ -260,7 +259,6 @@ class MyApp extends Homey.App
         if ( searchResult )
         {
             let searchData = JSON.parse( searchResult.body );
-            Log.setExtra({"Devices": searchData});
             this.detectedDevices = JSON.stringify( searchData, null, 2 );
             Homey.ManagerApi.realtime( 'com.smartthings.detectedDevicesUpdated', { 'devices': this.detectedDevices } );
 
