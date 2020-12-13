@@ -130,6 +130,13 @@ const capabilityMap1 = {
         boolCompare: 'present',
         flowTrigger: 'presenceStatus_changed'
     },
+    "alarm_motion":
+    {
+        dataEntry: [ 'motionSensor', 'motion', 'value' ],
+        divider: 0,
+        boolCompare: 'motion',
+        flowTrigger: 'presenceStatus_changed'
+    },
     "aircon_mode":
     {
         dataEntry: [ 'airConditionerMode', 'airConditionerMode', 'value' ],

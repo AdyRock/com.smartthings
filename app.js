@@ -44,6 +44,13 @@ const CapabilityMap2 = {
         capabilities: [ "alarm_presence" ],
         icon: "presence.svg"
     },
+    "motionSensor":
+    {
+        class: "sensor",
+        exclude: "",
+        capabilities: [ "alarm_motion" ],
+        icon: "presence.svg"
+    },
     "powerConsumptionReport":
     {
         class: "",
@@ -175,6 +182,20 @@ const CapabilityMap2 = {
         class: "",
         exclude: "",
         capabilities: [ 'aircon_auto_cleaning_mode'],
+        icon: ""
+    },
+    "energyMeter":
+    {
+        class: "sensor",
+        exclude: "",
+        capabilities: [ 'measure_power'],
+        icon: ""
+    },
+    "powerMeter":
+    {
+        class: "sensor",
+        exclude: "",
+        capabilities: [ 'meter_power'],
         icon: ""
     }
 }

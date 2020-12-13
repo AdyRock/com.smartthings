@@ -235,12 +235,6 @@
                     logEnabledElement.checked = logEnabled;
                 } );
 
-                Homey.get( 'diagLog', function( err, diagLog )
-                {
-                    if ( err ) return Homey.alert( err );
-                    diagLogElement.value = diagLog;
-                } );
-
                 // Make the log text area fill the page
                 diagLogElement.setAttribute( 'cols', diagLogElement.parentElement.clientWidth / 8 );
                 diagLogElement.style.height = ( window.innerHeight - diagLogElement.offsetTop - 20 ) + 'px';
