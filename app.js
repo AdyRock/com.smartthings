@@ -67,10 +67,10 @@ const CapabilityMap2 = {
     },
     "washerOperatingState":
     {
-        class: "",
+        class: "other",
         exclude: "",
-        capabilities: [ "washer_mode", "washer_job_status", "completion_time" ],
-        icon: ""
+        capabilities: [ "washer_mode", "washer_job_status", "completion_time", "washer_status" ],
+        icon: "washingmachine.svg"
     },
     "custom.washerWaterTemperature":
     {
@@ -197,6 +197,13 @@ const CapabilityMap2 = {
         exclude: "",
         capabilities: [ 'meter_power' ],
         icon: ""
+    },
+    "refrigeration":
+    {
+        class: "sensor",
+        exclude: "",
+        capabilities: [ 'defrost', 'rapid_cooling', 'rapid_freezing' ],
+        icon: "refrigerator.svg"
     }
 }
 
@@ -272,6 +279,7 @@ class MyApp extends Homey.App
                 Homey.app.updateLog( JSON.stringify( device, null, 2 ) );
 
                 var components = device[ 'components' ];
+                var iconName = "";
 
                 for ( const component of components )
                 {
@@ -281,7 +289,6 @@ class MyApp extends Homey.App
                         "component": component.id,
                     };
 
-                    var iconName = "";
                     var capabilities = [];
                     let className = 'socket';
 

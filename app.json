@@ -690,6 +690,15 @@
       "getable": true,
       "setable": false
     },
+    "defrost": {
+      "type": "boolean",
+      "title": {
+        "en": "Defrost"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "toggle"
+    },
     "dust_filter_status": {
       "type": "string",
       "title": {
@@ -718,6 +727,24 @@
       },
       "getable": true,
       "setable": false
+    },
+    "rapid_cooling": {
+      "type": "boolean",
+      "title": {
+        "en": "Rapid Cooling"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "toggle"
+    },
+    "rapid_freezing": {
+      "type": "boolean",
+      "title": {
+        "en": "Rapid Freezing"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "toggle"
     },
     "remote_status": {
       "type": "boolean",
