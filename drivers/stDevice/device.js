@@ -368,14 +368,17 @@ class STDevice extends Homey.Device
         try
         {
             const devData = this.getData();
+            var component = 'main';
+            if (devData.component)
+            {
+                component = devData.component;
+            }
 
             // Retrieve all the devices values
-            let result = await Homey.app.getAllDeviceCapabilitiesValues( devData.id );
+            let result = await Homey.app.getComponentCapabilityValue( devData.id, component );
             if ( result )
             {
                 this.setAvailable();
-
-                const components = result[ 'components' ];
 
                 // Update each capability
                 this.getCapabilities().forEach( capability =>
@@ -387,33 +390,11 @@ class STDevice extends Homey.Device
 
                         var capabilityName = [];
                         var mapEntry = capabilityMap1[ capability ];
-                        if ( !mapEntry )
-                        {
-                            //Not found so try to break up any sub capability parts
-                            var capabilityName = capability.split( "." );
-                            mapEntry = capabilityMap1[ capabilityName[ 0 ] ];
-                            if ( !mapEntry )
-                            {
-                                Homey.app.updateLog( "Capability Map entry not found for: " + capability );
-                                return;
-                            }
-                        }
 
                         // get the entry from the table for this capability
                         if ( mapEntry )
                         {
-                            var value;
-                            if ( capabilityName.length > 1 )
-                            {
-                                // there is a sub capability so set that as the component
-                                value = components[ 'capabilityName[1]' ];
-                            }
-
-                            if ( value == null )
-                            {
-                                value = components.main;
-                            }
-
+                            var value = result;
                             mapEntry.dataEntry.forEach( entry =>
                             {
                                 value = value[ entry ];

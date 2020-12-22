@@ -19,5 +19,8 @@
   },
   "0.0.14": {
     "en": "Added energy meter and motion sensor"
+  },
+  "0.0.15": {
+    "en": "Split SmartThings Components into separate devices"
   }
 }

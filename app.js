@@ -1,7 +1,8 @@
 'use strict';
 
-if (process.env.DEBUG === '1') {
-	require('inspector').open(9222, '0.0.0.0')
+if ( process.env.DEBUG === '1' )
+{
+    require( 'inspector' ).open( 9222, '0.0.0.0', true )
 }
 
 const Homey = require( 'homey' );
@@ -173,28 +174,28 @@ const CapabilityMap2 = {
     {
         class: "",
         exclude: "",
-        capabilities: [ 'aircon_option'],
+        capabilities: [ 'aircon_option' ],
         icon: ""
     },
     "custom.autoCleaningMode":
     {
         class: "",
         exclude: "",
-        capabilities: [ 'aircon_auto_cleaning_mode'],
+        capabilities: [ 'aircon_auto_cleaning_mode' ],
         icon: ""
     },
     "energyMeter":
     {
         class: "sensor",
         exclude: "",
-        capabilities: [ 'measure_power'],
+        capabilities: [ 'measure_power' ],
         icon: ""
     },
     "powerMeter":
     {
         class: "sensor",
         exclude: "",
-        capabilities: [ 'meter_power'],
+        capabilities: [ 'meter_power' ],
         icon: ""
     }
 }
@@ -270,24 +271,19 @@ class MyApp extends Homey.App
                 Homey.app.updateLog( "Found device: " );
                 Homey.app.updateLog( JSON.stringify( device, null, 2 ) );
 
-                var data = {};
-                data = {
-                    "id": device[ 'deviceId' ],
-                };
-
-                var iconName = "";
-                var capabilities = [];
                 var components = device[ 'components' ];
 
                 for ( const component of components )
                 {
-                    let className = 'socket';
-                    var subCapability = "";
+                    var data = {};
+                    data = {
+                        "id": device[ 'deviceId' ],
+                        "component": component.id,
+                    };
 
-                    if ( component.id != 'main' )
-                    {
-                        subCapability = "." + component.id;
-                    }
+                    var iconName = "";
+                    var capabilities = [];
+                    let className = 'socket';
 
                     // Find supported capabilities
                     var deviceCapabilities = component[ 'capabilities' ];
@@ -311,7 +307,7 @@ class MyApp extends Homey.App
                                 }
                                 capabilityMapEntry.capabilities.forEach( element =>
                                 {
-                                    capabilities.push( element + subCapability );
+                                    capabilities.push( element );
                                 } );
                             }
                             else
@@ -325,7 +321,7 @@ class MyApp extends Homey.App
                         // Add this device to the table
                         devices.push(
                         {
-                            "name": device[ 'label' ],
+                            "name": device[ 'label' ] + ": " + component.id,
                             "icon": iconName, // relative to: /drivers/<driver_id>/assets/
                             "class": className,
                             "capabilities": capabilities,
@@ -351,6 +347,21 @@ class MyApp extends Homey.App
     {
         //https://api.smartthings.com/v1/devices/{deviceId}/status
         let url = "devices/" + DeviceID + "/status";
+        let result = await this.GetURL( url );
+        if ( result )
+        {
+            let searchData = JSON.parse( result.body );
+            Homey.app.updateLog( JSON.stringify( searchData, null, 2 ) );
+            return searchData;
+        }
+
+        return -1;
+    }
+
+    async getComponentCapabilityValue( DeviceID, ComponentID )
+    {
+        //https://api.smartthings.com/v1/devices/{deviceId}/components/{componentId}/status
+        let url = "devices/" + DeviceID + "/components/" + ComponentID + "/status";
         let result = await this.GetURL( url );
         if ( result )
         {
