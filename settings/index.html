@@ -14,6 +14,8 @@
         <button class="tablinks" onclick="setPage(event, 'settings')" id="defaultOpen">Settings</button>
         <button class="tablinks" onclick="setPage(event, 'detected')">Detected</button>
         <button class="tablinks" onclick="setPage(event, 'log')">Log</button>
+        <button class="tablinks" onclick="setPage(event, 'send')">Send Command</button>
+        <button class="tablinks" onclick="setPage(event, 'simulator')" id="simLogTab" style="visibility:hidden">Simulation Data</button>
     </div>
 
     <!-- SETTINGS PAGE -->
@@ -74,6 +76,28 @@
         </fieldset>
     </div>
 
+    <!--SEND COMMAND PAGE -->
+    <div id="send" class="tabcontent">
+        <fieldset>
+            <h1>For debug use only</h1>
+            <p><input id="commandData" type="text" value="" /><button id="sendCmd" style="background-color:#0f9e16;color:white;margin:5px 20px 5px 5px;">Send</button><button id="clearSend" style="background-color:#a5510d;color:white;margin:5px 20px 5px 5px;">Clear Log</button></p>
+            <div class="field row">
+                <textarea id="sendResponse"></textarea>
+            </div>
+        </fieldset>
+    </div>
+
+    <!--SIMULATION PAGE -->
+    <div id="simulator" class="tabcontent">
+        <fieldset>
+            <h1>For debug use only</h1>
+            <p><button id="useSim" style="background-color:#0f9e16;color:white;margin:5px 20px 5px 5px;">Activate</button><button id="clearSim" style="background-color:#a5510d;color:white;margin:5px 20px 5px 5px;">Clear Sim</button></p>
+            <div class="field row">
+                <textarea id="simData"></textarea>
+            </div>
+        </fieldset>
+    </div>
+
     <script type="text/javascript">
         var BearerTokenElement = document.getElementById( 'BearerToken' );
         var detectedDevicesElement = document.getElementById( 'detectedDevices' );
@@ -84,11 +108,29 @@
         var saveElement = document.getElementById( 'save' );
         var clearLogElement = document.getElementById( 'clearLog' );
 
+        // Send data tab
+
+        var commandDataElement = document.getElementById( 'commandData' );
+        var sendCmdElement = document.getElementById( 'sendCmd' );
+        var clearSendElement = document.getElementById( 'clearSend' );
+        var sendResponseElement = document.getElementById( 'sendResponse' );
+
+        // Simulation log tab
+        var useSimElement = document.getElementById( 'useSim' );
+        var clearSimElement = document.getElementById( 'clearSim' );
+        var simDataElement = document.getElementById( 'simData' );
+
         // a method named 'onHomeyReady' must be present in your code
         function onHomeyReady( Homey )
         {
-            // Tell Homey we're ready to be displayed
-            Homey.ready();
+            Homey.get( 'debugMode', function( err, debugMode )
+            {
+                if ( err ) return Homey.alert( err );
+                if ( debugMode )
+                {
+                    document.getElementById( "simLogTab" ).style.visibility = 'visible';
+                }
+            } );
 
             document.getElementById( "defaultOpen" ).click();
 
@@ -130,34 +172,34 @@
             } );
 
             Homey.api( 'GET', '/getLog/',
+            {
+                notify: true
+            }, function( err, result )
+            {
+                if ( err )
                 {
-                    notify: true
-                }, function( err, result )
+                    return Homey.alert( err );
+                }
+                else
                 {
-                    if ( err )
-                    {
-                        return Homey.alert( err );
-                    }
-                    else
-                    {
-                        diagLogElement.value = result;
-                    }
-                } );
+                    diagLogElement.value = result;
+                }
+            } );
 
-                Homey.api( 'GET', '/getDetect/',
+            Homey.api( 'GET', '/getDetect/',
+            {
+                notify: true
+            }, function( err, result )
+            {
+                if ( err )
                 {
-                    notify: true
-                }, function( err, result )
+                    return Homey.alert( err );
+                }
+                else
                 {
-                    if ( err )
-                    {
-                        return Homey.alert( err );
-                    }
-                    else
-                    {
-                        detectedDevicesElement.value = result;
-                    }
-                } );
+                    detectedDevicesElement.value = result;
+                }
+            } );
 
             saveElement.addEventListener( 'click', function( e )
             {
@@ -202,6 +244,80 @@
                     }
                 } );
             } );
+
+            sendCmdElement.addEventListener( 'click', function( e )
+            {
+                Homey.api( 'POST', '/sendCmd/',
+                {
+                    command: commandDataElement.value,
+                    notify: true
+                }, function( err, result )
+                {
+                    if ( err )
+                    {
+                        return Homey.alert( err );
+                    }
+                    else
+                    {
+                        sendResponseElement.value = JSON.stringify( result, null, 2 );
+                    }
+                } );
+            } );
+
+            clearSendElement.addEventListener( 'click', function( e )
+            {
+                Homey.set( 'sendResponse', "", function( err )
+                {
+                    if ( err )
+                    {
+                        return Homey.alert( err );
+                    }
+                    else
+                    {
+                        sendResponseElement.value = "";
+                    }
+                } );
+            } );
+
+            useSimElement.addEventListener( 'click', function( e )
+            {
+                try
+                {
+                    Homey.set( 'simData', simDataElement.value, function( err )
+                    {
+                        if ( err )
+                        {
+                            Homey.alert( err );
+                        }
+                        else
+                        {
+                            Homey.alert( "Simulator On" );
+                        }
+                    } );
+                }
+                catch ( err )
+                {
+                    return Homey.alert( err );
+                }
+            } );
+
+            clearSimElement.addEventListener( 'click', function( e )
+            {
+                Homey.set( 'simData', "", function( err )
+                {
+                    if ( err )
+                    {
+                        return Homey.alert( err );
+                    }
+                    else
+                    {
+                        return Homey.alert( "Simulator Off" );
+                    }
+                } );
+            } );
+
+            // Tell Homey we're ready to be displayed
+            Homey.ready();
         };
 
         function setPage( evt, tabPage )
@@ -244,6 +360,28 @@
                 // Make the detected devices text area fill the page
                 detectedDevicesElement.setAttribute( 'cols', detectedDevicesElement.parentElement.clientWidth / 8 );
                 detectedDevicesElement.style.height = ( window.innerHeight - detectedDevicesElement.offsetTop - 20 ) + 'px';
+            }
+            else if ( tabPage == 'send' )
+            {
+                Homey.get( 'sendResponse', function( err, sendResponse )
+                {
+                    if ( err ) return Homey.alert( err );
+                    sendResponseElement.value = sendResponse ? JSON.stringify( sendResponse, null, 2 ) : "";
+                } );
+                // Make the simulator text box fill the page
+                sendResponseElement.setAttribute( 'cols', sendResponseElement.parentElement.clientWidth / 8 );
+                sendResponseElement.style.height = ( window.innerHeight - sendResponseElement.offsetTop - 40 ) + 'px';
+            }
+            else if ( tabPage == 'simulator' )
+            {
+                Homey.get( 'simData', function( err, simData )
+                {
+                    if ( err ) return Homey.alert( err );
+                    simDataElement.value = simData ? JSON.stringify( simData, null, 2 ) : "";
+                } );
+                // Make the simulator text box fill the page
+                simDataElement.setAttribute( 'cols', simDataElement.parentElement.clientWidth / 8 );
+                simDataElement.style.height = ( window.innerHeight - simDataElement.offsetTop - 40 ) + 'px';
             }
         };
     </script>

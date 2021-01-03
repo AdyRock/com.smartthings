@@ -14,196 +14,232 @@ const CapabilityMap2 = {
         class: "",
         exclude: "", // Ignore if the device has this ST capability
         capabilities: [ "onoff" ], // The list of Homey capabilities to add
-        icon: "socket.svg" // Icon to apply to the device
+        icon: "socket.svg", // Icon to apply to the device
+        iconPriority: 1     // Priority to be used for the device icon. Higher numbers have a higher priority
     },
     "switchLevel":
     {
         class: "light",
         exclude: "",
         capabilities: [ "dim" ],
-        icon: "light.svg"
+        icon: "light.svg",
+        iconPriority: 2
     },
     "contactSensor":
     {
         class: "sensor",
         exclude: "",
         capabilities: [ "alarm_contact" ],
-        icon: "door.svg"
+        icon: "door.svg",
+        iconPriority: 3        
     },
     "battery":
     {
         class: "",
         exclude: "",
         capabilities: [ "measure_battery" ],
-        icon: ""
+        icon: "",
+        iconPriority: 0
     },
     "presenceSensor":
     {
         class: "sensor",
         exclude: "",
         capabilities: [ "alarm_presence" ],
-        icon: "presence.svg"
+        icon: "presence.svg",
+        iconPriority: 3
     },
     "motionSensor":
     {
         class: "sensor",
         exclude: "",
         capabilities: [ "alarm_motion" ],
-        icon: "presence.svg"
+        icon: "presence.svg",
+        iconPriority: 3
     },
     "powerConsumptionReport":
     {
         class: "",
         exclude: "",
         capabilities: [ "measure_power", "meter_power", "meter_power.delta" ],
-        icon: ""
+        icon: "",
+        iconPriority: 0
     },
     "remoteControlStatus":
     {
         class: "",
         exclude: "",
         capabilities: [ "remote_status" ],
-        icon: ""
+        icon: "",
+        iconPriority: 0
     },
     "washerOperatingState":
     {
         class: "other",
         exclude: "",
-        capabilities: [ "washer_mode", "washer_job_status", "completion_time", "washer_status" ],
-        icon: "washingmachine.svg"
+        capabilities: [ "washer_job_status", "completion_time", "washer_status" ],
+        icon: "washingmachine.svg",
+        iconPriority: 5
     },
     "custom.washerWaterTemperature":
     {
         class: "",
         exclude: "",
         capabilities: [ "water_temperature" ],
-        icon: ""
+        icon: "",
+        iconPriority: 0
     },
     "custom.washerSpinLevel":
     {
         class: "",
         exclude: "",
         capabilities: [ "spin_level" ],
-        icon: ""
+        icon: "",
+        iconPriority: 0
     },
     "custom.washerRinseCycles":
     {
         class: "",
         exclude: "",
         capabilities: [ "rinse_cycles" ],
-        icon: ""
+        icon: "",
+        iconPriority: 0
     },
     "washerMode":
     {
         class: "other",
         exclude: "",
         capabilities: [ "washer_status" ],
-        icon: "washingmachine.svg"
+        icon: "washingmachine.svg",
+        iconPriority: 5
     },
     "audioVolume":
     {
         class: "TV",
         exclude: "airConditionerMode",
         capabilities: [ 'volume_set', 'volume_down', 'volume_up' ],
-        icon: ""
+        icon: "",
+        iconPriority: 0
     },
     "tvChannel":
     {
         class: "",
         exclude: "",
         capabilities: [ 'channel_down', 'channel_up' ],
-        icon: "television.svg"
+        icon: "television.svg",
+        iconPriority: 5
     },
     "audioMute":
     {
         class: "",
         exclude: "",
         capabilities: [ 'volume_mute' ],
-        icon: ""
+        icon: "",
+        iconPriority: 0
     },
     "airConditionerMode":
     {
         class: "fan",
         exclude: "",
         capabilities: [ 'aircon_mode', 'ac_lights_on', 'ac_lights_off', 'silent_mode' ],
-        icon: "aircon.svg"
+        icon: "aircon.svg",
+        iconPriority: 5
     },
     "airConditionerFanMode":
     {
         class: "",
         exclude: "",
         capabilities: [ 'aircon_fan_mode' ],
-        icon: ""
+        icon: "",
+        iconPriority: 0
     },
     "fanOscillationMode":
     {
         class: "",
         exclude: "",
         capabilities: [ 'aircon_fan_oscillation_mode' ],
-        icon: ""
+        icon: "",
+        iconPriority: 0
     },
     "temperatureMeasurement":
     {
         class: "",
         exclude: "",
         capabilities: [ 'measure_temperature' ],
-        icon: ""
+        icon: "",
+        iconPriority: 0
     },
     "thermostatCoolingSetpoint":
     {
         class: "",
         exclude: "",
         capabilities: [ 'target_temperature' ],
-        icon: ""
+        icon: "",
+        iconPriority: 0
     },
     "relativeHumidityMeasurement":
     {
         class: "",
         exclude: "",
         capabilities: [ 'measure_humidity' ],
-        icon: ""
+        icon: "",
+        iconPriority: 0
     },
     "custom.dustFilter":
     {
         class: "",
         exclude: "",
         capabilities: [ 'dust_filter_status' ],
-        icon: ""
+        icon: "",
+        iconPriority: 0
     },
     "custom.airConditionerOptionalMode":
     {
         class: "",
         exclude: "",
         capabilities: [ 'aircon_option' ],
-        icon: ""
+        icon: "",
+        iconPriority: 0
     },
     "custom.autoCleaningMode":
     {
         class: "",
         exclude: "",
         capabilities: [ 'aircon_auto_cleaning_mode' ],
-        icon: ""
+        icon: "",
+        iconPriority: 0
     },
     "energyMeter":
     {
         class: "sensor",
         exclude: "",
         capabilities: [ 'measure_power' ],
-        icon: ""
+        icon: "",
+        iconPriority: 0
     },
     "powerMeter":
     {
         class: "sensor",
         exclude: "",
         capabilities: [ 'meter_power' ],
-        icon: ""
+        icon: "",
+        iconPriority: 0
     },
     "refrigeration":
     {
         class: "sensor",
         exclude: "",
         capabilities: [ 'defrost', 'rapid_cooling', 'rapid_freezing' ],
-        icon: "refrigerator.svg"
+        icon: "refrigerator.svg",
+        iconPriority: 5
+    },
+    "samsungce.washerCycle":
+    {
+        class: "",
+        exclude: "",
+        capabilities: [ 'washer_mode' ],
+        icon: "",
+        iconPriority: 0
     }
 }
 
@@ -213,6 +249,15 @@ class MyApp extends Homey.App
     {
         this.diagLog = "";
         this.log( 'SmartThings is starting...' );
+
+        if (process.env.DEBUG === '1')
+        {
+            Homey.ManagerSettings.set('debugMode', true);
+        }
+        else
+        {
+            Homey.ManagerSettings.set('debugMode', false);
+        }
 
         this.BearerToken = Homey.ManagerSettings.get( 'BearerToken' );
         if ( Homey.ManagerSettings.get( 'pollInterval' ) < 1 )
@@ -280,6 +325,7 @@ class MyApp extends Homey.App
 
                 var components = device[ 'components' ];
                 var iconName = "";
+                var iconPriority = 0;
 
                 for ( const component of components )
                 {
@@ -308,9 +354,10 @@ class MyApp extends Homey.App
                                 }
 
                                 //Add to the table
-                                if ( capabilityMapEntry.icon )
+                                if ( capabilityMapEntry.icon && capabilityMapEntry.iconPriority > iconPriority )
                                 {
                                     iconName = capabilityMapEntry.icon;
+                                    iconPriority = capabilityMapEntry.iconPriority;
                                 }
                                 capabilityMapEntry.capabilities.forEach( element =>
                                 {
@@ -380,10 +427,10 @@ class MyApp extends Homey.App
         return -1;
     }
 
-    async getDeviceCapabilityValue( DeviceID, CapabilityID )
+    async getDeviceCapabilityValue( DeviceID, ComponentID, CapabilityID )
     {
         //https://api.smartthings.com/v1/devices/{deviceId}/components/{componentId}/capabilities/{capabilityId}/status
-        let url = "devices/" + DeviceID + "/components/main/capabilities/" + CapabilityID + "/status";
+        let url = "devices/" + DeviceID + "/components/" + ComponentID + "/capabilities/" + CapabilityID + "/status";
         let result = await this.GetURL( url );
         if ( result )
         {
@@ -412,6 +459,15 @@ class MyApp extends Homey.App
 
     async GetURL( url )
     {
+        if ((process.env.DEBUG === '1') && (url === 'devices'))
+        {
+            const simData = Homey.ManagerSettings.get('simData');
+            if (simData)
+            {
+                return {'body': simData};
+            }
+        }
+
         Homey.app.updateLog( url );
 
         return new Promise( ( resolve, reject ) =>

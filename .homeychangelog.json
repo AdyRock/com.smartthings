@@ -21,6 +21,9 @@
     "en": "Added energy meter and motion sensor"
   },
   "0.0.15": {
-    "en": "Split SmartThings Components into separate devices"
+    "en": "Split SmartThings Components into separate devices (WIP)"
+  },
+  "0.0.16": {
+    "en": "Added an option to send commands to SmartThings for diagnostics use (WIP)"
   }
 }

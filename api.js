@@ -58,6 +58,20 @@ module.exports = [
     },
     {
         method: 'POST',
+        path: '/sendCmd/',
+        fn: async function (args, callback) {
+            var result = await Homey.app.GetURL(args.body.command);
+            if ( result )
+            {
+                let searchData = JSON.parse( result.body );
+                return callback(null, searchData);
+            }
+    
+            return callback("No Response", null);
+        }
+    },
+    {
+        method: 'POST',
         path: '/',
         public: true,
         fn: function (args, callback) {

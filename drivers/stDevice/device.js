@@ -6,6 +6,7 @@ const capabilityMap1 = {
     "onoff":
     { // Homey capability
         dataEntry: [ 'switch', 'switch', 'value' ], // structure build, e.g. switch.switch.value
+        capabilityID: 'switch',
         divider: 0, // Factor to convert to homey units
         boolCompare: 'on', // The true state of a boolean value. E.g. ST returns on for true
         flowTrigger: null // The flow to trigger when the value changes
@@ -13,6 +14,7 @@ const capabilityMap1 = {
     "dim":
     {
         dataEntry: [ 'switchLevel', 'level', 'value' ],
+        capabilityID: 'switchLevel',
         divider: 100,
         boolCompare: '',
         flowTrigger: null
@@ -20,6 +22,7 @@ const capabilityMap1 = {
     "volume_set":
     {
         dataEntry: [ 'audioVolume', 'volume', 'value' ],
+        capabilityID: 'audioVolume',
         divider: 100,
         boolCompare: '',
         flowTrigger: null
@@ -27,6 +30,7 @@ const capabilityMap1 = {
     "volume_mute":
     {
         dataEntry: [ 'audioMute', 'mute.', 'value' ],
+        capabilityID: 'audioMute',
         divider: 0,
         boolCompare: 'muted',
         flowTrigger: null
@@ -34,6 +38,7 @@ const capabilityMap1 = {
     "alarm_contact":
     {
         dataEntry: [ 'contactSensor', 'contact', 'value' ],
+        capabilityID: 'contactSensor',
         divider: 0,
         boolCompare: 'open',
         flowTrigger: ''
@@ -41,6 +46,7 @@ const capabilityMap1 = {
     "measure_battery":
     {
         dataEntry: [ 'battery', 'battery', 'value' ],
+        capabilityID: 'battery',
         divider: 0,
         boolCompare: '',
         flowTrigger: null
@@ -48,27 +54,34 @@ const capabilityMap1 = {
     "measure_power":
     {
         dataEntry: [ 'powerConsumptionReport', 'powerConsumption', 'value', 'power' ],
+        capabilityID: 'powerConsumptionReport',
         divider: 0,
         boolCompare: '',
-        flowTrigger: null
+        flowTrigger: null,
+        keep: true
     },
     "meter_power.delta":
     {
         dataEntry: [ 'powerConsumptionReport', 'powerConsumption', 'value', 'deltaEnergy' ],
+        capabilityID: 'powerConsumptionReport',
         divider: 1000,
         boolCompare: '',
-        flowTrigger: null
+        flowTrigger: null,
+        keep: true
     },
     "meter_power":
     {
         dataEntry: [ 'powerConsumptionReport', 'powerConsumption', 'value', 'energy' ],
+        capabilityID: 'powerConsumptionReport',
         divider: 1000,
         boolCompare: '',
-        flowTrigger: null
+        flowTrigger: null,
+        keep: true
     },
     "washer_mode":
     {
-        dataEntry: [ 'washerMode', 'washerMode', 'value' ],
+        dataEntry: [ 'samsungce.washerCycle', 'washerCycle', 'value' ],
+        capabilityID: 'samsungce.washerCycle',
         divider: 0,
         boolCompare: '',
         flowTrigger: null
@@ -76,20 +89,35 @@ const capabilityMap1 = {
     "washer_status":
     {
         dataEntry: [ 'washerOperatingState', 'machineState', 'value' ],
+        capabilityID: 'washerOperatingState',
         divider: 0,
         boolCompare: '',
-        flowTrigger: 'washer_status_changed'
+        flowTrigger: 'washer_status_changed',
+        keep: true
     },
     "washer_job_status":
     {
         dataEntry: [ 'washerOperatingState', 'washerJobState', 'value' ],
+        capabilityID: 'washerOperatingState',
         divider: 0,
         boolCompare: '',
-        flowTrigger: null
+        flowTrigger: null,
+        keep: true
+    },
+    "completion_time":
+    {
+        dataEntry: [ 'washerOperatingState', 'completionTime', 'value' ],
+        capabilityID: 'washerOperatingState',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null,
+        dateTime: true,
+        keep: true
     },
     "water_temperature":
     {
         dataEntry: [ 'custom.washerWaterTemperature', 'washerWaterTemperature', 'value' ],
+        capabilityID: 'custom.washerWaterTemperature',
         divider: 0,
         boolCompare: '',
         flowTrigger: null
@@ -97,21 +125,15 @@ const capabilityMap1 = {
     "remote_status":
     {
         dataEntry: [ 'remoteControlStatus', 'remoteControlEnabled', 'value' ],
+        capabilityID: 'remoteControlStatus',
         divider: 0,
         boolCompare: 'true',
         flowTrigger: null
     },
-    "completion_time":
-    {
-        dataEntry: [ 'washerOperatingState', 'completionTime', 'value' ],
-        divider: 0,
-        boolCompare: '',
-        flowTrigger: null,
-        dateTime: true
-    },
     "spin_level":
     {
         dataEntry: [ 'custom.washerSpinLevel', 'washerSpinLevel', 'value' ],
+        capabilityID: 'custom.washerSpinLevel',
         divider: 0,
         boolCompare: '',
         flowTrigger: null
@@ -119,6 +141,7 @@ const capabilityMap1 = {
     "rinse_cycles":
     {
         dataEntry: [ 'custom.washerRinseCycles', 'washerRinseCycles', 'value' ],
+        capabilityID: 'custom.washerRinseCycles',
         divider: 0,
         boolCompare: '',
         flowTrigger: null
@@ -126,6 +149,7 @@ const capabilityMap1 = {
     "alarm_presence":
     {
         dataEntry: [ 'presenceSensor', 'presence', 'value' ],
+        capabilityID: 'presenceSensor',
         divider: 0,
         boolCompare: 'present',
         flowTrigger: 'presenceStatus_changed'
@@ -133,6 +157,7 @@ const capabilityMap1 = {
     "alarm_motion":
     {
         dataEntry: [ 'motionSensor', 'motion', 'value' ],
+        capabilityID: 'motionSensor',
         divider: 0,
         boolCompare: 'motion',
         flowTrigger: 'presenceStatus_changed'
@@ -140,6 +165,7 @@ const capabilityMap1 = {
     "aircon_mode":
     {
         dataEntry: [ 'airConditionerMode', 'airConditionerMode', 'value' ],
+        capabilityID: 'airConditionerMode',
         divider: 0,
         boolCompare: '',
         flowTrigger: null
@@ -147,6 +173,7 @@ const capabilityMap1 = {
     "aircon_fan_mode":
     {
         dataEntry: [ 'airConditionerFanMode', 'fanMode', 'value' ],
+        capabilityID: 'airConditionerFanMode',
         divider: 0,
         boolCompare: '',
         flowTrigger: null
@@ -154,6 +181,7 @@ const capabilityMap1 = {
     "aircon_fan_oscillation_mode":
     {
         dataEntry: [ 'fanOscillationMode', 'fanOscillationMode', 'value' ],
+        capabilityID: 'fanOscillationMode',
         divider: 0,
         boolCompare: '',
         flowTrigger: null
@@ -161,6 +189,7 @@ const capabilityMap1 = {
     "measure_temperature":
     {
         dataEntry: [ 'temperatureMeasurement', 'temperature', 'value' ],
+        capabilityID: 'temperatureMeasurement',
         divider: 0,
         boolCompare: '',
         flowTrigger: null
@@ -168,6 +197,7 @@ const capabilityMap1 = {
     "target_temperature":
     {
         dataEntry: [ 'thermostatCoolingSetpoint', 'coolingSetpoint', 'value' ],
+        capabilityID: 'thermostatCoolingSetpoint',
         divider: 0,
         boolCompare: '',
         flowTrigger: null
@@ -175,6 +205,7 @@ const capabilityMap1 = {
     "measure_humidity":
     {
         dataEntry: [ 'relativeHumidityMeasurement', 'humidity', 'value' ],
+        capabilityID: 'relativeHumidityMeasurement',
         divider: 0,
         boolCompare: '',
         flowTrigger: null
@@ -182,6 +213,7 @@ const capabilityMap1 = {
     "measure_air_quality":
     {
         dataEntry: [ 'airQualitySensor', 'airQuality', 'value' ],
+        capabilityID: 'airQualitySensor',
         divider: 0,
         boolCompare: '',
         flowTrigger: null
@@ -189,6 +221,7 @@ const capabilityMap1 = {
     "aircon_option":
     {
         dataEntry: [ 'custom.airConditionerOptionalMode', 'acOptionalMode', 'value' ],
+        capabilityID: 'custom.airConditionerOptionalMode',
         divider: 0,
         boolCompare: '',
         flowTrigger: null
@@ -196,6 +229,7 @@ const capabilityMap1 = {
     "dust_filter_status":
     {
         dataEntry: [ 'custom.dustFilter', 'dustFilterStatus', 'value' ],
+        capabilityID: 'custom.dustFilter',
         divider: 0,
         boolCompare: '',
         flowTrigger: 'dustStatus_changed'
@@ -203,6 +237,7 @@ const capabilityMap1 = {
     "aircon_auto_cleaning_mode":
     {
         dataEntry: [ 'custom.autoCleaningMode', 'autoCleaningMode', 'value' ],
+        capabilityID: 'custom.autoCleaningMode',
         divider: 0,
         boolCompare: 'on',
         flowTrigger: null
@@ -210,6 +245,7 @@ const capabilityMap1 = {
     "silent_mode":
     {
         dataEntry: [ 'audioVolume', 'volume', 'value' ],
+        capabilityID: 'audioVolume',
         divider: 0,
         boolCompare: '0',
         flowTrigger: null
@@ -359,17 +395,163 @@ class STDevice extends Homey.Device
         this.getDeviceValues();
     }
 
-    async onAdded()
-    {
-    }
+    async onAdded() {}
+
 
     async getDeviceValues()
+    {
+        const devData = this.getData();
+        var component = 'main';
+        if ( devData.component )
+        {
+            component = devData.component;
+        }
+
+        // Update each capability
+        var capabilityCache = {};
+        const capabilities = this.getCapabilities();
+        for (var c = 0; c < capabilities.length; c++)
+        {
+            const capability = capabilities[ c ];
+            try
+            {
+                // Lookup the capability in the map
+                //Homey.app.updateLog( "Capability Processing: " + capability );
+
+                var mapEntry = capabilityMap1[ capability ];
+
+                // get the entry from the table for this capability
+                if ( mapEntry )
+                {
+                    var value = null;
+                    if (mapEntry.keep)
+                    {
+                        // Check the cache first
+                        if (capabilityCache[mapEntry.capabilityID])
+                        {
+                            value = capabilityCache[mapEntry.capabilityID];
+                        }
+                    }
+
+                    if (!value)
+                    {
+                        value = await Homey.app.getDeviceCapabilityValue( devData.id, component, mapEntry.capabilityID );
+                    }
+
+                    if (mapEntry.keep)
+                    {
+                        // cache the data
+                        capabilityCache = Object.assign(capabilityCache, {[mapEntry.capabilityID]: value});
+                    }
+
+                    for (var i = 1; i < mapEntry.dataEntry.length; i++)
+                    {
+                        value = value[ mapEntry.dataEntry[i] ];
+
+                    }
+
+                    if ( mapEntry.boolCompare )
+                    {
+                        value = ( value === mapEntry.boolCompare );
+                        Homey.app.updateLog( "Set Capability: " + capability + " - Value: " + value );
+                        this.setCapabilityValue( capability, value );
+
+                        if ( mapEntry.flowTrigger )
+                        {
+                            Homey.app.updateLog( "Trigger Check: " + capability + " = " + value + " was " + this.lastValues[ capability ] );
+                            if ( !this.lastValues.hasOwnProperty( capability ) || ( this.lastValues[ capability ] != value ) )
+                            {
+                                Object.defineProperty( this.lastValues, capability,
+                                {
+                                    value: value,
+                                    writable: true
+                                } );
+
+                                Homey.app.updateLog( "Trigger change: " + capability, " = " + value );
+
+                                let tokens = {
+                                    'value': value
+                                }
+
+                                this.flowTriggers[ mapEntry.flowTrigger ]
+                                    .trigger( this, tokens )
+                                    .catch( this.error )
+                            }
+
+                        }
+                    }
+                    else
+                    {
+                        if ( mapEntry.divider > 0 )
+                        {
+                            value /= mapEntry.divider;
+                        }
+                        else if ( mapEntry[ 'dateTime' ] )
+                        {
+                            // Format date and time to fit
+                            if ( value.length > 5 )
+                            {
+                                var d = new Date( value );
+                                value = d.getHours() + ":" + ( d.getMinutes() < 10 ? "0" : "" ) + d.getMinutes() + " " + ( d.getDate() < 10 ? "0" : "" ) + d.getDate() + "-" + ( d.getMonth() < 10 ? "0" : "" ) + d.getMonth();
+                            }
+                        }
+
+                        Homey.app.updateLog( "Set Capability: " + capability + " - Value: " + value );
+                        this.setCapabilityValue( capability, value );
+
+                        if ( mapEntry.flowTrigger )
+                        {
+                            Homey.app.updateLog( "Trigger Check: " + capability + " = ", value + " was " + this.lastValues[ capability ] );
+                            if ( !this.lastValues.hasOwnProperty( capability ) || ( this.lastValues[ capability ] != value ) )
+                            {
+                                if ( !this.lastValues.hasOwnProperty( capability ) )
+                                {
+                                    Object.defineProperty( this.lastValues, capability,
+                                    {
+                                        value: value,
+                                        writable: true
+                                    } );
+                                }
+                                else
+                                {
+                                    this.lastValues[ capability ] = value;
+                                }
+
+                                Homey.app.updateLog( "Trigger change: " + capability + " = " + value );
+
+                                let state = {
+                                    'value': value
+                                }
+
+                                this.flowTriggers[ mapEntry.flowTrigger ]
+                                    .trigger( this, {}, state )
+                                    .catch( this.error )
+                            }
+
+                        }
+                    }
+                }
+                else
+                {
+                    Homey.app.updateLog( "Capability Map entry NOT found for: " + capability );
+                }
+            }
+            catch ( err )
+            {
+                Homey.app.updateLog( "getDeviceValues error: " + Homey.app.varToString( err ) );
+            }
+        };
+    }
+
+
+
+    async getDeviceValues2()
     {
         try
         {
             const devData = this.getData();
             var component = 'main';
-            if (devData.component)
+            if ( devData.component )
             {
                 component = devData.component;
             }
@@ -410,7 +592,7 @@ class STDevice extends Homey.Device
 
                                 if ( mapEntry.flowTrigger )
                                 {
-                                    Homey.app.updateLog("Trigger Check: " + capability + " = " + value + " was " + this.lastValues[capability]);
+                                    Homey.app.updateLog( "Trigger Check: " + capability + " = " + value + " was " + this.lastValues[ capability ] );
                                     if ( !this.lastValues.hasOwnProperty( capability ) || ( this.lastValues[ capability ] != value ) )
                                     {
                                         Object.defineProperty( this.lastValues, capability,
@@ -453,7 +635,7 @@ class STDevice extends Homey.Device
 
                                 if ( mapEntry.flowTrigger )
                                 {
-                                    Homey.app.updateLog("Trigger Check: " + capability + " = ", value + " was " + this.lastValues[capability]);
+                                    Homey.app.updateLog( "Trigger Check: " + capability + " = ", value + " was " + this.lastValues[ capability ] );
                                     if ( !this.lastValues.hasOwnProperty( capability ) || ( this.lastValues[ capability ] != value ) )
                                     {
                                         if ( !this.lastValues.hasOwnProperty( capability ) )
@@ -1059,20 +1241,20 @@ class STDevice extends Homey.Device
         try
         {
             let body = {
-              "commands": [
+                "commands": [
                 {
-                  "component": "main",
-                  "capability": "execute",
-                  "command": "execute",
-                  "arguments": [
-                    "mode/vs/0",
-                    {
-                      "x.com.samsung.da.options": [
-                        "Light_On"
-                      ]
-                    }
-                  ]
-                }]
+                    "component": "main",
+                    "capability": "execute",
+                    "command": "execute",
+                    "arguments": [
+                        "mode/vs/0",
+                        {
+                            "x.com.samsung.da.options": [
+                                "Light_On"
+                            ]
+                        }
+                    ]
+                } ]
             }
 
             // Get the device information stored during pairing
@@ -1099,12 +1281,12 @@ class STDevice extends Homey.Device
                     "capability": "execute",
                     "command": "execute",
                     "arguments": [
-                      "mode/vs/0",
-                      {
-                        "x.com.samsung.da.options": [
-                          "Light_Off"
-                        ]
-                      }
+                        "mode/vs/0",
+                        {
+                            "x.com.samsung.da.options": [
+                                "Light_Off"
+                            ]
+                        }
                     ]
                 } ]
             }

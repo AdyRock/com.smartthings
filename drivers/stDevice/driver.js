@@ -109,7 +109,7 @@ class STDriver extends Homey.Driver
 
         } ).catch( function( err )
         {
-            callback( new Error( "Connection Failed" + Homey.app.varToString( err ) ), [] );
+            callback( err, [] );
         } );
     }
 }
