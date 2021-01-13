@@ -377,7 +377,7 @@
                 Homey.get( 'simData', function( err, simData )
                 {
                     if ( err ) return Homey.alert( err );
-                    simDataElement.value = simData ? JSON.stringify( simData, null, 2 ) : "";
+                    simDataElement.value = simData ? simData : "";
                 } );
                 // Make the simulator text box fill the page
                 simDataElement.setAttribute( 'cols', simDataElement.parentElement.clientWidth / 8 );

@@ -20,7 +20,7 @@ const CapabilityMap2 = {
     "switchLevel":
     {
         class: "light",
-        exclude: "",
+        exclude: "windowShade",
         capabilities: [ "dim" ],
         icon: "light.svg",
         iconPriority: 2
@@ -240,6 +240,14 @@ const CapabilityMap2 = {
         capabilities: [ 'washer_mode' ],
         icon: "",
         iconPriority: 0
+    },
+    "windowShade":
+    {
+        class: "windowcoverings",
+        exclude: "",
+        capabilities: [ 'windowcoverings_set' ],
+        icon: "rollerblind.svg",
+        iconPriority: 5
     }
 }
 
@@ -274,7 +282,7 @@ class MyApp extends Homey.App
 
             if ( setting === 'BearerToken' )
             {
-                this.BearerToken = Homey.ManagerSettings.get( 'BearerToken' );
+                Homey.app.BearerToken = Homey.ManagerSettings.get( 'BearerToken' );
             }
 
             if ( setting === 'pollInterval' )
@@ -738,7 +746,7 @@ class MyApp extends Homey.App
             this.diagLog += "\r\n";
             if ( this.diagLog.length > 60000 )
             {
-                this.diagLog = this.diagLog.substr( -60000 );
+                this.diagLog = this.diagLog.substr( this.diagLog.length - 60000 );
             }
             Homey.ManagerApi.realtime( 'com.smartthings.logupdated', { 'log': this.diagLog } );
         }

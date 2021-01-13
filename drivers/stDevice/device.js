@@ -249,6 +249,14 @@ const capabilityMap1 = {
         divider: 0,
         boolCompare: '0',
         flowTrigger: null
+    },
+    "windowcoverings_set":
+    {
+        dataEntry: [ 'switchLevel', 'level', 'value' ],
+        capabilityID: 'switchLevel',
+        divider: 100,
+        boolCompare: '',
+        flowTrigger: null
     }
 };
 
@@ -391,6 +399,12 @@ class STDevice extends Homey.Device
         {
             this.registerCapabilityListener( 'ac_lights_off', this.onCapabilityAc_lights_off.bind( this ) );
         }
+
+        if ( this.hasCapability( 'windowcoverings_set' ) )
+        {
+            this.registerCapabilityListener( 'windowcoverings_set', this.onCapabilitWwindowcoverings_set.bind( this ) );
+        }
+
 
         this.getDeviceValues();
     }
@@ -1301,6 +1315,40 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilityAc_lights_off " + Homey.app.varToString( err ) );
+        }
+    }
+
+    // this method is called when the Homey device has requested a window cover position change ( 0 to 1)
+    async onCapabilitWwindowcoverings_set( value, opts )
+    {
+        try
+        {
+            // Homey return a value of 0 to 1 but the real device requires a value of 0 to 100
+            value *= 100;
+
+            // SmartThings actually uses the switchLevel capability to control the position
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "switchLevel",
+                    "command": "setLevel",
+                    "arguments": [
+                        Math.round( value )
+                    ]
+                } ]
+            }
+
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // Set the dim Value on the device using the unique feature ID stored during pairing
+            await Homey.app.setDeviceCapabilityValue( devData.id, body );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            Homey.app.updateLog( this.getName() + " onCapabilityOnDimError " + Homey.app.varToString( err ) );
         }
     }
 }
