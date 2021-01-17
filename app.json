@@ -427,6 +427,48 @@
   },
   "drivers": [
     {
+      "id": "refrigeration",
+      "name": {
+        "en": "Refrigeration"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "alarm_contact",
+        "target_temperature",
+        "onoff"
+      ],
+      "capabilitiesOptions": {
+        "target_temperature": {
+          "min": -25,
+          "max": -5,
+          "title": "Freezer Temperature"
+        },
+        "alarm_contact": {
+          "title": "Door Open"
+        },
+        "onoff": {
+          "title": "Rapid Freeze"
+        }
+      },
+      "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "images": {
+        "large": "/drivers/refrigeration/assets/images/large.png",
+        "small": "/drivers/refrigeration/assets/images/small.png"
+      }
+    },
+    {
       "id": "stDevice",
       "name": {
         "en": "SmartThings Device"

@@ -333,11 +333,6 @@ class STDevice extends Homey.Device
             this.registerCapabilityListener( 'water_temperature', this.onCapabilityWasherWaterTemperature.bind( this ) );
         }
 
-        if ( this.hasCapability( 'onoff' ) )
-        {
-            this.registerCapabilityListener( 'onoff', this.onCapabilityOnoff.bind( this ) );
-        }
-
         if ( this.hasCapability( 'volume_set' ) )
         {
             this.registerCapabilityListener( 'volume_set', this.onCapabilityVolume.bind( this ) );

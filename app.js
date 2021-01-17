@@ -15,7 +15,7 @@ const CapabilityMap2 = {
         exclude: "", // Ignore if the device has this ST capability
         capabilities: [ "onoff" ], // The list of Homey capabilities to add
         icon: "socket.svg", // Icon to apply to the device
-        iconPriority: 1     // Priority to be used for the device icon. Higher numbers have a higher priority
+        iconPriority: 1 // Priority to be used for the device icon. Higher numbers have a higher priority
     },
     "switchLevel":
     {
@@ -31,7 +31,7 @@ const CapabilityMap2 = {
         exclude: "",
         capabilities: [ "alarm_contact" ],
         icon: "door.svg",
-        iconPriority: 3        
+        iconPriority: 3
     },
     "battery":
     {
@@ -258,13 +258,13 @@ class MyApp extends Homey.App
         this.diagLog = "";
         this.log( 'SmartThings is starting...' );
 
-        if (process.env.DEBUG === '1')
+        if ( process.env.DEBUG === '1' )
         {
-            Homey.ManagerSettings.set('debugMode', true);
+            Homey.ManagerSettings.set( 'debugMode', true );
         }
         else
         {
-            Homey.ManagerSettings.set('debugMode', false);
+            Homey.ManagerSettings.set( 'debugMode', false );
         }
 
         this.BearerToken = Homey.ManagerSettings.get( 'BearerToken' );
@@ -405,6 +405,64 @@ class MyApp extends Homey.App
         }
     }
 
+    async getDevicesByCategory( category )
+    {
+        //https://api.smartthings.com/v1/devices
+        const url = "devices";
+        let searchResult = await Homey.app.GetURL( url );
+        if ( searchResult )
+        {
+            let searchData = JSON.parse( searchResult.body );
+            this.detectedDevices = JSON.stringify( searchData, null, 2 );
+            Homey.ManagerApi.realtime( 'com.smartthings.detectedDevicesUpdated', { 'devices': this.detectedDevices } );
+
+            const devices = [];
+
+            // Create an array of devices
+            for ( const device of searchData[ 'items' ] )
+            {
+                var components = device[ 'components' ];
+
+                // Find the main component
+                for ( const component of components )
+                {
+                    if ( component.id === 'main' )
+                    {
+                        if ( component.categories.findIndex( element => element.name === category ) >= 0 )
+                        {
+                            Homey.app.updateLog( "Found device: " );
+                            Homey.app.updateLog( JSON.stringify( device, null, 2 ) );
+
+                            var data = {};
+                            data = {
+                                "id": device[ 'deviceId' ],
+                            };
+
+                            // Add this device to the table
+                            devices.push(
+                            {
+                                "name": device[ 'label' ],
+                                data
+                            } )
+                        }
+
+                        break;
+                    }
+                }
+            }
+            return devices;
+        }
+        else
+        {
+            Homey.app.updateLog( "Getting API Key returned NULL" );
+            reject(
+            {
+                statusCode: -3,
+                statusMessage: "HTTPS Error: Nothing returned"
+            } );
+        }
+    }
+
     async getAllDeviceCapabilitiesValues( DeviceID )
     {
         //https://api.smartthings.com/v1/devices/{deviceId}/status
@@ -437,6 +495,20 @@ class MyApp extends Homey.App
 
     async getDeviceCapabilityValue( DeviceID, ComponentID, CapabilityID )
     {
+        if ( ( process.env.DEBUG === '1' ) )
+        {
+            let simData = Homey.ManagerSettings.get( 'simData' );
+            if ( simData )
+            {
+                simData = JSON.parse( simData );
+                if (simData.deviceId === DeviceID)
+                {
+                    const component = simData.components[ComponentID];
+                    return component[CapabilityID];
+                }
+            }
+        }
+
         //https://api.smartthings.com/v1/devices/{deviceId}/components/{componentId}/capabilities/{capabilityId}/status
         let url = "devices/" + DeviceID + "/components/" + ComponentID + "/capabilities/" + CapabilityID + "/status";
         let result = await this.GetURL( url );
@@ -467,12 +539,12 @@ class MyApp extends Homey.App
 
     async GetURL( url )
     {
-        if ((process.env.DEBUG === '1') && (url === 'devices'))
+        if ( ( process.env.DEBUG === '1' ) && ( url === 'devices' ) )
         {
-            const simData = Homey.ManagerSettings.get('simData');
-            if (simData)
+            const simData = Homey.ManagerSettings.get( 'simData' );
+            if ( simData )
             {
-                return {'body': simData};
+                return { 'body': simData };
             }
         }
 
