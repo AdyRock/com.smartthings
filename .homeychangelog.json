@@ -27,6 +27,9 @@
     "en": "Added an option to send commands to SmartThings for diagnostics use (WIP)"
   },
   "0.0.17": {
-    "en": "Added support for blinds. Fixed issue with saving the Bearer Token so a restart is no longer required. Re-enabled option to add multiple device at the same time."
+    "en": "Added support for blinds.\nFixed issue with saving the Bearer Token so a restart is no longer required.\nRe-enabled option to add multiple device at the same time."
+  },
+  "0.0.18": {
+    "en": "Added support refrigerator Rapid Freeze"
   }
 }

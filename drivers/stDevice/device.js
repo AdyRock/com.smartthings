@@ -257,6 +257,14 @@ const capabilityMap1 = {
         divider: 100,
         boolCompare: '',
         flowTrigger: null
+    },
+    "rapid_freezing":
+    {
+        dataEntry: [ 'refrigeration', 'rapidFreezing', 'value' ],
+        capabilityID: 'rapidFreezing',
+        divider: 0,
+        boolCompare: 'on',
+        flowTrigger: null
     }
 };
 
@@ -402,7 +410,12 @@ class STDevice extends Homey.Device
 
         if ( this.hasCapability( 'windowcoverings_set' ) )
         {
-            this.registerCapabilityListener( 'windowcoverings_set', this.onCapabilitWwindowcoverings_set.bind( this ) );
+            this.registerCapabilityListener( 'windowcoverings_set', this.onCapabilityWindowCoverings_set.bind( this ) );
+        }
+
+        if ( this.hasCapability( 'rapid_freezing' ) )
+        {
+            this.registerCapabilityListener( 'rapid_freezing', this.onCapabilityRapidFreezing_set.bind( this ) );
         }
 
 
@@ -1319,7 +1332,7 @@ class STDevice extends Homey.Device
     }
 
     // this method is called when the Homey device has requested a window cover position change ( 0 to 1)
-    async onCapabilitWwindowcoverings_set( value, opts )
+    async onCapabilityWindowCoverings_set( value, opts )
     {
         try
         {
@@ -1349,6 +1362,41 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilityOnDimError " + Homey.app.varToString( err ) );
+        }
+    }
+
+    // this method is called when the Homey device has requested a state change (turned on or off)
+    async onCapabilityRapidFreezing_set( value, opts )
+    {
+        try
+        {
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // The device requires 'off' and 'on'
+            var data = 'off';
+            if ( value )
+            {
+                data = 'on';
+            }
+
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "rapidFreezing",
+                    "command": "setrapidFreezing",
+                    "arguments": [data]
+                } ]
+            }
+
+            // Set the switch Value on the device using the unique feature ID stored during pairing
+            await Homey.app.setDeviceCapabilityValue( devData.id, body );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            Homey.app.updateLog( this.getName() + " onCapabilityOnoff Error " + Homey.app.varToString( err ) );
         }
     }
 }
