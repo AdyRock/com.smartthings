@@ -115,7 +115,7 @@ const CapabilityMap2 = {
     },
     "audioVolume":
     {
-        class: "TV",
+        class: "tv",
         exclude: "airConditionerMode",
         capabilities: [ 'volume_set', 'volume_down', 'volume_up' ],
         icon: "",

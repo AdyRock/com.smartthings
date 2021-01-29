@@ -31,5 +31,11 @@
   },
   "0.0.18": {
     "en": "Added support refrigerator Rapid Freeze"
+  },
+  "0.0.19": {
+    "en": "Added new driver for refrigeration as it is too complex for a generic approach."
+  },
+  "0.0.20": {
+    "en": "Change class name from TV to tv."
   }
 }
