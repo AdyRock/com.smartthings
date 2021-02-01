@@ -265,6 +265,22 @@ const capabilityMap1 = {
         divider: 0,
         boolCompare: 'on',
         flowTrigger: null
+    },
+    "volume_down":
+    {
+        dataEntry: [],
+    },
+    "volume_up":
+    {
+        dataEntry: [],
+    },
+    "channel_down":
+    {
+        dataEntry: [],
+    },
+    "channel_up":
+    {
+        dataEntry: [],
     }
 };
 
@@ -345,7 +361,7 @@ class STDevice extends Homey.Device
 
         if ( this.hasCapability( 'volume_up' ) )
         {
-            this.registerCapabilityListener( 'volume_down', this.onCapabilityVolumeUp.bind( this ) );
+            this.registerCapabilityListener( 'volume_up', this.onCapabilityVolumeUp.bind( this ) );
         }
 
         if ( this.hasCapability( 'volume_mute' ) )
@@ -445,6 +461,12 @@ class STDevice extends Homey.Device
                 // get the entry from the table for this capability
                 if ( mapEntry )
                 {
+                    if (mapEntry.dataEntry.length === 0)
+                    {
+                        // Write only entry
+                        continue;
+                    }
+
                     var value = null;
                     if (mapEntry.keep)
                     {
