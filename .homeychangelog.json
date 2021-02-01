@@ -37,5 +37,8 @@
   },
   "0.0.20": {
     "en": "Change class name from TV to tv."
+  },
+  "0.0.21": {
+    "en": "Fixed Volume up button and suppressed warning messages in the log about write only capabilities."
   }
 }
