@@ -7,6 +7,7 @@
     {
         "type": "node",
         "request": "attach",
+        "restart": true,
         "name": "Attach to Homey",
         "address": "192.168.1.47",
         "port": 9222,

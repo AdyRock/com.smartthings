@@ -1,3 +1,4 @@
+/*jslint node: true */
 'use strict';
 
 const Homey = require( 'homey' );
@@ -18,7 +19,7 @@ class MyDevice extends Homey.Device
         {
             this.getDeviceValues();
         }
-        catch(err)
+        catch ( err )
         {
             this.log( 'MyDevice initialized ', err );
         }
@@ -53,9 +54,9 @@ class MyDevice extends Homey.Device
                     "component": "main",
                     "capability": "refrigeration",
                     "command": 'setRapidFreezing',
-                    "arguments": [data]
+                    "arguments": [ data ]
                 } ]
-            }
+            };
 
             // Set the switch Value on the device using the unique feature ID stored during pairing
             await Homey.app.setDeviceCapabilityValue( devData.id, body );
@@ -80,7 +81,7 @@ class MyDevice extends Homey.Device
                     "command": "setCoolingSetpoint",
                     "arguments": [ value ]
                 } ]
-            }
+            };
 
             // Get the device information stored during pairing
             const devData = this.getData();
@@ -102,29 +103,29 @@ class MyDevice extends Homey.Device
         try
         {
             // Get the door open state
-            let value = await Homey.app.getDeviceCapabilityValue( devData.id, 'onedoor', 'contactSensor');
-            if (value)
+            let value = await Homey.app.getDeviceCapabilityValue( devData.id, 'onedoor', 'contactSensor' );
+            if ( value )
             {
-                this.setCapabilityValue('alarm_contact', value.contact.value === 'open');
+                this.setCapabilityValue( 'alarm_contact', value.contact.value === 'open' );
             }
 
             // Get the Target temperature
-            value = await Homey.app.getDeviceCapabilityValue( devData.id, 'freezer', 'thermostatCoolingSetpoint');
-            if (value)
+            value = await Homey.app.getDeviceCapabilityValue( devData.id, 'freezer', 'thermostatCoolingSetpoint' );
+            if ( value )
             {
-                this.setCapabilityValue('target_temperature', value.coolingSetpoint.value);
+                this.setCapabilityValue( 'target_temperature', value.coolingSetpoint.value );
             }
 
             // Get the rapid freeze state
-            value = await Homey.app.getDeviceCapabilityValue( devData.id, 'main', 'refrigeration');
-            if (value)
+            value = await Homey.app.getDeviceCapabilityValue( devData.id, 'main', 'refrigeration' );
+            if ( value )
             {
-                this.setCapabilityValue('onoff', value.rapidFreezing.value === 'on');
+                this.setCapabilityValue( 'onoff', value.rapidFreezing.value === 'on' );
             }
         }
-        catch( err )
+        catch ( err )
         {
-            this.log("Get Device values Error ", err);
+            this.log( "Get Device values Error ", err );
         }
     }
 

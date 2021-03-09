@@ -1,29 +1,29 @@
 {
-  "id": "com.smartthings",
-  "version": "0.0.21",
-  "compatibility": ">=3.0.0",
-  "sdk": 2,
-  "brandColor": "#FF7D4B",
-  "name": {
-    "en": "SmartThings"
-  },
-  "description": {
-    "en": "Add devices from SmartThings to Homey"
-  },
-  "category": [
-    "appliances"
-  ],
-  "permissions": [],
-  "bugs": {
-    "url": "https://github.com/AdyRock/com.smartthings/issues"
-  },
-  "source": "https://github.com/AdyRock/com.smartthings",
-  "images": {
-    "large": "/assets/images/large.png",
-    "small": "/assets/images/small.png"
-  },
-  "author": {
-    "name": "Adrian Rockall",
-    "email": "ady@rockall.plus.com"
-  }
+    "id": "com.smartthings",
+    "version": "0.0.21",
+    "compatibility": ">=3.0.0",
+    "sdk": 2,
+    "brandColor": "#FF7D4B",
+    "name": {
+        "en": "SmartThings"
+    },
+    "description": {
+        "en": "Add devices from SmartThings to Homey"
+    },
+    "category": [
+        "appliances"
+    ],
+    "permissions": [],
+    "bugs": {
+        "url": "https://github.com/AdyRock/com.smartthings/issues"
+    },
+    "source": "https://github.com/AdyRock/com.smartthings",
+    "images": {
+        "large": "/assets/images/large.png",
+        "small": "/assets/images/small.png"
+    },
+    "author": {
+        "name": "Adrian Rockall",
+        "email": "ady@rockall.plus.com"
+    }
 }

@@ -1,8 +1,9 @@
+/*jslint node: true */
 'use strict';
 
 if ( process.env.DEBUG === '1' )
 {
-    require( 'inspector' ).open( 9222, '0.0.0.0', true )
+    require( 'inspector' ).open( 9222, '0.0.0.0', true );
 }
 
 const Homey = require( 'homey' );
@@ -249,7 +250,7 @@ const CapabilityMap2 = {
         icon: "rollerblind.svg",
         iconPriority: 5
     }
-}
+};
 
 class MyApp extends Homey.App
 {
@@ -326,12 +327,12 @@ class MyApp extends Homey.App
             const devices = [];
 
             // Create an array of devices
-            for ( const device of searchData[ 'items' ] )
+            for ( const device of searchData.items )
             {
                 Homey.app.updateLog( "Found device: " );
                 Homey.app.updateLog( JSON.stringify( device, null, 2 ) );
 
-                var components = device[ 'components' ];
+                var components = device.components;
                 var iconName = "";
                 var iconPriority = 0;
 
@@ -339,7 +340,7 @@ class MyApp extends Homey.App
                 {
                     var data = {};
                     data = {
-                        "id": device[ 'deviceId' ],
+                        "id": device.deviceId,
                         "component": component.id,
                     };
 
@@ -347,10 +348,10 @@ class MyApp extends Homey.App
                     let className = 'socket';
 
                     // Find supported capabilities
-                    var deviceCapabilities = component[ 'capabilities' ];
+                    var deviceCapabilities = component.capabilities;
                     for ( const deviceCapability of deviceCapabilities )
                     {
-                        const capabilityMapEntry = CapabilityMap2[ deviceCapability[ 'id' ] ];
+                        const capabilityMapEntry = CapabilityMap2[ deviceCapability.id ];
                         if ( capabilityMapEntry != null )
                         {
                             // Make sure the entry has no exclusion condition or that the capabilities for the device does not have the excluded item
@@ -367,14 +368,14 @@ class MyApp extends Homey.App
                                     iconName = capabilityMapEntry.icon;
                                     iconPriority = capabilityMapEntry.iconPriority;
                                 }
-                                capabilityMapEntry.capabilities.forEach( element =>
+                                for (const element of capabilityMapEntry.capabilities)
                                 {
                                     capabilities.push( element );
-                                } );
+                                }
                             }
                             else
                             {
-                                Homey.app.updateLog( "Excluded Capability: " + deviceCapability[ 'id' ] );
+                                Homey.app.updateLog( "Excluded Capability: " + deviceCapability.id );
                             }
                         }
                     }
@@ -383,12 +384,12 @@ class MyApp extends Homey.App
                         // Add this device to the table
                         devices.push(
                         {
-                            "name": device[ 'label' ] + ": " + component.id,
+                            "name": device.label + ": " + component.id,
                             "icon": iconName, // relative to: /drivers/<driver_id>/assets/
                             "class": className,
                             "capabilities": capabilities,
                             data
-                        } )
+                        } );
                     }
                 }
             }
@@ -397,16 +398,17 @@ class MyApp extends Homey.App
         else
         {
             Homey.app.updateLog( "Getting API Key returned NULL" );
-            reject(
-            {
-                statusCode: -3,
-                statusMessage: "HTTPS Error: Nothing returned"
-            } );
+            throw new Error( "HTTPS Error: Nothing returned" );
         }
     }
 
     async getDevicesByCategory( category )
     {
+        function myFind(element)
+        {
+            return element.name === category;
+        }
+
         //https://api.smartthings.com/v1/devices
         const url = "devices";
         let searchResult = await Homey.app.GetURL( url );
@@ -417,33 +419,32 @@ class MyApp extends Homey.App
             Homey.ManagerApi.realtime( 'com.smartthings.detectedDevicesUpdated', { 'devices': this.detectedDevices } );
 
             const devices = [];
-
             // Create an array of devices
-            for ( const device of searchData[ 'items' ] )
+            for ( const device of searchData.items )
             {
-                var components = device[ 'components' ];
+                var components = device.components;
 
                 // Find the main component
                 for ( const component of components )
                 {
                     if ( component.id === 'main' )
                     {
-                        if ( component.categories.findIndex( element => element.name === category ) >= 0 )
+                        if ( component.categories.findIndex( myFind ) >= 0 )
                         {
                             Homey.app.updateLog( "Found device: " );
                             Homey.app.updateLog( JSON.stringify( device, null, 2 ) );
 
                             var data = {};
                             data = {
-                                "id": device[ 'deviceId' ],
+                                "id": device.deviceId,
                             };
 
                             // Add this device to the table
                             devices.push(
                             {
-                                "name": device[ 'label' ],
+                                "name": device.label,
                                 data
-                            } )
+                            } );
                         }
 
                         break;
@@ -455,11 +456,7 @@ class MyApp extends Homey.App
         else
         {
             Homey.app.updateLog( "Getting API Key returned NULL" );
-            reject(
-            {
-                statusCode: -3,
-                statusMessage: "HTTPS Error: Nothing returned"
-            } );
+            throw new Error( "HTTPS Error: Nothing returned" );
         }
     }
 
@@ -501,10 +498,10 @@ class MyApp extends Homey.App
             if ( simData )
             {
                 simData = JSON.parse( simData );
-                if (simData.deviceId === DeviceID)
+                if ( simData.deviceId === DeviceID )
                 {
-                    const component = simData.components[ComponentID];
-                    return component[CapabilityID];
+                    const component = simData.components[ ComponentID ];
+                    return component[ CapabilityID ];
                 }
             }
         }
@@ -570,7 +567,7 @@ class MyApp extends Homey.App
                     {
                         "Authorization": "Bearer " + Homey.app.BearerToken,
                     },
-                }
+                };
 
                 https.get( https_options, ( res ) =>
                 {
@@ -670,7 +667,7 @@ class MyApp extends Homey.App
                         "contentType": "application/json; charset=utf-8",
                         "Content-Length": bodyText.length
                     },
-                }
+                };
 
                 Homey.app.updateLog( https_options );
 

@@ -1,3 +1,4 @@
+/*jslint node: true */
 'use strict';
 
 const Homey = require( 'homey' );
@@ -16,8 +17,8 @@ class STDriver extends Homey.Driver
             {
                 Homey.app.updateLog( "ac_auto_cleaning_mode_action: arg = " + args.ac_auto_cleaning_option + " - state = " + state );
                 await args.device.onCapabilityAirConMode( args.ac_auto_cleaning_option == "auto", null );
-                return await args.device.setCapabilityValue( 'aircon_auto_cleaning_mode', args.ac_auto_cleaning_option = "auto"); // Promise<void>
-            } )
+                return await args.device.setCapabilityValue( 'aircon_auto_cleaning_mode', args.ac_auto_cleaning_option = "auto" ); // Promise<void>
+            } );
 
         this.ac_sound_mode_action = new Homey.FlowCardAction( 'ac_sound_mode_action' );
         this.ac_sound_mode_action
@@ -26,8 +27,8 @@ class STDriver extends Homey.Driver
             {
                 Homey.app.updateLog( "ac_sound_mode_action: arg = " + args.ac_sound_option + " - state = " + state );
                 await args.device.onCapabilitySilent_mode( args.ac_sound_option == 'on', null );
-                return await args.device.setCapabilityValue( 'silent_mode', args.ac_sound_option == "on"); // Promise<void>
-            } )
+                return await args.device.setCapabilityValue( 'silent_mode', args.ac_sound_option == "on" ); // Promise<void>
+            } );
 
         this.ac_fan_mode_action = new Homey.FlowCardAction( 'ac_fan_mode_action' );
         this.ac_fan_mode_action
@@ -37,7 +38,7 @@ class STDriver extends Homey.Driver
                 Homey.app.updateLog( "ac_fan_mode_action: arg = " + args.ac_fan_mode + " - state = " + state );
                 await args.device.onCapabilityAirConMode( args.ac_fan_mode, null );
                 return await args.device.setCapabilityValue( 'aircon_fan_mode', args.ac_fan_mode ); // Promise<void>
-            } )
+            } );
 
         this.ac_fan_oscillation_mode_action = new Homey.FlowCardAction( 'ac_fan_oscillation_mode_action' );
         this.ac_fan_oscillation_mode_action
@@ -47,7 +48,7 @@ class STDriver extends Homey.Driver
                 Homey.app.updateLog( "ac_fan_oscillation_mode_action: arg = " + args.ac_fan_oscillation_mode + " - state = " + state );
                 await args.device.onCapabilityAirConMode( args.ac_fan_oscillation_mode, null );
                 return await args.device.setCapabilityValue( 'aircon_fan_oscillation_mode', args.ac_fan_oscillation_mode ); // Promise<void>
-            } )
+            } );
 
         this.ac_lights_action = new Homey.FlowCardAction( 'ac_lights_action' );
         this.ac_lights_action
@@ -63,7 +64,7 @@ class STDriver extends Homey.Driver
                 {
                     return await args.device.onCapabilityAc_lights_off( true, null );
                 }
-            } )
+            } );
 
         this.ac_mode_action = new Homey.FlowCardAction( 'ac_mode_action' );
         this.ac_mode_action
@@ -73,7 +74,7 @@ class STDriver extends Homey.Driver
                 Homey.app.updateLog( "ac_mode_action: arg = " + args.ac_mode + " - state = " + state );
                 await args.device.onCapabilityAirConMode( args.ac_mode, null );
                 return await args.device.setCapabilityValue( 'aircon_mode', args.ac_mode ); // Promise<void>
-            } )
+            } );
 
         this.ac_options_action = new Homey.FlowCardAction( 'ac_options_action' );
         this.ac_options_action
@@ -83,7 +84,7 @@ class STDriver extends Homey.Driver
                 Homey.app.updateLog( "ac_options_action: arg = " + args.ac_option + " - state = " + state );
                 await args.device.onCapabilityAirConMode( args.ac_option, null );
                 return await args.device.setCapabilityValue( 'aircon_option', args.ac_option ); // Promise<void>
-            } )
+            } );
     }
 
     // this is the easiest method to overwrite, when only the template 'Drivers-Pairing-System-Views' is being used.

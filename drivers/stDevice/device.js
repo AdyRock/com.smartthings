@@ -1,3 +1,4 @@
+/*jslint node: true */
 'use strict';
 
 const Homey = require( 'homey' );
@@ -448,7 +449,7 @@ class STDevice extends Homey.Device
         // Update each capability
         var capabilityCache = {};
         const capabilities = this.getCapabilities();
-        for (var c = 0; c < capabilities.length; c++)
+        for ( var c = 0; c < capabilities.length; c++ )
         {
             const capability = capabilities[ c ];
             try
@@ -461,36 +462,37 @@ class STDevice extends Homey.Device
                 // get the entry from the table for this capability
                 if ( mapEntry )
                 {
-                    if (mapEntry.dataEntry.length === 0)
+                    if ( mapEntry.dataEntry.length === 0 )
                     {
                         // Write only entry
                         continue;
                     }
 
                     var value = null;
-                    if (mapEntry.keep)
+                    if ( mapEntry.keep )
                     {
                         // Check the cache first
-                        if (capabilityCache[mapEntry.capabilityID])
+                        if ( capabilityCache[ mapEntry.capabilityID ] )
                         {
-                            value = capabilityCache[mapEntry.capabilityID];
+                            value = capabilityCache[ mapEntry.capabilityID ];
                         }
                     }
 
-                    if (!value)
+                    if ( !value )
                     {
                         value = await Homey.app.getDeviceCapabilityValue( devData.id, component, mapEntry.capabilityID );
                     }
 
-                    if (mapEntry.keep)
+                    if ( mapEntry.keep )
                     {
                         // cache the data
-                        capabilityCache = Object.assign(capabilityCache, {[mapEntry.capabilityID]: value});
+                        capabilityCache = Object.assign( capabilityCache, {
+                            [ mapEntry.capabilityID ]: value } );
                     }
 
-                    for (var i = 1; i < mapEntry.dataEntry.length; i++)
+                    for ( var i = 1; i < mapEntry.dataEntry.length; i++ )
                     {
-                        value = value[ mapEntry.dataEntry[i] ];
+                        value = value[ mapEntry.dataEntry[ i ] ];
 
                     }
 
@@ -515,11 +517,11 @@ class STDevice extends Homey.Device
 
                                 let tokens = {
                                     'value': value
-                                }
+                                };
 
                                 this.flowTriggers[ mapEntry.flowTrigger ]
                                     .trigger( this, tokens )
-                                    .catch( this.error )
+                                    .catch( this.error );
                             }
 
                         }
@@ -530,7 +532,7 @@ class STDevice extends Homey.Device
                         {
                             value /= mapEntry.divider;
                         }
-                        else if ( mapEntry[ 'dateTime' ] )
+                        else if ( mapEntry.dateTime )
                         {
                             // Format date and time to fit
                             if ( value.length > 5 )
@@ -565,11 +567,11 @@ class STDevice extends Homey.Device
 
                                 let state = {
                                     'value': value
-                                }
+                                };
 
                                 this.flowTriggers[ mapEntry.flowTrigger ]
                                     .trigger( this, {}, state )
-                                    .catch( this.error )
+                                    .catch( this.error );
                             }
 
                         }
@@ -584,7 +586,7 @@ class STDevice extends Homey.Device
             {
                 Homey.app.updateLog( "getDeviceValues error: " + Homey.app.varToString( err ) );
             }
-        };
+        }
     }
 
 
@@ -624,7 +626,7 @@ class STDevice extends Homey.Device
                             mapEntry.dataEntry.forEach( entry =>
                             {
                                 value = value[ entry ];
-                            } )
+                            } );
 
                             Homey.app.updateLog( "Capability: " + capability + " - Value: " + value );
 
@@ -649,11 +651,11 @@ class STDevice extends Homey.Device
 
                                         let tokens = {
                                             'value': value
-                                        }
+                                        };
 
                                         this.flowTriggers[ mapEntry.flowTrigger ]
                                             .trigger( this, tokens )
-                                            .catch( this.error )
+                                            .catch( this.error );
                                     }
 
                                 }
@@ -664,7 +666,7 @@ class STDevice extends Homey.Device
                                 {
                                     value /= mapEntry.divider;
                                 }
-                                else if ( mapEntry[ 'dateTime' ] )
+                                else if ( mapEntry.dateTime )
                                 {
                                     // Format date and time to fit
                                     if ( value.length > 5 )
@@ -699,11 +701,11 @@ class STDevice extends Homey.Device
 
                                         let state = {
                                             'value': value
-                                        }
+                                        };
 
                                         this.flowTriggers[ mapEntry.flowTrigger ]
                                             .trigger( this, {}, state )
-                                            .catch( this.error )
+                                            .catch( this.error );
                                     }
 
                                 }
@@ -754,7 +756,7 @@ class STDevice extends Homey.Device
                     "command": data,
                     "arguments": []
                 } ]
-            }
+            };
 
             // Set the switch Value on the device using the unique feature ID stored during pairing
             await Homey.app.setDeviceCapabilityValue( devData.id, body );
@@ -784,7 +786,7 @@ class STDevice extends Homey.Device
                         Math.round( value )
                     ]
                 } ]
-            }
+            };
 
             // Get the device information stored during pairing
             const devData = this.getData();
@@ -819,7 +821,7 @@ class STDevice extends Homey.Device
                         value
                     ]
                 } ]
-            }
+            };
 
             // Get the device information stored during pairing
             const devData = this.getData();
@@ -854,7 +856,7 @@ class STDevice extends Homey.Device
                         value
                     ]
                 } ]
-            }
+            };
 
             // Get the device information stored during pairing
             const devData = this.getData();
@@ -889,7 +891,7 @@ class STDevice extends Homey.Device
                         value
                     ]
                 } ]
-            }
+            };
 
             // Get the device information stored during pairing
             const devData = this.getData();
@@ -924,7 +926,7 @@ class STDevice extends Homey.Device
                         value
                     ]
                 } ]
-            }
+            };
 
             // Get the device information stored during pairing
             const devData = this.getData();
@@ -957,7 +959,7 @@ class STDevice extends Homey.Device
                         Math.round( value )
                     ]
                 } ]
-            }
+            };
 
             // Get the device information stored during pairing
             const devData = this.getData();
@@ -985,7 +987,7 @@ class STDevice extends Homey.Device
                     "command": "volumeDown",
                     "arguments": []
                 } ]
-            }
+            };
 
             // Get the device information stored during pairing
             const devData = this.getData();
@@ -1013,7 +1015,7 @@ class STDevice extends Homey.Device
                     "command": "volumeUp",
                     "arguments": []
                 } ]
-            }
+            };
 
             // Get the device information stored during pairing
             const devData = this.getData();
@@ -1043,7 +1045,7 @@ class STDevice extends Homey.Device
                         value ? "muted" : "unmuted"
                     ]
                 } ]
-            }
+            };
 
             // Get the device information stored during pairing
             const devData = this.getData();
@@ -1071,7 +1073,7 @@ class STDevice extends Homey.Device
                     "command": "channelDown",
                     "arguments": []
                 } ]
-            }
+            };
 
             // Get the device information stored during pairing
             const devData = this.getData();
@@ -1099,7 +1101,7 @@ class STDevice extends Homey.Device
                     "command": "channelUp",
                     "arguments": []
                 } ]
-            }
+            };
 
             // Get the device information stored during pairing
             const devData = this.getData();
@@ -1127,7 +1129,7 @@ class STDevice extends Homey.Device
                     "command": "setCoolingSetpoint",
                     "arguments": [ value ]
                 } ]
-            }
+            };
 
             // Get the device information stored during pairing
             const devData = this.getData();
@@ -1155,7 +1157,7 @@ class STDevice extends Homey.Device
                     "command": "setAcOptionalMode",
                     "arguments": [ value ]
                 } ]
-            }
+            };
 
             // Get the device information stored during pairing
             const devData = this.getData();
@@ -1183,7 +1185,7 @@ class STDevice extends Homey.Device
                     "command": "setAirConditionerMode",
                     "arguments": [ value ]
                 } ]
-            }
+            };
 
             // Get the device information stored during pairing
             const devData = this.getData();
@@ -1211,7 +1213,7 @@ class STDevice extends Homey.Device
                     "command": "setFanOscillationMode",
                     "arguments": [ value ]
                 } ]
-            }
+            };
 
             // Get the device information stored during pairing
             const devData = this.getData();
@@ -1238,7 +1240,7 @@ class STDevice extends Homey.Device
                     "command": "setAutoCleaningMode",
                     "arguments": [ value ? "auto" : "off" ]
                 } ]
-            }
+            };
 
             // Get the device information stored during pairing
             const devData = this.getData();
@@ -1265,7 +1267,7 @@ class STDevice extends Homey.Device
                     "command": "setMute",
                     "arguments": [ value ? "mute" : "unmute" ]
                 } ]
-            }
+            };
 
             // Get the device information stored during pairing
             const devData = this.getData();
@@ -1299,7 +1301,7 @@ class STDevice extends Homey.Device
                         }
                     ]
                 } ]
-            }
+            };
 
             // Get the device information stored during pairing
             const devData = this.getData();
@@ -1333,7 +1335,7 @@ class STDevice extends Homey.Device
                         }
                     ]
                 } ]
-            }
+            };
 
             // Get the device information stored during pairing
             const devData = this.getData();
@@ -1367,7 +1369,7 @@ class STDevice extends Homey.Device
                         Math.round( value )
                     ]
                 } ]
-            }
+            };
 
             // Get the device information stored during pairing
             const devData = this.getData();
@@ -1403,9 +1405,9 @@ class STDevice extends Homey.Device
                     "component": "main",
                     "capability": "rapidFreezing",
                     "command": "setrapidFreezing",
-                    "arguments": [data]
+                    "arguments": [ data ]
                 } ]
-            }
+            };
 
             // Set the switch Value on the device using the unique feature ID stored during pairing
             await Homey.app.setDeviceCapabilityValue( devData.id, body );

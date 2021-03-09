@@ -1,44 +1,44 @@
 {
-  "0.0.5": {
-    "en": "Limited size of log.\nResults of device search now added to 'Detected' tab of app configuration.\nFixed Contact Sensor problem"
-  },
-  "0.0.6": {
-    "en": "Added some Air Conditioner capabilities (WIP)"
-  },
-  "0.0.7": {
-    "en": "Added more Air Conditioner features (WIP)"
-  },
-  "0.0.8": {
-    "en": "Fixed premature exit from capability processing loop if an error occurs\nAdded set functions for temperature, mode and optional mode\nFixed name error in capability lookup table (WIP)"
-  },
-  "0.0.9": {
-    "en": "Added more AC controls and flow cards (WIP)"
-  },
-  "0.0.13": {
-    "en": "Fixed Lights and sound On/Off (WIP)"
-  },
-  "0.0.14": {
-    "en": "Added energy meter and motion sensor"
-  },
-  "0.0.15": {
-    "en": "Split SmartThings Components into separate devices (WIP)"
-  },
-  "0.0.16": {
-    "en": "Added an option to send commands to SmartThings for diagnostics use (WIP)"
-  },
-  "0.0.17": {
-    "en": "Added support for blinds.\nFixed issue with saving the Bearer Token so a restart is no longer required.\nRe-enabled option to add multiple device at the same time."
-  },
-  "0.0.18": {
-    "en": "Added support refrigerator Rapid Freeze"
-  },
-  "0.0.19": {
-    "en": "Added new driver for refrigeration as it is too complex for a generic approach."
-  },
-  "0.0.20": {
-    "en": "Change class name from TV to tv."
-  },
-  "0.0.21": {
-    "en": "Fixed Volume up button and suppressed warning messages in the log about write only capabilities."
-  }
+    "0.0.5": {
+        "en": "Limited size of log.\nResults of device search now added to 'Detected' tab of app configuration.\nFixed Contact Sensor problem"
+    },
+    "0.0.6": {
+        "en": "Added some Air Conditioner capabilities (WIP)"
+    },
+    "0.0.7": {
+        "en": "Added more Air Conditioner features (WIP)"
+    },
+    "0.0.8": {
+        "en": "Fixed premature exit from capability processing loop if an error occurs\nAdded set functions for temperature, mode and optional mode\nFixed name error in capability lookup table (WIP)"
+    },
+    "0.0.9": {
+        "en": "Added more AC controls and flow cards (WIP)"
+    },
+    "0.0.13": {
+        "en": "Fixed Lights and sound On/Off (WIP)"
+    },
+    "0.0.14": {
+        "en": "Added energy meter and motion sensor"
+    },
+    "0.0.15": {
+        "en": "Split SmartThings Components into separate devices (WIP)"
+    },
+    "0.0.16": {
+        "en": "Added an option to send commands to SmartThings for diagnostics use (WIP)"
+    },
+    "0.0.17": {
+        "en": "Added support for blinds.\nFixed issue with saving the Bearer Token so a restart is no longer required.\nRe-enabled option to add multiple device at the same time."
+    },
+    "0.0.18": {
+        "en": "Added support refrigerator Rapid Freeze"
+    },
+    "0.0.19": {
+        "en": "Added new driver for refrigeration as it is too complex for a generic approach."
+    },
+    "0.0.20": {
+        "en": "Change class name from TV to tv."
+    },
+    "0.0.21": {
+        "en": "Fixed Volume up button and suppressed warning messages in the log about write only capabilities."
+    }
 }

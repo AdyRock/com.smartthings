@@ -1,3 +1,4 @@
+/*jslint node: true */
 'use strict';
 
 const Homey = require( 'homey' );
@@ -14,7 +15,7 @@ class MyDriver extends Homey.Driver
 
     onPairListDevices( data, callback )
     {
-        Homey.app.getDevicesByCategory('Refrigerator').then( function( devices )
+        Homey.app.getDevicesByCategory( 'Refrigerator' ).then( function( devices )
         {
             Homey.app.updateLog( devices );
             callback( null, devices );
