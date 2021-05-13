@@ -3,14 +3,14 @@
 
 const Homey = require( 'homey' );
 
-class MyDevice extends Homey.Device
+class FridgeDevice extends Homey.Device
 {
     /**
      * onInit is called when the device is initialized.
      */
     async onInit()
     {
-        this.log( 'MyDevice has been initialized' );
+        this.log( 'FridgeDevice has been initialized' );
 
         this.registerCapabilityListener( 'onoff', this.onCapabilityOnoff.bind( this ) );
         this.registerCapabilityListener( 'target_temperature', this.onCapabilityTargetTemperature.bind( this ) );
@@ -21,7 +21,7 @@ class MyDevice extends Homey.Device
         }
         catch ( err )
         {
-            this.log( 'MyDevice initialized ', err );
+            this.log( 'FridgeDevice initialized ', err );
         }
     }
 
@@ -30,7 +30,7 @@ class MyDevice extends Homey.Device
      */
     async onAdded()
     {
-        this.log( 'MyDevice has been added' );
+        this.log( 'FridgeDevice has been added' );
     }
 
     // this method is called when the Homey device has requested a state change (turned on or off)
@@ -161,4 +161,4 @@ class MyDevice extends Homey.Device
     }
 }
 
-module.exports = MyDevice;
+module.exports = FridgeDevice;
