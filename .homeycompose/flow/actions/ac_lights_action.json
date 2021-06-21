@@ -3,6 +3,10 @@
     {
         "en": "AC Lights"
     },
+    "titleFormatted":
+    {
+        "en": "Turn [[ac_lights_option]] the AC Lights"
+    },
     "args": [
     {
         "type": "device",

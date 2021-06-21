@@ -3,6 +3,10 @@
     {
         "en": "AC Sound Mode"
     },
+    "titleFormatted":
+    {
+        "en": "Turn [[ac_sound_option]] the AC Sound Mode"
+    },
     "args": [
     {
         "type": "device",

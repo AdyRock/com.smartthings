@@ -1,7 +1,11 @@
 {
     "title":
     {
-        "en": "AC Options"
+        "en": "AC Option"
+    },
+    "titleFormatted":
+    {
+        "en": "Set the AC Options to [[ac_option]]"
     },
     "args": [
     {

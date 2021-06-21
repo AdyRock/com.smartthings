@@ -3,6 +3,10 @@
     {
         "en": "AC Wind Speed"
     },
+    "titleFormatted":
+    {
+        "en": "Set the AC Wind Speed to [[ac_fan_mode]]"
+    },
     "args": [
     {
         "type": "device",

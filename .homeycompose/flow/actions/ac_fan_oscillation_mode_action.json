@@ -3,6 +3,10 @@
     {
         "en": "AC Wind Direction"
     },
+    "titleFormatted":
+    {
+        "en": "Set the AC Wind Direction to [[ac_fan_oscillation_mode]]"
+    },
     "args": [
     {
         "type": "device",

@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.smartthings",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "compatibility": ">=3.0.0",
   "sdk": 2,
   "brandColor": "#FF7D4B",
@@ -83,6 +83,9 @@
         "title": {
           "en": "The washer status changed to"
         },
+        "titleFormatted": {
+          "en": "The washer status changed to [[value]]"
+        },
         "hint": {
           "en": "This card starts a Flow when the washing machine switches to the selected mode."
         },
@@ -126,6 +129,9 @@
         "title": {
           "en": "AC Cleaning Mode"
         },
+        "titleFormatted": {
+          "en": "Set the AC Cleaning Mode to [[ac_auto_cleaning_option]]"
+        },
         "args": [
           {
             "type": "device",
@@ -156,6 +162,9 @@
       {
         "title": {
           "en": "AC Wind Speed"
+        },
+        "titleFormatted": {
+          "en": "Set the AC Wind Speed to [[ac_fan_mode]]"
         },
         "args": [
           {
@@ -206,6 +215,9 @@
         "title": {
           "en": "AC Wind Direction"
         },
+        "titleFormatted": {
+          "en": "Set the AC Wind Direction to [[ac_fan_oscillation_mode]]"
+        },
         "args": [
           {
             "type": "device",
@@ -249,6 +261,9 @@
         "title": {
           "en": "AC Lights"
         },
+        "titleFormatted": {
+          "en": "Turn [[ac_lights_option]] the AC Lights"
+        },
         "args": [
           {
             "type": "device",
@@ -279,6 +294,9 @@
       {
         "title": {
           "en": "AC Mode"
+        },
+        "titleFormatted": {
+          "en": "Set the AC Mode to [[ac_mode]]"
         },
         "args": [
           {
@@ -333,7 +351,10 @@
       },
       {
         "title": {
-          "en": "AC Options"
+          "en": "AC Option"
+        },
+        "titleFormatted": {
+          "en": "Set the AC Options to [[ac_option]]"
         },
         "args": [
           {
@@ -395,6 +416,9 @@
       {
         "title": {
           "en": "AC Sound Mode"
+        },
+        "titleFormatted": {
+          "en": "Turn [[ac_sound_option]] the AC Sound Mode"
         },
         "args": [
           {

@@ -2,6 +2,9 @@
     "title": {
         "en": "The washer status changed to"
     },
+    "titleFormatted": {
+        "en": "The washer status changed to [[value]]"
+    },
     "hint": {
         "en": "This card starts a Flow when the washing machine switches to the selected mode."
     },

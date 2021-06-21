@@ -3,6 +3,10 @@
     {
         "en": "AC Mode"
     },
+    "titleFormatted":
+    {
+        "en": "Set the AC Mode to [[ac_mode]]"
+    },
     "args": [
     {
         "type": "device",

@@ -3,6 +3,10 @@
     {
         "en": "AC Cleaning Mode"
     },
+    "titleFormatted":
+    {
+        "en": "Set the AC Cleaning Mode to [[ac_auto_cleaning_option]]"
+    },
     "args": [
     {
         "type": "device",

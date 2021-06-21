@@ -82,7 +82,7 @@ class STDriver extends Homey.Driver
             .registerRunListener( async ( args, state ) =>
             {
                 Homey.app.updateLog( "ac_options_action: arg = " + args.ac_option + " - state = " + state );
-                await args.device.onCapabilityAirConMode( args.ac_option, null );
+                await args.device.onCapabilityAirConOption( args.ac_option, null );
                 return await args.device.setCapabilityValue( 'aircon_option', args.ac_option ); // Promise<void>
             } );
     }

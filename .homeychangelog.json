@@ -40,5 +40,8 @@
     },
     "0.0.21": {
         "en": "Fixed Volume up button and suppressed warning messages in the log about write only capabilities."
+    },
+    "0.0.22": {
+        "en": "Fixed AC Windfree flow action card."
     }
 }
