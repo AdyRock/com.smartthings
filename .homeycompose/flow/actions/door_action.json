@@ -1,0 +1,39 @@
+{
+    "title":
+    {
+        "en": "Open or Close the door",
+        "sv": "Öppna eller stäng porten"
+    },
+    "titleFormatted":
+    {
+        "en": "[[garage_door]] the door",
+        "sv": "[[garage_door]] porten"
+    },
+    "args": [
+    {
+        "type": "device",
+        "name": "device",
+        "filter": "driver_id=stDevice&class=garagedoor"
+    },
+    {
+        "type": "dropdown",
+        "name": "garage_door",
+        "values": [
+        {
+            "id": "close",
+            "title":
+            {
+                "en": "Close",
+                "sv": "Stängd"
+            }
+        },
+        {
+            "id": "open",
+            "title":
+            {
+                "en": "Open",
+                "sv": "Öppen"
+            }
+        } ]
+    } ]
+}

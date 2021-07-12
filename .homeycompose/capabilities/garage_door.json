@@ -1,10 +1,21 @@
 {
   "type": "boolean",
   "title": {
-    "en": "Open"
+    "en": "Open or Close the Door",
+    "sv": "Öppna eller stäng porten"
   },
   "icon": "/assets/garage_door.svg",
   "getable": true,
   "setable": true,
-  "uiComponent": "toggle"
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "Opened",
+    "sv": "Öppnad"
+  },
+  "insightsTitleFalse": {
+    "en": "Closed",
+    "sv": "Stängd"
+  },
+  "uiComponent": "toggle",
+  "uiQuickAction": true
 }

@@ -1,0 +1,19 @@
+{
+    "title": {
+        "en": "The door is opened or closed",
+        "sv": "Porten öppnas eller stängs"
+    },
+    "hint": {
+        "en": "This card starts a Flow when the door is opened or closed."
+    },
+    "tokens": [{
+        "name": "value",
+        "type": "boolean",
+        "title": {"en": "Open", "sv": "Öppen"}
+    }],
+    "args": [{
+        "name": "device",
+        "type": "device",
+        "filter": "driver_id=stDevice&capabilities=garage_door"
+    }]
+}

@@ -85,6 +85,16 @@ class STDriver extends Homey.Driver
                 await args.device.onCapabilityAirConOption( args.ac_option, null );
                 return await args.device.setCapabilityValue( 'aircon_option', args.ac_option ); // Promise<void>
             } );
+
+        this.door_action = new Homey.FlowCardAction( 'door_action' );
+        this.door_action
+            .register()
+            .registerRunListener( async ( args, state ) =>
+            {
+                Homey.app.updateLog( "door_action: arg = " + args.garage_door + " - state = " + state );
+                await args.device.onCapabilityGarageDoor_set( args.garage_door === 'open', null );
+                return await args.device.setCapabilityValue( 'garage_door', args.garage_door === 'open' ); // Promise<void>
+            } );
     }
 
     // this is the easiest method to overwrite, when only the template 'Drivers-Pairing-System-Views' is being used.

@@ -48,6 +48,9 @@
         "en": "Added Garage Door (stage 1)."
     },
     "0.0.24": {
-        "en": "Added Garage Door (possibley stage 2)."
+        "en": "Added Garage Door (stage 2)."
+    },
+    "0.0.25": {
+        "en": "Added flows for Garage Door."
     }
 }

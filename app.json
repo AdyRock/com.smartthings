@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.smartthings",
-  "version": "0.0.24",
+  "version": "0.0.25",
   "compatibility": ">=3.0.0",
   "sdk": 2,
   "brandColor": "#FF7D4B",
@@ -29,6 +29,33 @@
   },
   "flow": {
     "triggers": [
+      {
+        "title": {
+          "en": "The door is opened or closed",
+          "sv": "Porten öppnas eller stängs"
+        },
+        "hint": {
+          "en": "This card starts a Flow when the door is opened or closed."
+        },
+        "tokens": [
+          {
+            "name": "value",
+            "type": "boolean",
+            "title": {
+              "en": "Open",
+              "sv": "Öppen"
+            }
+          }
+        ],
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=stDevice&capabilities=garage_door"
+          }
+        ],
+        "id": "doorStatus_changed"
+      },
       {
         "title": {
           "en": "The dust filter status has changed"
@@ -446,6 +473,44 @@
           }
         ],
         "id": "ac_sound_mode_action"
+      },
+      {
+        "title": {
+          "en": "Open or Close the door",
+          "sv": "Öppna eller stäng porten"
+        },
+        "titleFormatted": {
+          "en": "[[garage_door]] the door",
+          "sv": "[[garage_door]] porten"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=stDevice&class=garagedoor"
+          },
+          {
+            "type": "dropdown",
+            "name": "garage_door",
+            "values": [
+              {
+                "id": "close",
+                "title": {
+                  "en": "Close",
+                  "sv": "Stängd"
+                }
+              },
+              {
+                "id": "open",
+                "title": {
+                  "en": "Open",
+                  "sv": "Öppen"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "door_action"
       }
     ]
   },
@@ -774,12 +839,23 @@
     "garage_door": {
       "type": "boolean",
       "title": {
-        "en": "Open"
+        "en": "Open or Close the Door",
+        "sv": "Öppna eller stäng porten"
       },
       "icon": "/assets/garage_door.svg",
       "getable": true,
       "setable": true,
-      "uiComponent": "toggle"
+      "insights": true,
+      "insightsTitleTrue": {
+        "en": "Opened",
+        "sv": "Öppnad"
+      },
+      "insightsTitleFalse": {
+        "en": "Closed",
+        "sv": "Stängd"
+      },
+      "uiComponent": "toggle",
+      "uiQuickAction": true
     },
     "measure_air_quality": {
       "type": "number",

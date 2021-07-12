@@ -289,7 +289,7 @@ const capabilityMap1 = {
         capabilityID: 'doorControl',
         divider: 0,
         boolCompare: 'open',
-        flowTrigger: null
+        flowTrigger: 'doorStatus_changed'
     }
 };
 
@@ -310,7 +310,8 @@ class STDevice extends Homey.Device
         this.flowTriggers = {
             'washer_status_changed': new Homey.FlowCardTriggerDevice( 'washer_status_changed' ),
             'presenceStatus_changed': new Homey.FlowCardTriggerDevice( 'presenceStatus_changed' ),
-            'dustStatus_changed': new Homey.FlowCardTriggerDevice( 'dustStatus_changed' )
+            'dustStatus_changed': new Homey.FlowCardTriggerDevice( 'dustStatus_changed' ),
+            'doorStatus_changed' : new Homey.FlowCardTriggerDevice( 'doorStatus_changed' ),
         };
 
         this.flowTriggers.washer_status_changed
@@ -325,6 +326,9 @@ class STDevice extends Homey.Device
             .register();
 
         this.flowTriggers.dustStatus_changed
+            .register();
+
+        this.flowTriggers.doorStatus_changed
             .register();
 
         // register a capability listeners
@@ -600,8 +604,6 @@ class STDevice extends Homey.Device
             }
         }
     }
-
-
 
     async getDeviceValues2()
     {
@@ -1463,6 +1465,7 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilityGarageDoor_set Error " + Homey.app.varToString( err ) );
+            throw(new Error(err.statusMessage));
         }
     }
 }
