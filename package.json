@@ -1,6 +1,6 @@
 {
     "name": "com.smartthings",
-    "version": "0.0.22",
+    "version": "0.0.24",
     "main": "app.js",
     "devDependencies": {
         "homey": "^2.2.4"

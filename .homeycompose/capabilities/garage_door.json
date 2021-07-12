@@ -1,0 +1,10 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Open"
+  },
+  "icon": "/assets/garage_door.svg",
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle"
+}

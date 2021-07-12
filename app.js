@@ -249,6 +249,14 @@ const CapabilityMap2 = {
         capabilities: [ 'windowcoverings_set' ],
         icon: "rollerblind.svg",
         iconPriority: 5
+    },
+    "doorControl":
+    {
+        class: "garagedoor",
+        exclude: "",
+        capabilities: [ 'garage_door' ],
+        icon: "garage_door.svg",
+        iconPriority: 5
     }
 };
 

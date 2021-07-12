@@ -282,6 +282,14 @@ const capabilityMap1 = {
     "channel_up":
     {
         dataEntry: [],
+    },
+    "garage_door":
+    {
+        dataEntry: [ 'doorControl', 'door', 'value' ],
+        capabilityID: 'doorControl',
+        divider: 0,
+        boolCompare: 'open',
+        flowTrigger: null
     }
 };
 
@@ -430,6 +438,10 @@ class STDevice extends Homey.Device
             this.registerCapabilityListener( 'rapid_freezing', this.onCapabilityRapidFreezing_set.bind( this ) );
         }
 
+        if ( this.hasCapability( 'garage_door' ) )
+        {
+            this.registerCapabilityListener( 'garage_door', this.onCapabilityGarageDoor_set.bind( this ) );
+        }
 
         this.getDeviceValues();
     }
@@ -1416,6 +1428,41 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilityOnoff Error " + Homey.app.varToString( err ) );
+        }
+    }
+
+    // this method is called when the Homey device has requested a state change (turned on or off)
+    async onCapabilityGarageDoor_set( value, opts )
+    {
+        try
+        {
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // The device requires 'close' and 'open'
+            var data = 'close';
+            if ( value )
+            {
+                data = 'open';
+            }
+
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "doorControl",
+                    "command": data,
+                    "arguments": []
+                } ]
+            };
+
+            // Set the switch Value on the device using the unique feature ID stored during pairing
+            await Homey.app.setDeviceCapabilityValue( devData.id, body );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            Homey.app.updateLog( this.getName() + " onCapabilityGarageDoor_set Error " + Homey.app.varToString( err ) );
         }
     }
 }

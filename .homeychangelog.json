@@ -43,5 +43,11 @@
     },
     "0.0.22": {
         "en": "Fixed AC Windfree flow action card."
+    },
+    "0.0.23": {
+        "en": "Added Garage Door (stage 1)."
+    },
+    "0.0.24": {
+        "en": "Added Garage Door (possibley stage 2)."
     }
 }
