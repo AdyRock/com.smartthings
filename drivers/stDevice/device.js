@@ -283,7 +283,7 @@ const capabilityMap1 = {
     {
         dataEntry: [],
     },
-    "garage_door":
+    "alarm_garage_door":
     {
         dataEntry: [ 'doorControl', 'door', 'value' ],
         capabilityID: 'doorControl',
@@ -442,9 +442,9 @@ class STDevice extends Homey.Device
             this.registerCapabilityListener( 'rapid_freezing', this.onCapabilityRapidFreezing_set.bind( this ) );
         }
 
-        if ( this.hasCapability( 'garage_door' ) )
+        if ( this.hasCapability( 'alarm_garage_door' ) )
         {
-            this.registerCapabilityListener( 'garage_door', this.onCapabilityGarageDoor_set.bind( this ) );
+            this.registerCapabilityListener( 'alarm_garage_door', this.onCapabilityGarageDoor_set.bind( this ) );
         }
 
         this.getDeviceValues();

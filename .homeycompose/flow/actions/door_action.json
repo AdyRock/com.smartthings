@@ -24,7 +24,7 @@
             "title":
             {
                 "en": "Close",
-                "sv": "Stängd"
+                "sv": "Stäng"
             }
         },
         {
@@ -32,7 +32,7 @@
             "title":
             {
                 "en": "Open",
-                "sv": "Öppen"
+                "sv": "Öppna"
             }
         } ]
     } ]

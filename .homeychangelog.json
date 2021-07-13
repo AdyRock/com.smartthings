@@ -52,5 +52,8 @@
     },
     "0.0.25": {
         "en": "Added flows for Garage Door."
+    },
+    "0.0.26": {
+        "en": "Breaking change: capability name changed so the alarm icon shows when the door is open. Added condition flow card for Garage Door. "
     }
 }

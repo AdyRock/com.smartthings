@@ -1,0 +1,16 @@
+{
+    "title": {
+        "en": "The door is !{{open|closed}}",
+        "sv": "Porten är !{{öppen|stängd}}"
+    },
+    "hint": {
+        "en": "This Flow will continue if the door is/is not currently open."
+    },
+    "args": [
+      {
+        "type": "device",
+        "name": "device",
+        "filter": "driver_id=stDevice&class=garagedoor"
+      }
+    ]
+}
