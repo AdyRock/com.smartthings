@@ -357,6 +357,11 @@ class STDevice extends Homey.Device
             this.registerCapabilityListener( 'washer_status', this.onCapabilityWasherStatus.bind( this ) );
         }
 
+        if ( this.hasCapability( 'washer_mode' ) )
+        {
+            this.registerCapabilityListener( 'washer_mode', this.onCapabilityWasherMode.bind( this ) );
+        }
+
         if ( this.hasCapability( 'water_temperature' ) )
         {
             this.registerCapabilityListener( 'water_temperature', this.onCapabilityWasherWaterTemperature.bind( this ) );
@@ -517,6 +522,10 @@ class STDevice extends Homey.Device
                         value = ( value === mapEntry.boolCompare );
                         Homey.app.updateLog( "Set Capability: " + capability + " - Value: " + value );
                         this.setCapabilityValue( capability, value );
+                        if (capability === 'remote_status')
+                        {
+                            this.remoteControlEnabled = value;
+                        }
 
                         if ( mapEntry.flowTrigger )
                         {
@@ -779,6 +788,7 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilityOnoff Error " + Homey.app.varToString( err ) );
+            throw new Error(err.message);
         }
     }
 
@@ -812,6 +822,7 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilityOnDimError " + Homey.app.varToString( err ) );
+            throw new Error(err.message);
         }
     }
 
@@ -822,7 +833,7 @@ class STDevice extends Homey.Device
             if ( !this.deviceOn || !this.remoteControlEnabled )
             {
                 this.setWarning( "Remote control not enabled", null );
-                return;
+                throw new Error("Remote control not enabled");
             }
 
             let body = {
@@ -847,6 +858,7 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilityRinseCycles " + Homey.app.varToString( err ) );
+            throw new Error(err.message);
         }
     }
 
@@ -857,7 +869,7 @@ class STDevice extends Homey.Device
             if ( !this.deviceOn || !this.remoteControlEnabled )
             {
                 this.setWarning( "Remote control not enabled", null );
-                return;
+                throw new Error("Remote control not enabled");
             }
 
             let body = {
@@ -882,6 +894,7 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilitySpinLevel " + Homey.app.varToString( err ) );
+            throw new Error(err.message);
         }
     }
 
@@ -892,7 +905,7 @@ class STDevice extends Homey.Device
             if ( !this.deviceOn || !this.remoteControlEnabled )
             {
                 this.setWarning( "Remote control not enabled", null );
-                return;
+                throw new Error("Remote control not enabled");
             }
 
             let body = {
@@ -911,12 +924,53 @@ class STDevice extends Homey.Device
             const devData = this.getData();
 
             // Set the dim Value on the device using the unique feature ID stored during pairing
-            await Homey.app.setDeviceCapabilityValue( devData.id, body );
+            let res = await Homey.app.setDeviceCapabilityValue( devData.id, body );
+            console.log(res);
         }
         catch ( err )
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilityWasherStatus " + Homey.app.varToString( err ) );
+            throw new Error(err.message);
+        }
+    }
+
+    async onCapabilityWasherMode( value, opts )
+    {
+        try
+        {
+            if ( !this.deviceOn || !this.remoteControlEnabled )
+            {
+                this.setWarning( "Remote control not enabled", null );
+                throw new Error("Remote control not enabled");
+            }
+
+            let value2 = value.substr(value.length - 9, 9);
+
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "samsungce.washerCycle",
+                    "command": "setWasherCycle",
+                    "arguments": [
+                        value2
+                    ]
+                } ]
+            };
+
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // Set the dim Value on the device using the unique feature ID stored during pairing
+            let res = await Homey.app.setDeviceCapabilityValue( devData.id, body );
+            console.log(res);
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            Homey.app.updateLog( this.getName() + " onCapabilityWasherMode Error" + Homey.app.varToString( err ) );
+            throw new Error(err.message);
         }
     }
 
@@ -927,14 +981,14 @@ class STDevice extends Homey.Device
             if ( !this.deviceOn || !this.remoteControlEnabled )
             {
                 this.setWarning( "Remote control not enabled", null );
-                return;
+                throw new Error("Remote control not enabled");
             }
 
             let body = {
                 "commands": [
                 {
                     "component": "main",
-                    "capability": "washerWaterTemperature",
+                    "capability": "custom.washerWaterTemperature",
                     "command": "setWasherWaterTemperature",
                     "arguments": [
                         value
@@ -946,12 +1000,14 @@ class STDevice extends Homey.Device
             const devData = this.getData();
 
             // Set the dim Value on the device using the unique feature ID stored during pairing
-            await Homey.app.setDeviceCapabilityValue( devData.id, body );
+            let res = await Homey.app.setDeviceCapabilityValue( devData.id, body );
+            console.log(res);
         }
         catch ( err )
         {
             //this.setUnavailable();
-            Homey.app.updateLog( this.getName() + " onCapabilityWasherStatus " + Homey.app.varToString( err ) );
+            Homey.app.updateLog( this.getName() + " onCapabilityWasherWaterTemperature " + Homey.app.varToString( err ) );
+            throw new Error(err.message);
         }
     }
 
@@ -985,6 +1041,7 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilityVolume " + Homey.app.varToString( err ) );
+            throw new Error(err.message);
         }
     }
 
@@ -1013,6 +1070,7 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilityVolumeDown " + Homey.app.varToString( err ) );
+            throw new Error(err.message);
         }
     }
 
@@ -1041,6 +1099,7 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilityVolumeUp " + Homey.app.varToString( err ) );
+            throw new Error(err.message);
         }
     }
 
@@ -1071,6 +1130,7 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilityVolumeMute " + Homey.app.varToString( err ) );
+            throw new Error(err.message);
         }
     }
 
@@ -1099,6 +1159,7 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilityChannelDown " + Homey.app.varToString( err ) );
+            throw new Error(err.message);
         }
     }
 
@@ -1127,6 +1188,7 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilityChannelUp " + Homey.app.varToString( err ) );
+            throw new Error(err.message);
         }
     }
 
@@ -1155,6 +1217,7 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilityTargetTemperature " + Homey.app.varToString( err ) );
+            throw new Error(err.message);
         }
     }
 
@@ -1183,6 +1246,7 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilityAirConOption " + Homey.app.varToString( err ) );
+            throw new Error(err.message);
         }
     }
 
@@ -1211,6 +1275,7 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilityAirConMode " + Homey.app.varToString( err ) );
+            throw new Error(err.message);
         }
     }
 
@@ -1239,6 +1304,7 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilityAirCon_fan_oscillation_mode " + Homey.app.varToString( err ) );
+            throw new Error(err.message);
         }
     }
 
@@ -1266,6 +1332,7 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilityAirCon_auto_cleaning_mode " + Homey.app.varToString( err ) );
+            throw new Error(err.message);
         }
     }
 
@@ -1293,6 +1360,7 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilitySilent_mode " + Homey.app.varToString( err ) );
+            throw new Error(err.message);
         }
     }
 
@@ -1327,6 +1395,7 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilityAc_lights_on " + Homey.app.varToString( err ) );
+            throw new Error(err.message);
         }
     }
 
@@ -1361,6 +1430,7 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilityAc_lights_off " + Homey.app.varToString( err ) );
+            throw new Error(err.message);
         }
     }
 
@@ -1395,6 +1465,7 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilityOnDimError " + Homey.app.varToString( err ) );
+            throw new Error(err.message);
         }
     }
 
@@ -1430,6 +1501,7 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilityOnoff Error " + Homey.app.varToString( err ) );
+            throw new Error(err.message);
         }
     }
 

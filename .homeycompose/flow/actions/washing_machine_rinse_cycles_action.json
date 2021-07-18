@@ -1,0 +1,57 @@
+{
+    "title": {
+        "en": "Rinse Cycles"
+    },
+    "titleFormatted": {
+        "en": "Change the number of rinse cycles to [[rinse_cycles]]"
+    },
+    "args": [
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=stDevice&capabilities=rinse_cycles"
+        },
+        {
+            "type": "dropdown",
+            "name": "rinse_cycles",
+            "values": [
+                {
+                    "id": "0",
+                    "title": {
+                        "en": "0"
+                    }
+                },
+                {
+                    "id": "1",
+                    "title": {
+                        "en": "1"
+                    }
+                },
+                {
+                    "id": "2",
+                    "title": {
+                        "en": "2"
+                    }
+                },
+                {
+                    "id": "3",
+                    "title": {
+                        "en": "3"
+                    }
+                },
+                {
+                    "id": "4",
+                    "title": {
+                        "en": "4"
+                    }
+                },
+                {
+                    "id": "5",
+                    "title": {
+                        "en": "5"
+                    }
+                }
+            ]
+        }
+    ]
+}

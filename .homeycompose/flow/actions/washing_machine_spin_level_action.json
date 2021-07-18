@@ -1,0 +1,63 @@
+{
+    "title": {
+        "en": "Spin Level"
+    },
+    "titleFormatted": {
+        "en": "Change the washer spin level to [[spin_level]]"
+    },
+    "args": [
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=stDevice&capabilities=spin_level"
+        },
+        {
+            "type": "dropdown",
+            "name": "spin_level",
+            "values": [
+                {
+                    "id": "rinseHold",
+                    "title": {
+                        "en": "Rinse Hold"
+                    }
+                },
+                {
+                    "id": "noSpin",
+                    "title": {
+                        "en": "No Spin"
+                    }
+                },
+                {
+                    "id": "400",
+                    "title": {
+                        "en": "400 RPM"
+                    }
+                },
+                {
+                    "id": "800",
+                    "title": {
+                        "en": "800 RPM"
+                    }
+                },
+                {
+                    "id": "1200",
+                    "title": {
+                        "en": "1200 RPM"
+                    }
+                },
+                {
+                    "id": "1400",
+                    "title": {
+                        "en": "1400 RPM"
+                    }
+                },
+                {
+                    "id": "1600",
+                    "title": {
+                        "en": "1600 RPM"
+                    }
+                }
+            ]
+        }
+    ]
+}

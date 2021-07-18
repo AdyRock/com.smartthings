@@ -1,0 +1,39 @@
+{
+    "title": {
+        "en": "Wash Status"
+    },
+    "titleFormatted": {
+        "en": "Change the washer status to [[washer_status]]"
+    },
+    "args": [
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=stDevice&capabilities=washer_status"
+        },
+        {
+            "type": "dropdown",
+            "name": "washer_status",
+            "values": [
+                {
+                    "id": "pause",
+                    "title": {
+                        "en": "Pause"
+                    }
+                },
+                {
+                    "id": "run",
+                    "title": {
+                        "en": "Run"
+                    }
+                },
+                {
+                    "id": "stop",
+                    "title": {
+                        "en": "Stop"
+                    }
+                }
+            ]
+        }
+    ]
+}

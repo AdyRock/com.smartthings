@@ -1,0 +1,63 @@
+{
+    "title": {
+        "en": "Temperature"
+    },
+    "titleFormatted": {
+        "en": "Change the washer temperature to [[water_temperature]]"
+    },
+    "args": [
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=stDevice&capabilities=water_temperature"
+        },
+        {
+            "type": "dropdown",
+            "name": "water_temperature",
+            "values": [
+                {
+                    "id": "none",
+                    "title": {
+                        "en": "None"
+                    }
+                },
+                {
+                    "id": "cold",
+                    "title": {
+                        "en": "Cold"
+                    }
+                },
+                {
+                    "id": "20",
+                    "title": {
+                        "en": "20 °C"
+                    }
+                },
+                {
+                    "id": "30",
+                    "title": {
+                        "en": "30 °C"
+                    }
+                },
+                {
+                    "id": "40",
+                    "title": {
+                        "en": "40 °C"
+                    }
+                },
+                {
+                    "id": "60",
+                    "title": {
+                        "en": "60 °C"
+                    }
+                },
+                {
+                    "id": "90",
+                    "title": {
+                        "en": "90 °C"
+                    }
+                }
+            ]
+        }
+    ]
+}

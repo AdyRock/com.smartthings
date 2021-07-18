@@ -313,8 +313,7 @@ class MyApp extends Homey.App
             .registerRunListener( async ( args, state ) =>
             {
                 Homey.app.updateLog( "ac_auto_cleaning_mode_action: arg = " + args.ac_auto_cleaning_option + " - state = " + state );
-                await args.device.onCapabilityAirConMode( args.ac_auto_cleaning_option == "auto", null );
-                return await args.device.setCapabilityValue( 'aircon_auto_cleaning_mode', args.ac_auto_cleaning_option = "auto" ); // Promise<void>
+                return await args.device.triggerCapabilityListener( 'aircon_auto_cleaning_mode', args.ac_auto_cleaning_option = "auto" ); // Promise<void>
             } );
 
         let ac_sound_mode_action = new Homey.FlowCardAction( 'ac_sound_mode_action' );
@@ -323,8 +322,7 @@ class MyApp extends Homey.App
             .registerRunListener( async ( args, state ) =>
             {
                 Homey.app.updateLog( "ac_sound_mode_action: arg = " + args.ac_sound_option + " - state = " + state );
-                await args.device.onCapabilitySilent_mode( args.ac_sound_option == 'on', null );
-                return await args.device.setCapabilityValue( 'silent_mode', args.ac_sound_option == "on" ); // Promise<void>
+                return await args.device.triggerCapabilityListener( 'silent_mode', args.ac_sound_option == "on" ); // Promise<void>
             } );
 
         let ac_fan_mode_action = new Homey.FlowCardAction( 'ac_fan_mode_action' );
@@ -333,8 +331,7 @@ class MyApp extends Homey.App
             .registerRunListener( async ( args, state ) =>
             {
                 Homey.app.updateLog( "ac_fan_mode_action: arg = " + args.ac_fan_mode + " - state = " + state );
-                await args.device.onCapabilityAirConMode( args.ac_fan_mode, null );
-                return await args.device.setCapabilityValue( 'aircon_fan_mode', args.ac_fan_mode ); // Promise<void>
+                return await args.device.triggerCapabilityListener( 'aircon_fan_mode', args.ac_fan_mode ); // Promise<void>
             } );
 
         let ac_fan_oscillation_mode_action = new Homey.FlowCardAction( 'ac_fan_oscillation_mode_action' );
@@ -343,8 +340,7 @@ class MyApp extends Homey.App
             .registerRunListener( async ( args, state ) =>
             {
                 Homey.app.updateLog( "ac_fan_oscillation_mode_action: arg = " + args.ac_fan_oscillation_mode + " - state = " + state );
-                await args.device.onCapabilityAirConMode( args.ac_fan_oscillation_mode, null );
-                return await args.device.setCapabilityValue( 'aircon_fan_oscillation_mode', args.ac_fan_oscillation_mode ); // Promise<void>
+                return await args.device.triggerCapabilityListener( 'aircon_fan_oscillation_mode', args.ac_fan_oscillation_mode ); // Promise<void>
             } );
 
         let ac_lights_action = new Homey.FlowCardAction( 'ac_lights_action' );
@@ -369,8 +365,7 @@ class MyApp extends Homey.App
             .registerRunListener( async ( args, state ) =>
             {
                 Homey.app.updateLog( "ac_mode_action: arg = " + args.ac_mode + " - state = " + state );
-                await args.device.onCapabilityAirConMode( args.ac_mode, null );
-                return await args.device.setCapabilityValue( 'aircon_mode', args.ac_mode ); // Promise<void>
+                return await args.device.triggerCapabilityListener( 'aircon_mode', args.ac_mode ); // Promise<void>
             } );
 
         let ac_options_action = new Homey.FlowCardAction( 'ac_options_action' );
@@ -379,8 +374,7 @@ class MyApp extends Homey.App
             .registerRunListener( async ( args, state ) =>
             {
                 Homey.app.updateLog( "ac_options_action: arg = " + args.ac_option + " - state = " + state );
-                await args.device.onCapabilityAirConOption( args.ac_option, null );
-                return await args.device.setCapabilityValue( 'aircon_option', args.ac_option ); // Promise<void>
+                return await args.device.triggerCapabilityListener( 'aircon_option', args.ac_option ); // Promise<void>
             } );
 
         let door_action = new Homey.FlowCardAction( 'door_action' );
@@ -389,8 +383,52 @@ class MyApp extends Homey.App
             .registerRunListener( async ( args, state ) =>
             {
                 Homey.app.updateLog( "door_action: arg = " + args.garage_door + " - state = " + state );
-                await args.device.onCapabilityGarageDoor_set( args.garage_door === 'open', null );
-                return await args.device.setCapabilityValue( 'alarm_garage_door', args.garage_door === 'open' ); // Promise<void>
+                return await args.device.triggerCapabilityListener( 'alarm_garage_door', args.garage_door === 'open' ); // Promise<void>
+            } );
+
+        let washing_mode_action = new Homey.FlowCardAction( 'washing_machine_mode_action' );
+        washing_mode_action
+            .register()
+            .registerRunListener( async ( args, state ) =>
+            {
+                Homey.app.updateLog( "washing_machine_mode_action: arg = " + args.washer_mode + " - state = " + state );
+                return await args.device.triggerCapabilityListener( 'washer_mode', args.washer_mode ); // Promise<void>
+            } );
+
+        let washing_machine_temperature_action = new Homey.FlowCardAction( 'washing_machine_temperature_action' );
+        washing_machine_temperature_action
+            .register()
+            .registerRunListener( async ( args, state ) =>
+            {
+                Homey.app.updateLog( "washing_machine_temperature_action: arg = " + args.water_temperature + " - state = " + state );
+                return await args.device.triggerCapabilityListener( 'water_temperature', args.water_temperature ); // Promise<void>
+            } );
+
+        let washing_machine_status_action = new Homey.FlowCardAction( 'washing_machine_status_action' );
+        washing_machine_status_action
+            .register()
+            .registerRunListener( async ( args, state ) =>
+            {
+                Homey.app.updateLog( "washing_machine_status_action: arg = " + args.washer_status + " - state = " + state );
+                return await args.device.triggerCapabilityListener( 'washing_machine_status', args.washer_status ); // Promise<void>
+            } );
+
+        let washing_machine_rinse_cycles_action = new Homey.FlowCardAction( 'washing_machine_rinse_cycles_action' );
+        washing_machine_rinse_cycles_action
+            .register()
+            .registerRunListener( async ( args, state ) =>
+            {
+                Homey.app.updateLog( "washing_machine_rinse_cycles_action: arg = " + args.rinse_cycles + " - state = " + state );
+                return await args.device.triggerCapabilityListener( 'rinse_cycles', args.rinse_cycles ); // Promise<void>
+            } );
+
+        let washing_machine_spin_level_action = new Homey.FlowCardAction( 'washing_machine_spin_level_action' );
+        washing_machine_rinse_cycles_action
+            .register()
+            .registerRunListener( async ( args, state ) =>
+            {
+                Homey.app.updateLog( "washing_machine_spin_level_action: arg = " + args.spin_level + " - state = " + state );
+                return await args.device.triggerCapabilityListener( 'spin_level', args.spin_level ); // Promise<void>
             } );
 
         let doorOpenCondition = new Homey.FlowCardCondition( 'is_door_open' );
