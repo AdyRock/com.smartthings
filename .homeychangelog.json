@@ -55,5 +55,8 @@
     },
     "0.0.26": {
         "en": "Breaking change: capability name changed so the alarm icon shows when the door is open. Added condition flow card for Garage Door. "
+    },
+    "0.0.27": {
+        "en": "Added action cards for Washing Machine flows. Fixed Washer Mode capability."
     }
 }
