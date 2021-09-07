@@ -58,5 +58,8 @@
     },
     "0.0.27": {
         "en": "Added action cards for Washing Machine flows. Fixed Washer Mode capability."
+    },
+    "0.0.28": {
+        "en": "Added Lock capability."
     }
 }

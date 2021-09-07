@@ -290,6 +290,14 @@ const capabilityMap1 = {
         divider: 0,
         boolCompare: 'open',
         flowTrigger: 'doorStatus_changed'
+    },
+    "locked":
+    {
+        dataEntry: [ 'lock', 'lock', 'value' ],
+        capabilityID: 'lock',
+        divider: 0,
+        boolCompare: 'locked',
+        flowTrigger: null
     }
 };
 
@@ -451,6 +459,12 @@ class STDevice extends Homey.Device
         {
             this.registerCapabilityListener( 'alarm_garage_door', this.onCapabilityGarageDoor_set.bind( this ) );
         }
+
+        if ( this.hasCapability( 'locked' ) )
+        {
+            this.registerCapabilityListener( 'locked', this.onCapabilitylocked.bind( this ) );
+        }
+
 
         this.getDeviceValues();
     }
@@ -1538,6 +1552,42 @@ class STDevice extends Homey.Device
             //this.setUnavailable();
             Homey.app.updateLog( this.getName() + " onCapabilityGarageDoor_set Error " + Homey.app.varToString( err ) );
             throw(new Error(err.statusMessage));
+        }
+    }
+
+    // this method is called when the Homey device has requested a state change (turned on or off)
+    async onCapabilitylocked( value, opts )
+    {
+        try
+        {
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // The device requires 'unlock' and 'lock'
+            var data = 'unlock';
+            if ( value )
+            {
+                data = 'lock';
+            }
+
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "lock",
+                    "command": data,
+                    "arguments": []
+                } ]
+            };
+
+            // Set the switch Value on the device using the unique feature ID stored during pairing
+            await Homey.app.setDeviceCapabilityValue( devData.id, body );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            Homey.app.updateLog( this.getName() + " onCapabilityLocked Error " + Homey.app.varToString( err ) );
+            throw new Error(err.message);
         }
     }
 }

@@ -257,6 +257,14 @@ const CapabilityMap2 = {
         capabilities: [ 'alarm_garage_door' ],
         icon: "garage_door.svg",
         iconPriority: 5
+    },
+    "lock":
+    {
+        class: "lock",
+        exclude: "",
+        capabilities: [ 'locked' ],
+        icon: "door_lock.svg",
+        iconPriority: 5
     }
 };
 
