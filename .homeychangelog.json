@@ -63,6 +63,6 @@
         "en": "Added Lock capability."
     },
     "0.0.29": {
-        "en": "Added water alarm capability."
+        "en": "Added water alarm capability\nAdded Accelerometer capabilities."
     }
 }

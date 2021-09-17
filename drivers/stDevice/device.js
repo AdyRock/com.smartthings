@@ -352,11 +352,6 @@ class STDevice extends Homey.Device
         this.log( 'STDevice is initialising' );
         this.deviceOn = true;
         this.remoteControlEnabled = false;
-        this.washerSpinLevel = '1400';
-        this.washerWaterTemperature = '40';
-        this.machineState = "stop";
-        this.presence = "";
-        this.lastValues = {};
 
         this.flowTriggers = {
             'washer_status_changed': new Homey.FlowCardTriggerDevice( 'washer_status_changed' ),
@@ -597,6 +592,7 @@ class STDevice extends Homey.Device
                     {
                         value = ( value === mapEntry.boolCompare );
                         Homey.app.updateLog( "Set Capability: " + capability + " - Value: " + value );
+                        let lastValue = this.getCapabilityValue( capability );
                         this.setCapabilityValue( capability, value );
                         if (capability === 'remote_status')
                         {
@@ -605,15 +601,9 @@ class STDevice extends Homey.Device
 
                         if ( mapEntry.flowTrigger )
                         {
-                            Homey.app.updateLog( "Trigger Check: " + capability + " = " + value + " was " + this.lastValues[ capability ] );
-                            if ( !this.lastValues.hasOwnProperty( capability ) || ( this.lastValues[ capability ] != value ) )
+                            Homey.app.updateLog( "Trigger Check: " + capability + " = " + value + " was " + lastValue );
+                            if ( lastValue != value )
                             {
-                                Object.defineProperty( this.lastValues, capability,
-                                {
-                                    value: value,
-                                    writable: true
-                                } );
-
                                 Homey.app.updateLog( "Trigger change: " + capability, " = " + value );
 
                                 let tokens = {
@@ -650,26 +640,14 @@ class STDevice extends Homey.Device
                         }
 
                         Homey.app.updateLog( "Set Capability: " + capability + " - Value: " + value );
+                        let lastValue = this.getCapabilityValue( capability );
                         this.setCapabilityValue( capability, value );
 
                         if ( mapEntry.flowTrigger )
                         {
-                            Homey.app.updateLog( "Trigger Check: " + capability + " = ", value + " was " + this.lastValues[ capability ] );
-                            if ( !this.lastValues.hasOwnProperty( capability ) || ( this.lastValues[ capability ] != value ) )
+                            Homey.app.updateLog( "Trigger Check: " + capability + " = ", value + " was " + lastValue );
+                            if ( lastValue != value )
                             {
-                                if ( !this.lastValues.hasOwnProperty( capability ) )
-                                {
-                                    Object.defineProperty( this.lastValues, capability,
-                                    {
-                                        value: value,
-                                        writable: true
-                                    } );
-                                }
-                                else
-                                {
-                                    this.lastValues[ capability ] = value;
-                                }
-
                                 Homey.app.updateLog( "Trigger change: " + capability + " = " + value );
 
                                 let state = {
@@ -693,148 +671,6 @@ class STDevice extends Homey.Device
             {
                 Homey.app.updateLog( "getDeviceValues error: " + Homey.app.varToString( err ) );
             }
-        }
-    }
-
-    async getDeviceValues2()
-    {
-        try
-        {
-            const devData = this.getData();
-            var component = 'main';
-            if ( devData.component )
-            {
-                component = devData.component;
-            }
-
-            // Retrieve all the devices values
-            let result = await Homey.app.getComponentCapabilityValue( devData.id, component );
-            if ( result )
-            {
-                this.setAvailable();
-
-                // Update each capability
-                this.getCapabilities().forEach( capability =>
-                {
-                    try
-                    {
-                        // Lookup the capability in the map
-                        Homey.app.updateLog( "Capability Processing: " + capability );
-
-                        var capabilityName = [];
-                        var mapEntry = capabilityMap1[ capability ];
-
-                        // get the entry from the table for this capability
-                        if ( mapEntry )
-                        {
-                            var value = result;
-                            mapEntry.dataEntry.forEach( entry =>
-                            {
-                                value = value[ entry ];
-                            } );
-
-                            Homey.app.updateLog( "Capability: " + capability + " - Value: " + value );
-
-                            if ( mapEntry.boolCompare )
-                            {
-                                value = ( value === mapEntry.boolCompare );
-                                Homey.app.updateLog( "Set Capability: " + capability + " - Value: " + value );
-                                this.setCapabilityValue( capability, value );
-
-                                if ( mapEntry.flowTrigger )
-                                {
-                                    Homey.app.updateLog( "Trigger Check: " + capability + " = " + value + " was " + this.lastValues[ capability ] );
-                                    if ( !this.lastValues.hasOwnProperty( capability ) || ( this.lastValues[ capability ] != value ) )
-                                    {
-                                        Object.defineProperty( this.lastValues, capability,
-                                        {
-                                            value: value,
-                                            writable: true
-                                        } );
-
-                                        Homey.app.updateLog( "Trigger change: " + capability, " = " + value );
-
-                                        let tokens = {
-                                            'value': value
-                                        };
-
-                                        this.flowTriggers[ mapEntry.flowTrigger ]
-                                            .trigger( this, tokens )
-                                            .catch( this.error );
-                                    }
-
-                                }
-                            }
-                            else
-                            {
-                                if ( mapEntry.divider > 0 )
-                                {
-                                    value /= mapEntry.divider;
-                                }
-                                else if ( mapEntry.dateTime )
-                                {
-                                    // Format date and time to fit
-                                    if ( value.length > 5 )
-                                    {
-                                        var d = new Date( value );
-                                        value = d.getHours() + ":" + ( d.getMinutes() < 10 ? "0" : "" ) + d.getMinutes() + " " + ( d.getDate() < 10 ? "0" : "" ) + d.getDate() + "-" + ( d.getMonth() < 10 ? "0" : "" ) + d.getMonth();
-                                    }
-                                }
-
-                                Homey.app.updateLog( "Set Capability: " + capability + " - Value: " + value );
-                                this.setCapabilityValue( capability, value );
-
-                                if ( mapEntry.flowTrigger )
-                                {
-                                    Homey.app.updateLog( "Trigger Check: " + capability + " = ", value + " was " + this.lastValues[ capability ] );
-                                    if ( !this.lastValues.hasOwnProperty( capability ) || ( this.lastValues[ capability ] != value ) )
-                                    {
-                                        if ( !this.lastValues.hasOwnProperty( capability ) )
-                                        {
-                                            Object.defineProperty( this.lastValues, capability,
-                                            {
-                                                value: value,
-                                                writable: true
-                                            } );
-                                        }
-                                        else
-                                        {
-                                            this.lastValues[ capability ] = value;
-                                        }
-
-                                        Homey.app.updateLog( "Trigger change: " + capability + " = " + value );
-
-                                        let state = {
-                                            'value': value
-                                        };
-
-                                        this.flowTriggers[ mapEntry.flowTrigger ]
-                                            .trigger( this, {}, state )
-                                            .catch( this.error );
-                                    }
-
-                                }
-                            }
-                        }
-                        else
-                        {
-                            Homey.app.updateLog( "Capability Map entry NOT found for: " + capability );
-                        }
-                    }
-                    catch ( err )
-                    {
-                        Homey.app.updateLog( "getDeviceValues error: " + Homey.app.varToString( err ) );
-                    }
-                } );
-            }
-            else
-            {
-                this.setUnavailable();
-            }
-        }
-        catch ( err )
-        {
-            Homey.app.updateLog( "getDeviceValues error: " + Homey.app.varToString( err ) );
         }
     }
 
