@@ -1,0 +1,19 @@
+{
+    "title": {
+        "en": "Vector Z changed"
+    },
+    "hint": {
+        "en": "This card starts a Flow when the Z Vector changes."
+    },
+    "tokens": [{
+        "name": "value",
+        "type": "number",
+        "title": {"en": "Vector Z"},
+        "units": "mG"
+    }],
+    "args": [{
+        "name": "device",
+        "type": "device",
+        "filter": "driver_id=stDevice&capabilities=acceleration_z"
+    }]
+}

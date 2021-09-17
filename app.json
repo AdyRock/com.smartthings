@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.smartthings",
-  "version": "0.0.28",
+  "version": "0.0.29",
   "compatibility": ">=3.0.0",
   "sdk": 2,
   "brandColor": "#FF7D4B",
@@ -29,6 +29,134 @@
   },
   "flow": {
     "triggers": [
+      {
+        "title": {
+          "en": "Vector X changed"
+        },
+        "hint": {
+          "en": "This card starts a Flow when the X Vector changes."
+        },
+        "tokens": [
+          {
+            "name": "value",
+            "type": "number",
+            "title": {
+              "en": "Vector X"
+            },
+            "units": "mG"
+          }
+        ],
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=stDevice&capabilities=acceleration_x"
+          }
+        ],
+        "id": "acceleration_x_changed"
+      },
+      {
+        "title": {
+          "en": "Vector Y changed"
+        },
+        "hint": {
+          "en": "This card starts a Flow when the Y Vector changes."
+        },
+        "tokens": [
+          {
+            "name": "value",
+            "type": "number",
+            "title": {
+              "en": "Vector Y"
+            },
+            "units": "mG"
+          }
+        ],
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=stDevice&capabilities=acceleration_y"
+          }
+        ],
+        "id": "acceleration_y_changed"
+      },
+      {
+        "title": {
+          "en": "Vector Z changed"
+        },
+        "hint": {
+          "en": "This card starts a Flow when the Z Vector changes."
+        },
+        "tokens": [
+          {
+            "name": "value",
+            "type": "number",
+            "title": {
+              "en": "Vector Z"
+            },
+            "units": "mG"
+          }
+        ],
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=stDevice&capabilities=acceleration_z"
+          }
+        ],
+        "id": "acceleration_z_changed"
+      },
+      {
+        "title": {
+          "en": "Acceleration detection changed"
+        },
+        "hint": {
+          "en": "This card starts a Flow when acceleration is detected or no longer detected."
+        },
+        "tokens": [
+          {
+            "name": "value",
+            "type": "boolean",
+            "title": {
+              "en": "Active"
+            }
+          }
+        ],
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=stDevice&capabilities=alarm_acceleration"
+          }
+        ],
+        "id": "alarm_acceleration_changed"
+      },
+      {
+        "title": {
+          "en": "Water detection changed"
+        },
+        "hint": {
+          "en": "This card starts a Flow when the water is detected or no longer detected."
+        },
+        "tokens": [
+          {
+            "name": "value",
+            "type": "boolean",
+            "title": {
+              "en": "Wet"
+            }
+          }
+        ],
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=stDevice&capabilities=alarm_water"
+          }
+        ],
+        "id": "alarm_water_changed"
+      },
       {
         "title": {
           "en": "The door is opened or closed",
@@ -904,7 +1032,7 @@
         }
       ],
       "images": {
-        "large": "/drivers/refrigeration/assets/images/large.png",
+        "large": "/drivers/refrigeration/assets/images/large.jpg",
         "small": "/drivers/refrigeration/assets/images/small.png"
       }
     },
@@ -965,6 +1093,42 @@
       "getable": false,
       "setable": true,
       "uiComponent": "button"
+    },
+    "acceleration_x": {
+      "type": "number",
+      "title": {
+        "en": "X Vector"
+      },
+      "units": {
+        "en": "mG"
+      },
+      "icon": "/assets/acceleration.svg",
+      "getable": true,
+      "setable": false
+    },
+    "acceleration_y": {
+      "type": "number",
+      "title": {
+        "en": "Y Vector"
+      },
+      "units": {
+        "en": "mG"
+      },
+      "icon": "/assets/acceleration.svg",
+      "getable": true,
+      "setable": false
+    },
+    "acceleration_z": {
+      "type": "number",
+      "title": {
+        "en": "Z Vector"
+      },
+      "units": {
+        "en": "mG"
+      },
+      "icon": "/assets/acceleration.svg",
+      "getable": true,
+      "setable": false
     },
     "aircon_auto_cleaning_mode": {
       "type": "boolean",
@@ -1150,6 +1314,15 @@
           }
         }
       ]
+    },
+    "alarm_acceleration": {
+      "type": "boolean",
+      "title": {
+        "en": "Acceleration"
+      },
+      "icon": "/assets/acceleration.svg",
+      "getable": true,
+      "setable": false
     },
     "alarm_garage_door": {
       "type": "boolean",

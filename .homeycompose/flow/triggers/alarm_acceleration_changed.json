@@ -1,0 +1,18 @@
+{
+    "title": {
+        "en": "Acceleration detection changed"
+    },
+    "hint": {
+        "en": "This card starts a Flow when acceleration is detected or no longer detected."
+    },
+    "tokens": [{
+        "name": "value",
+        "type": "boolean",
+        "title": {"en": "Active"}
+    }],
+    "args": [{
+        "name": "device",
+        "type": "device",
+        "filter": "driver_id=stDevice&capabilities=alarm_acceleration"
+    }]
+}

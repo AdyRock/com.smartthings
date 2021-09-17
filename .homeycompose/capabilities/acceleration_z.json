@@ -1,0 +1,11 @@
+{
+    "type": "number",
+    "title":
+    {
+        "en": "Z Vector"
+    },
+    "units": { "en": "mG" },
+    "icon": "/assets/acceleration.svg",
+    "getable": true,
+    "setable": false
+}

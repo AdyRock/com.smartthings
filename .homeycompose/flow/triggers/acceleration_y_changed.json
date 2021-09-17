@@ -1,0 +1,19 @@
+{
+    "title": {
+        "en": "Vector Y changed"
+    },
+    "hint": {
+        "en": "This card starts a Flow when the Y Vector changes."
+    },
+    "tokens": [{
+        "name": "value",
+        "type": "number",
+        "title": {"en": "Vector Y"},
+        "units": "mG"
+    }],
+    "args": [{
+        "name": "device",
+        "type": "device",
+        "filter": "driver_id=stDevice&capabilities=acceleration_y"
+    }]
+}

@@ -265,6 +265,30 @@ const CapabilityMap2 = {
         capabilities: [ 'locked' ],
         icon: "door_lock.svg",
         iconPriority: 5
+    },
+    "waterSensor":
+    {
+        class: "sensor",
+        exclude: "",
+        capabilities: [ 'alarm_water' ],
+        icon: "leak_detector.svg",
+        iconPriority: 5
+    },
+    "accelerationSensor":
+    {
+        class: "sensor",
+        exclude: "",
+        capabilities: [ 'alarm_acceleration' ],
+        icon: "acceleration.svg",
+        iconPriority: 5
+    },
+    "threeAxis":
+    {
+        class: "sensor",
+        exclude: "",
+        capabilities: [ 'acceleration_x', 'acceleration_y', 'acceleration_z' ],
+        icon: "acceleration.svg",
+        iconPriority: 0
     }
 };
 

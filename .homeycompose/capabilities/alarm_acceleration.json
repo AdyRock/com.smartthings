@@ -1,0 +1,9 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Acceleration"
+  },
+  "icon": "/assets/acceleration.svg",
+  "getable": true,
+  "setable": false
+}

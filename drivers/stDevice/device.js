@@ -298,6 +298,49 @@ const capabilityMap1 = {
         divider: 0,
         boolCompare: 'locked',
         flowTrigger: null
+    },
+    "alarm_water":
+    {
+        dataEntry: [ 'water', 'water', 'value' ],
+        capabilityID: 'waterSensor',
+        divider: 0,
+        boolCompare: 'wet',
+        flowTrigger: 'alarm_water_changed'
+    },
+    "alarm_acceleration":
+    {
+        dataEntry: [ 'acceleration', 'acceleration', 'value' ],
+        capabilityID: 'accelerationSensor',
+        divider: 0,
+        boolCompare: 'active',
+        flowTrigger: 'alarm_acceleration_changed'
+    },
+    "acceleration_x":
+    {
+        dataEntry: [ 'threeAxis', 'threeAxis', 'value' ],
+        capabilityID: 'threeAxis',
+        divider: 0,
+        flowTrigger: 'acceleration_x_changed',
+        keep: true,
+        arrayIdx: 0
+    },
+    "acceleration_y":
+    {
+        dataEntry: [ 'threeAxis', 'threeAxis', 'value' ],
+        capabilityID: 'threeAxis',
+        divider: 0,
+        flowTrigger: 'acceleration_y_changed',
+        keep: true,
+        arrayIdx: 1
+    },
+    "acceleration_z":
+    {
+        dataEntry: [ 'threeAxis', 'threeAxis', 'value' ],
+        capabilityID: 'threeAxis',
+        divider: 0,
+        flowTrigger: 'acceleration_z_changed',
+        keep: true,
+        arrayIdx: 2
     }
 };
 
@@ -320,6 +363,11 @@ class STDevice extends Homey.Device
             'presenceStatus_changed': new Homey.FlowCardTriggerDevice( 'presenceStatus_changed' ),
             'dustStatus_changed': new Homey.FlowCardTriggerDevice( 'dustStatus_changed' ),
             'doorStatus_changed' : new Homey.FlowCardTriggerDevice( 'doorStatus_changed' ),
+            'alarm_water_changed' : new Homey.FlowCardTriggerDevice( 'alarm_water_changed' ),
+            'alarm_acceleration_changed' : new Homey.FlowCardTriggerDevice( 'alarm_acceleration_changed' ),
+            'acceleration_x_changed' : new Homey.FlowCardTriggerDevice( 'acceleration_x_changed' ),
+            'acceleration_y_changed' : new Homey.FlowCardTriggerDevice( 'acceleration_y_changed' ),
+            'acceleration_z_changed' : new Homey.FlowCardTriggerDevice( 'acceleration_z_changed' ),
         };
 
         this.flowTriggers.washer_status_changed
@@ -338,8 +386,23 @@ class STDevice extends Homey.Device
 
         this.flowTriggers.doorStatus_changed
             .register();
+        
+        this.flowTriggers.alarm_water_changed
+            .register();
 
-        // register a capability listeners
+        this.flowTriggers.alarm_acceleration_changed
+            .register();
+
+        this.flowTriggers.acceleration_x_changed
+            .register();
+
+        this.flowTriggers.acceleration_y_changed
+            .register();
+
+        this.flowTriggers.acceleration_z_changed
+            .register();
+
+            // register a capability listeners
         if ( this.hasCapability( 'onoff' ) )
         {
             this.registerCapabilityListener( 'onoff', this.onCapabilityOnoff.bind( this ) );
@@ -465,7 +528,6 @@ class STDevice extends Homey.Device
             this.registerCapabilityListener( 'locked', this.onCapabilitylocked.bind( this ) );
         }
 
-
         this.getDeviceValues();
     }
 
@@ -567,6 +629,12 @@ class STDevice extends Homey.Device
                     }
                     else
                     {
+                        if ( mapEntry.arrayIdx )
+                        {
+                            // Value contains an array of values so extract the required one 
+                            value = value[ mapEntry.arrayIdx ];
+                        }
+
                         if ( mapEntry.divider > 0 )
                         {
                             value /= mapEntry.divider;
