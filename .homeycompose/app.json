@@ -27,11 +27,6 @@
         "email": "ady@rockall.plus.com"
     },
     "api": {
-        "getRoot": {
-            "method": "get",
-            "path": "/",
-            "public": true
-        },
         "getLog": {
             "method": "get",
             "path": "/getLog/"
@@ -40,11 +35,6 @@
             "method": "get",
             "path": "/getDetect/"
         },
-        "getWebHook": {
-            "method": "get",
-            "path": "/webhook/",
-            "public": true
-        },
         "clearLog": {
             "method": "post",
             "path": "/clearLog/"
@@ -52,26 +42,6 @@
         "sendCmd": {
             "method": "post",
             "path": "/sendCmd/"
-        },
-        "sendRoot": {
-            "method": "post",
-            "path": "/",
-            "public": true
-        },
-        "sendWebHook": {
-            "method": "post",
-            "path": "/webhook/",
-            "public": true
-        },
-        "putWebHook": {
-            "method": "put",
-            "path": "/webhook/",
-            "public": true
-        },
-        "deleteWebHook": {
-            "method": "delete",
-            "path": "/webhook/",
-            "public": true
         }
     }
 }
