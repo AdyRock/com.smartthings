@@ -1,11 +1,11 @@
 {
     "id": "com.smartthings",
-    "version": "0.0.29",
-    "compatibility": ">=3.0.0",
-    "sdk": 2,
+    "version": "2.0.0",
+    "compatibility": ">=5.0.0",
+    "sdk": 3,
     "brandColor": "#FF7D4B",
     "name": {
-        "en": "SmartThings"
+        "en": "SmartThings Hub"
     },
     "description": {
         "en": "Add devices from SmartThings to Homey"
@@ -25,5 +25,53 @@
     "author": {
         "name": "Adrian Rockall",
         "email": "ady@rockall.plus.com"
+    },
+    "api": {
+        "getRoot": {
+            "method": "get",
+            "path": "/",
+            "public": true
+        },
+        "getLog": {
+            "method": "get",
+            "path": "/getLog/"
+        },
+        "getDetect": {
+            "method": "get",
+            "path": "/getDetect/"
+        },
+        "getWebHook": {
+            "method": "get",
+            "path": "/webhook/",
+            "public": true
+        },
+        "clearLog": {
+            "method": "post",
+            "path": "/clearLog/"
+        },
+        "sendCmd": {
+            "method": "post",
+            "path": "/sendCmd/"
+        },
+        "sendRoot": {
+            "method": "post",
+            "path": "/",
+            "public": true
+        },
+        "sendWebHook": {
+            "method": "post",
+            "path": "/webhook/",
+            "public": true
+        },
+        "putWebHook": {
+            "method": "put",
+            "path": "/webhook/",
+            "public": true
+        },
+        "deleteWebHook": {
+            "method": "delete",
+            "path": "/webhook/",
+            "public": true
+        }
     }
 }

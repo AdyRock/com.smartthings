@@ -13,17 +13,9 @@ class FridgeDriver extends Homey.Driver
         this.log( 'FridgeDriver has been initialized' );
     }
 
-    onPairListDevices( data, callback )
+    async onPairListDevices()
     {
-        Homey.app.getDevicesByCategory( 'Refrigerator' ).then( function( devices )
-        {
-            Homey.app.updateLog( devices );
-            callback( null, devices );
-
-        } ).catch( function( err )
-        {
-            callback( err, [] );
-        } );
+        return this.homey.app.getDevicesByCategory( 'Refrigerator' );
     }
 }
 

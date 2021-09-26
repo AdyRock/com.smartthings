@@ -1,150 +1,74 @@
 /*jslint node: true */
-const Homey = require( 'homey' );
 
-module.exports = [
-
+module.exports = {
+    async getRoot( { homey, query } )
     {
-        method: 'GET',
-        path: '/',
-        public: true,
-        fn: async function( args, callback )
-        {
-            //const result = await Homey.app.getSomething( args );
-            console.log( "Get: ", args );
-
-            // callback follows ( err, result )
-            const result = "OK";
-            callback( null, result );
-
-            // access /?foo=bar as args.query.foo
-        }
+        //const result = await Homey.app.getSomething( args );
+        console.log( "Get: ", query );
+        return "OK";
     },
+    async getLog( { homey, query } )
     {
-        method: 'GET',
-        path: '/getLog/',
-        fn: async function( args, callback )
-        {
-            return callback( null, Homey.app.diagLog );
-        }
+        return homey.app.diagLog;
     },
+    async getDetect( { homey, query } )
     {
-        method: 'GET',
-        path: '/getDetect/',
-        fn: async function( args, callback )
-        {
-            return callback( null, Homey.app.detectedDevices );
-        }
+        return homey.app.detectedDevices;
     },
-
+    async getWebHook( { homey, query } )
     {
-        method: 'GET',
-        path: '/webhook',
-        public: true,
-        fn: async function( args, callback )
-        {
-            //const result = await Homey.app.getSomething( args );
-            console.log( "Get: ", args );
-
-            // callback follows ( err, result )
-            const result = "OK";
-            callback( null, result );
-
-            // access /?foo=bar as args.query.foo
-        }
+        console.log( "Get: ", args );
+        return "OK";
     },
-
+    async clearLog( { homey, body } )
     {
-        method: 'POST',
-        path: '/clearLog/',
-        fn: function( args, callback )
-        {
-            Homey.app.diagLog = "";
-            return callback( null, "ok" );
-        }
+        homey.app.diagLog = "";
+        return "ok";
     },
+    async sendCmd( { homey, body } )
     {
-        method: 'POST',
-        path: '/sendCmd/',
-        fn: async function( args, callback )
+        var result = await homey.app.GetURL( body.command );
+        if ( result )
         {
-            var result = await Homey.app.GetURL( args.body.command );
-            if ( result )
-            {
-                let searchData = JSON.parse( result.body );
-                return callback( null, searchData );
-            }
-
-            return callback( "No Response", null );
+            let searchData = JSON.parse( result.body );
+            return searchData;
         }
+
+        throw new Error( "No Response" );
     },
+    async sendRoot( { homey, body } )
     {
-        method: 'POST',
-        path: '/',
-        public: true,
-        fn: function( args, callback )
-        {
-            //const result = Homey.app.addSomething( args );
-            console.log( "Post: ", args );
-
-            var response = "";
-            const result = response;
-            console.log( "Post Reply: ", result );
-            if ( result instanceof Error ) return callback( result );
-            return callback( null, result );
-        }
+        console.log( "Post: ", args );
+        return homey.app.addSomething( args );
     },
-
+    async sendWebHook( { homey, body } )
     {
-        method: 'POST',
-        path: '/webhook',
-        public: true,
-        fn: function( args, callback )
+        console.log( "Post: ", args );
+        //return homey.app.addSomething( args );
+
+        var response = "";
+        if ( body.pingData && body.pingData.challenge )
         {
-            //const result = Homey.app.addSomething( args );
-            console.log( "Post: ", args );
+            response = {
+                "pingData":
+                {
+                    "challenge": body.pingData.challenge
+                }
 
-            var response = "";
-            if ( args.body.pingData && args.body.pingData.challenge )
-            {
-                response = {
-                    "pingData":
-                    {
-                        "challenge": args.body.pingData.challenge
-                    }
-
-                };
-            }
-            const result = response;
-            console.log( "Post Reply: ", result );
-            if ( result instanceof Error ) return callback( result );
-            return callback( null, result );
+            };
         }
+        const result = response;
+        console.log( "Post Reply: ", response );
+        return result;
     },
-
+    async putWebHook( { homey, body } )
     {
-        method: 'PUT',
-        path: '/webhook',
-        public: true,
-        fn: function( args, callback )
-        {
-            //const result = Homey.app.updateSomething( args );
-            console.log( "Put: ", args );
-            if ( result instanceof Error ) return callback( result );
-            return callback( null, result );
-        }
+        console.log( "Put: ", args );
+        return homey.app.updateSomething( args );
     },
-
+    async deleteWebHook( { homey, body } )
     {
-        method: 'DELETE',
-        path: '/webhook',
-        public: true,
-        fn: function( args, callback )
-        {
-            //const result = Homey.app.deleteSomething( args );
-            console.log( "Delete: ", args );
-            if ( result instanceof Error ) return callback( result );
-            return callback( null, result );
-        }
+        console.log( "Delete: ", args );
+        return homey.app.deleteSomething( args );
     }
-
-];
+};

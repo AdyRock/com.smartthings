@@ -301,86 +301,81 @@ class MyApp extends Homey.App
 
         if ( process.env.DEBUG === '1' )
         {
-            Homey.ManagerSettings.set( 'debugMode', true );
+            this.homey.settings.set( 'debugMode', true );
         }
         else
         {
-            Homey.ManagerSettings.set( 'debugMode', false );
+            this.homey.settings.set( 'debugMode', false );
         }
 
-        this.BearerToken = Homey.ManagerSettings.get( 'BearerToken' );
-        if ( Homey.ManagerSettings.get( 'pollInterval' ) < 1 )
+        this.BearerToken = this.homey.settings.get( 'BearerToken' );
+        if ( this.homey.settings.get( 'pollInterval' ) < 1 )
         {
-            Homey.ManagerSettings.set( 'pollInterval', 5 );
+            this.homey.settings.set( 'pollInterval', 5 );
         }
 
-        this.log( "SmartThings has started with Key: " + this.BearerToken + " Polling every " + Homey.ManagerSettings.get( 'pollInterval' ) + " seconds" );
+        this.log( "SmartThings has started with Key: " + this.BearerToken + " Polling every " + this.homey.settings.get( 'pollInterval' ) + " seconds" );
 
         // Callback for app settings changed
-        Homey.ManagerSettings.on( 'set', async function( setting )
+        this.homey.settings.on( 'set', async function( setting )
         {
-            Homey.app.updateLog( "Setting " + setting + " has changed." );
+            this.homey.app.updateLog( "Setting " + setting + " has changed." );
 
             if ( setting === 'BearerToken' )
             {
-                Homey.app.BearerToken = Homey.ManagerSettings.get( 'BearerToken' );
+                this.homey.app.BearerToken = this.homey.settings.get( 'BearerToken' );
             }
 
             if ( setting === 'pollInterval' )
             {
-                clearTimeout( Homey.app.timerID );
-                if ( Homey.app.BearerToken && !Homey.app.timerProcessing )
+                clearTimeout( this.homey.app.timerID );
+                if ( this.homey.app.BearerToken && !this.homey.app.timerProcessing )
                 {
-                    if ( Homey.ManagerSettings.get( 'pollInterval' ) > 1 )
+                    if ( this.homey.settings.get( 'pollInterval' ) > 1 )
                     {
-                        Homey.app.timerID = setTimeout( Homey.app.onPoll, Homey.ManagerSettings.get( 'pollInterval' ) * 1000 );
+                        this.homey.app.timerID = setTimeout( this.homey.app.onPoll, this.homey.settings.get( 'pollInterval' ) * 1000 );
                     }
                 }
             }
         } );
 
-        let ac_auto_cleaning_mode_action = new Homey.FlowCardAction( 'ac_auto_cleaning_mode_action' );
+        let ac_auto_cleaning_mode_action = this.homey.flow.getActionCard( 'ac_auto_cleaning_mode_action' );
         ac_auto_cleaning_mode_action
-            .register()
             .registerRunListener( async ( args, state ) =>
             {
-                Homey.app.updateLog( "ac_auto_cleaning_mode_action: arg = " + args.ac_auto_cleaning_option + " - state = " + state );
+                this.homey.app.updateLog( "ac_auto_cleaning_mode_action: arg = " + args.ac_auto_cleaning_option + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'aircon_auto_cleaning_mode', args.ac_auto_cleaning_option = "auto" ); // Promise<void>
             } );
 
-        let ac_sound_mode_action = new Homey.FlowCardAction( 'ac_sound_mode_action' );
+        let ac_sound_mode_action = this.homey.flow.getActionCard( 'ac_sound_mode_action' );
         ac_sound_mode_action
-            .register()
             .registerRunListener( async ( args, state ) =>
             {
-                Homey.app.updateLog( "ac_sound_mode_action: arg = " + args.ac_sound_option + " - state = " + state );
+                this.homey.app.updateLog( "ac_sound_mode_action: arg = " + args.ac_sound_option + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'silent_mode', args.ac_sound_option == "on" ); // Promise<void>
             } );
 
-        let ac_fan_mode_action = new Homey.FlowCardAction( 'ac_fan_mode_action' );
+        let ac_fan_mode_action = this.homey.flow.getActionCard( 'ac_fan_mode_action' );
         ac_fan_mode_action
-            .register()
             .registerRunListener( async ( args, state ) =>
             {
-                Homey.app.updateLog( "ac_fan_mode_action: arg = " + args.ac_fan_mode + " - state = " + state );
+                this.homey.app.updateLog( "ac_fan_mode_action: arg = " + args.ac_fan_mode + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'aircon_fan_mode', args.ac_fan_mode ); // Promise<void>
             } );
 
-        let ac_fan_oscillation_mode_action = new Homey.FlowCardAction( 'ac_fan_oscillation_mode_action' );
+        let ac_fan_oscillation_mode_action = this.homey.flow.getActionCard( 'ac_fan_oscillation_mode_action' );
         ac_fan_oscillation_mode_action
-            .register()
             .registerRunListener( async ( args, state ) =>
             {
-                Homey.app.updateLog( "ac_fan_oscillation_mode_action: arg = " + args.ac_fan_oscillation_mode + " - state = " + state );
+                this.homey.app.updateLog( "ac_fan_oscillation_mode_action: arg = " + args.ac_fan_oscillation_mode + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'aircon_fan_oscillation_mode', args.ac_fan_oscillation_mode ); // Promise<void>
             } );
 
-        let ac_lights_action = new Homey.FlowCardAction( 'ac_lights_action' );
+        let ac_lights_action = this.homey.flow.getActionCard( 'ac_lights_action' );
         ac_lights_action
-            .register()
             .registerRunListener( async ( args, state ) =>
             {
-                Homey.app.updateLog( "ac_lights_action: arg = " + args.ac_lights_option + " - state = " + state );
+                this.homey.app.updateLog( "ac_lights_action: arg = " + args.ac_lights_option + " - state = " + state );
                 if ( args.ac_lights_option == "on" )
                 {
                     return await args.device.onCapabilityAc_lights_on( true, null );
@@ -391,81 +386,72 @@ class MyApp extends Homey.App
                 }
             } );
 
-        let ac_mode_action = new Homey.FlowCardAction( 'ac_mode_action' );
+        let ac_mode_action = this.homey.flow.getActionCard( 'ac_mode_action' );
         ac_mode_action
-            .register()
             .registerRunListener( async ( args, state ) =>
             {
-                Homey.app.updateLog( "ac_mode_action: arg = " + args.ac_mode + " - state = " + state );
+                this.homey.app.updateLog( "ac_mode_action: arg = " + args.ac_mode + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'aircon_mode', args.ac_mode ); // Promise<void>
             } );
 
-        let ac_options_action = new Homey.FlowCardAction( 'ac_options_action' );
+        let ac_options_action = this.homey.flow.getActionCard( 'ac_options_action' );
         ac_options_action
-            .register()
             .registerRunListener( async ( args, state ) =>
             {
-                Homey.app.updateLog( "ac_options_action: arg = " + args.ac_option + " - state = " + state );
+                this.homey.app.updateLog( "ac_options_action: arg = " + args.ac_option + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'aircon_option', args.ac_option ); // Promise<void>
             } );
 
-        let door_action = new Homey.FlowCardAction( 'door_action' );
+        let door_action = this.homey.flow.getActionCard( 'door_action' );
         door_action
-            .register()
             .registerRunListener( async ( args, state ) =>
             {
-                Homey.app.updateLog( "door_action: arg = " + args.garage_door + " - state = " + state );
+                this.homey.app.updateLog( "door_action: arg = " + args.garage_door + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'alarm_garage_door', args.garage_door === 'open' ); // Promise<void>
             } );
 
-        let washing_mode_action = new Homey.FlowCardAction( 'washing_machine_mode_action' );
+        let washing_mode_action = this.homey.flow.getActionCard( 'washing_machine_mode_action' );
         washing_mode_action
-            .register()
             .registerRunListener( async ( args, state ) =>
             {
-                Homey.app.updateLog( "washing_machine_mode_action: arg = " + args.washer_mode + " - state = " + state );
+                this.homey.app.updateLog( "washing_machine_mode_action: arg = " + args.washer_mode + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'washer_mode', args.washer_mode ); // Promise<void>
             } );
 
-        let washing_machine_temperature_action = new Homey.FlowCardAction( 'washing_machine_temperature_action' );
+        let washing_machine_temperature_action = this.homey.flow.getActionCard( 'washing_machine_temperature_action' );
         washing_machine_temperature_action
-            .register()
             .registerRunListener( async ( args, state ) =>
             {
-                Homey.app.updateLog( "washing_machine_temperature_action: arg = " + args.water_temperature + " - state = " + state );
+                this.homey.app.updateLog( "washing_machine_temperature_action: arg = " + args.water_temperature + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'water_temperature', args.water_temperature ); // Promise<void>
             } );
 
-        let washing_machine_status_action = new Homey.FlowCardAction( 'washing_machine_status_action' );
+        let washing_machine_status_action = this.homey.flow.getActionCard( 'washing_machine_status_action' );
         washing_machine_status_action
-            .register()
             .registerRunListener( async ( args, state ) =>
             {
-                Homey.app.updateLog( "washing_machine_status_action: arg = " + args.washer_status + " - state = " + state );
+                this.homey.app.updateLog( "washing_machine_status_action: arg = " + args.washer_status + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'washing_machine_status', args.washer_status ); // Promise<void>
             } );
 
-        let washing_machine_rinse_cycles_action = new Homey.FlowCardAction( 'washing_machine_rinse_cycles_action' );
+        let washing_machine_rinse_cycles_action = this.homey.flow.getActionCard( 'washing_machine_rinse_cycles_action' );
         washing_machine_rinse_cycles_action
-            .register()
             .registerRunListener( async ( args, state ) =>
             {
-                Homey.app.updateLog( "washing_machine_rinse_cycles_action: arg = " + args.rinse_cycles + " - state = " + state );
+                this.homey.app.updateLog( "washing_machine_rinse_cycles_action: arg = " + args.rinse_cycles + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'rinse_cycles', args.rinse_cycles ); // Promise<void>
             } );
 
-        let washing_machine_spin_level_action = new Homey.FlowCardAction( 'washing_machine_spin_level_action' );
+        let washing_machine_spin_level_action = this.homey.flow.getActionCard( 'washing_machine_spin_level_action' );
         washing_machine_rinse_cycles_action
-            .register()
             .registerRunListener( async ( args, state ) =>
             {
-                Homey.app.updateLog( "washing_machine_spin_level_action: arg = " + args.spin_level + " - state = " + state );
+                this.homey.app.updateLog( "washing_machine_spin_level_action: arg = " + args.spin_level + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'spin_level', args.spin_level ); // Promise<void>
             } );
 
-        let doorOpenCondition = new Homey.FlowCardCondition( 'is_door_open' );
+        let doorOpenCondition = this.homey.flow.getConditionCard( 'is_door_open' );
         doorOpenCondition
-            .register()
             .registerRunListener( async ( args, state ) =>
             {
                 let doorState = args.device.getCapabilityValue( 'alarm_garage_door' );
@@ -476,7 +462,7 @@ class MyApp extends Homey.App
 
         if ( this.BearerToken )
         {
-            if ( Homey.ManagerSettings.get( 'pollInterval' ) > 1 )
+            if ( this.homey.settings.get( 'pollInterval' ) > 1 )
             {
                 this.updateLog( "Start Polling" );
                 this.timerID = setTimeout( this.onPoll, 10000 );
@@ -490,20 +476,20 @@ class MyApp extends Homey.App
     {
         //https://api.smartthings.com/v1/devices
         const url = "devices";
-        let searchResult = await Homey.app.GetURL( url );
+        let searchResult = await this.homey.app.GetURL( url );
         if ( searchResult )
         {
             let searchData = JSON.parse( searchResult.body );
             this.detectedDevices = JSON.stringify( searchData, null, 2 );
-            Homey.ManagerApi.realtime( 'com.smartthings.detectedDevicesUpdated', { 'devices': this.detectedDevices } );
+            this.homey.api.realtime( 'com.smartthings.detectedDevicesUpdated', { 'devices': this.detectedDevices } );
 
             const devices = [];
 
             // Create an array of devices
             for ( const device of searchData.items )
             {
-                Homey.app.updateLog( "Found device: " );
-                Homey.app.updateLog( JSON.stringify( device, null, 2 ) );
+                this.homey.app.updateLog( "Found device: " );
+                this.homey.app.updateLog( JSON.stringify( device, null, 2 ) );
 
                 var components = device.components;
                 var iconName = "";
@@ -548,7 +534,7 @@ class MyApp extends Homey.App
                             }
                             else
                             {
-                                Homey.app.updateLog( "Excluded Capability: " + deviceCapability.id );
+                                this.homey.app.updateLog( "Excluded Capability: " + deviceCapability.id );
                             }
                         }
                     }
@@ -570,7 +556,7 @@ class MyApp extends Homey.App
         }
         else
         {
-            Homey.app.updateLog( "Getting API Key returned NULL" );
+            this.homey.app.updateLog( "Getting API Key returned NULL" );
             throw new Error( "HTTPS Error: Nothing returned" );
         }
     }
@@ -584,12 +570,12 @@ class MyApp extends Homey.App
 
         //https://api.smartthings.com/v1/devices
         const url = "devices";
-        let searchResult = await Homey.app.GetURL( url );
+        let searchResult = await this.homey.app.GetURL( url );
         if ( searchResult )
         {
             let searchData = JSON.parse( searchResult.body );
             this.detectedDevices = JSON.stringify( searchData, null, 2 );
-            Homey.ManagerApi.realtime( 'com.smartthings.detectedDevicesUpdated', { 'devices': this.detectedDevices } );
+            this.homey.api.realtime( 'com.smartthings.detectedDevicesUpdated', { 'devices': this.detectedDevices } );
 
             const devices = [];
             // Create an array of devices
@@ -604,8 +590,8 @@ class MyApp extends Homey.App
                     {
                         if ( component.categories.findIndex( myFind ) >= 0 )
                         {
-                            Homey.app.updateLog( "Found device: " );
-                            Homey.app.updateLog( JSON.stringify( device, null, 2 ) );
+                            this.homey.app.updateLog( "Found device: " );
+                            this.homey.app.updateLog( JSON.stringify( device, null, 2 ) );
 
                             var data = {};
                             data = {
@@ -628,7 +614,7 @@ class MyApp extends Homey.App
         }
         else
         {
-            Homey.app.updateLog( "Getting API Key returned NULL" );
+            this.homey.app.updateLog( "Getting API Key returned NULL" );
             throw new Error( "HTTPS Error: Nothing returned" );
         }
     }
@@ -641,7 +627,7 @@ class MyApp extends Homey.App
         if ( result )
         {
             let searchData = JSON.parse( result.body );
-            Homey.app.updateLog( JSON.stringify( searchData, null, 2 ) );
+            this.homey.app.updateLog( JSON.stringify( searchData, null, 2 ) );
             return searchData;
         }
 
@@ -656,7 +642,7 @@ class MyApp extends Homey.App
         if ( result )
         {
             let searchData = JSON.parse( result.body );
-            Homey.app.updateLog( JSON.stringify( searchData, null, 2 ) );
+            this.homey.app.updateLog( JSON.stringify( searchData, null, 2 ) );
             return searchData;
         }
 
@@ -667,7 +653,7 @@ class MyApp extends Homey.App
     {
         if ( ( process.env.DEBUG === '1' ) )
         {
-            let simData = Homey.ManagerSettings.get( 'simData' );
+            let simData = this.homey.settings.get( 'simData' );
             if ( simData )
             {
                 simData = JSON.parse( simData );
@@ -685,7 +671,7 @@ class MyApp extends Homey.App
         if ( result )
         {
             let searchData = JSON.parse( result.body );
-            Homey.app.updateLog( JSON.stringify( searchData, null, 2 ) );
+            this.homey.app.updateLog( JSON.stringify( searchData, null, 2 ) );
             return searchData;
         }
 
@@ -700,7 +686,7 @@ class MyApp extends Homey.App
         if ( result )
         {
             let searchData = JSON.parse( result.body );
-            Homey.app.updateLog( JSON.stringify( searchData, null, 2 ) );
+            this.homey.app.updateLog( JSON.stringify( searchData, null, 2 ) );
             return searchData;
         }
 
@@ -711,20 +697,20 @@ class MyApp extends Homey.App
     {
         if ( ( process.env.DEBUG === '1' ) && ( url === 'devices' ) )
         {
-            const simData = Homey.ManagerSettings.get( 'simData' );
+            const simData = this.homey.settings.get( 'simData' );
             if ( simData )
             {
                 return { 'body': simData };
             }
         }
 
-        Homey.app.updateLog( url );
+        this.homey.app.updateLog( url );
 
         return new Promise( ( resolve, reject ) =>
         {
             try
             {
-                if ( !Homey.app.BearerToken )
+                if ( !this.homey.app.BearerToken )
                 {
                     reject(
                     {
@@ -738,7 +724,7 @@ class MyApp extends Homey.App
                     path: "/v1/" + url,
                     headers:
                     {
-                        "Authorization": "Bearer " + Homey.app.BearerToken,
+                        "Authorization": "Bearer " + this.homey.app.BearerToken,
                     },
                 };
 
@@ -782,7 +768,7 @@ class MyApp extends Homey.App
                         {
                             message = "Not Found";
                         }
-                        Homey.app.updateLog( "HTTPS Error: " + res.statusCode + ": " + message );
+                        this.homey.app.updateLog( "HTTPS Error: " + res.statusCode + ": " + message );
                         reject(
                         {
                             statusCode: res.statusCode,
@@ -791,7 +777,7 @@ class MyApp extends Homey.App
                     }
                 } ).on( 'error', ( err ) =>
                 {
-                    Homey.app.updateLog( err );
+                    this.homey.app.updateLog( err );
                     reject(
                     {
                         statusCode: -1,
@@ -801,7 +787,7 @@ class MyApp extends Homey.App
             }
             catch ( err )
             {
-                Homey.app.updateLog( err );
+                this.homey.app.updateLog( err );
                 reject(
                 {
                     statusCode: -2,
@@ -813,13 +799,13 @@ class MyApp extends Homey.App
 
     async PostURL( url, body )
     {
-        Homey.app.updateLog( url );
+        this.homey.app.updateLog( url );
         let bodyText = JSON.stringify( body );
-        Homey.app.updateLog( bodyText );
+        this.homey.app.updateLog( bodyText );
 
         if ( ( process.env.DEBUG === '1' ) )
         {
-            const simData = Homey.ManagerSettings.get( 'simData' );
+            const simData = this.homey.settings.get( 'simData' );
             if ( simData )
             {
                 return;
@@ -830,7 +816,7 @@ class MyApp extends Homey.App
         {
             try
             {
-                if ( !Homey.app.BearerToken )
+                if ( !this.homey.app.BearerToken )
                 {
                     reject(
                     {
@@ -845,13 +831,13 @@ class MyApp extends Homey.App
                     method: "POST",
                     headers:
                     {
-                        "Authorization": "Bearer " + Homey.app.BearerToken,
+                        "Authorization": "Bearer " + this.homey.app.BearerToken,
                         "contentType": "application/json; charset=utf-8",
                         "Content-Length": bodyText.length
                     },
                 };
 
-                Homey.app.updateLog( https_options );
+                this.homey.app.updateLog( https_options );
 
                 let req = https.request( https_options, ( res ) =>
                 {
@@ -860,12 +846,12 @@ class MyApp extends Homey.App
                         let body = [];
                         res.on( 'data', ( chunk ) =>
                         {
-                            Homey.app.updateLog( "retrieve data" );
+                            this.homey.app.updateLog( "retrieve data" );
                             body.push( chunk );
                         } );
                         res.on( 'end', () =>
                         {
-                            Homey.app.updateLog( "Done retrieval of data" );
+                            this.homey.app.updateLog( "Done retrieval of data" );
                             resolve(
                             {
                                 "body": Buffer.concat( body )
@@ -895,7 +881,7 @@ class MyApp extends Homey.App
                         {
                             message = "Not Found";
                         }
-                        Homey.app.updateLog( "HTTPS Error: " + res.statusCode + ": " + message );
+                        this.homey.app.updateLog( "HTTPS Error: " + res.statusCode + ": " + message );
                         reject(
                         {
                             statusCode: res.statusCode,
@@ -904,7 +890,7 @@ class MyApp extends Homey.App
                     }
                 } ).on( 'error', ( err ) =>
                 {
-                    Homey.app.updateLog( err );
+                    this.homey.app.updateLog( err );
                     reject(
                     {
                         statusCode: -1,
@@ -916,7 +902,7 @@ class MyApp extends Homey.App
             }
             catch ( err )
             {
-                Homey.app.updateLog( this.varToString( err ) );
+                this.homey.app.updateLog( this.varToString( err ) );
                 reject(
                 {
                     statusCode: -2,
@@ -928,15 +914,15 @@ class MyApp extends Homey.App
 
     async onPoll()
     {
-        Homey.app.timerProcessing = true;
+        this.homey.app.timerProcessing = true;
         const promises = [];
         try
         {
             // Fetch the list of drivers for this app
-            const drivers = Homey.ManagerDrivers.getDrivers();
+            const drivers = this.homey.ManagerDrivers.getDrivers();
             for ( const driver in drivers )
             {
-                let devices = Homey.ManagerDrivers.getDriver( driver ).getDevices();
+                let devices = this.homey.ManagerDrivers.getDriver( driver ).getDevices();
                 for ( var i = 0; i < devices.length; i++ )
                 {
                     let device = devices[ i ];
@@ -952,17 +938,17 @@ class MyApp extends Homey.App
         }
         catch ( err )
         {
-            Homey.app.updateLog( "Polling Error: " + this.varToString( err ) );
+            this.homey.app.updateLog( "Polling Error: " + this.varToString( err ) );
         }
 
-        var nextInterval = Number( Homey.ManagerSettings.get( 'pollInterval' ) ) * 1000;
+        var nextInterval = Number( this.homey.settings.get( 'pollInterval' ) ) * 1000;
         if ( nextInterval < 1000 )
         {
             nextInterval = 5000;
         }
-        Homey.app.updateLog( "Next Interval = " + nextInterval, true );
-        Homey.app.timerID = setTimeout( Homey.app.onPoll, nextInterval );
-        Homey.app.timerProcessing = false;
+        this.homey.app.updateLog( "Next Interval = " + nextInterval, true );
+        this.homey.app.timerID = setTimeout( this.homey.app.onPoll, nextInterval );
+        this.homey.app.timerProcessing = false;
     }
 
     varToString( source )
@@ -989,7 +975,7 @@ class MyApp extends Homey.App
 
     updateLog( newMessage )
     {
-        if ( Homey.ManagerSettings.get( 'logEnabled' ) )
+        if ( this.homey.settings.get( 'logEnabled' ) )
         {
             console.log( newMessage );
             this.diagLog += "* ";
@@ -999,7 +985,7 @@ class MyApp extends Homey.App
             {
                 this.diagLog = this.diagLog.substr( this.diagLog.length - 60000 );
             }
-            Homey.ManagerApi.realtime( 'com.smartthings.logupdated', { 'log': this.diagLog } );
+            this.homey.api.realtime( 'com.smartthings.logupdated', { 'log': this.diagLog } );
         }
     }
 
