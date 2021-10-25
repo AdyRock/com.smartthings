@@ -328,12 +328,12 @@ class MyApp extends Homey.App
 
             if ( setting === 'pollInterval' )
             {
-                clearTimeout( this.homey.app.timerID );
+                this.homey.clearTimeout( this.homey.app.timerID );
                 if ( this.homey.app.BearerToken && !this.homey.app.timerProcessing )
                 {
                     if ( this.homey.settings.get( 'pollInterval' ) > 1 )
                     {
-                        this.homey.app.timerID = setTimeout( this.homey.app.onPoll, this.homey.settings.get( 'pollInterval' ) * 1000 );
+                        this.homey.app.timerID = this.homey.setTimeout( this.homey.app.onPoll, this.homey.settings.get( 'pollInterval' ) * 1000 );
                     }
                 }
             }
@@ -465,7 +465,7 @@ class MyApp extends Homey.App
             if ( this.homey.settings.get( 'pollInterval' ) > 1 )
             {
                 this.updateLog( "Start Polling" );
-                this.timerID = setTimeout( this.onPoll, 10000 );
+                this.timerID = this.homey.setTimeout( this.onPoll, 10000 );
             }
         }
 
@@ -627,7 +627,7 @@ class MyApp extends Homey.App
         if ( result )
         {
             let searchData = JSON.parse( result.body );
-            this.homey.app.updateLog( JSON.stringify( searchData, null, 2 ) );
+            this.homey.app.updateLog( "Get all device: " + url + "\nResult: " + JSON.stringify( searchData, null, 2 ) );
             return searchData;
         }
 
@@ -642,7 +642,7 @@ class MyApp extends Homey.App
         if ( result )
         {
             let searchData = JSON.parse( result.body );
-            this.homey.app.updateLog( JSON.stringify( searchData, null, 2 ) );
+            this.homey.app.updateLog( "Get component: " + url + "\nResult: " + JSON.stringify( searchData, null, 2 ) );
             return searchData;
         }
 
@@ -671,7 +671,7 @@ class MyApp extends Homey.App
         if ( result )
         {
             let searchData = JSON.parse( result.body );
-            this.homey.app.updateLog( JSON.stringify( searchData, null, 2 ) );
+            this.homey.app.updateLog( "Get device: " + url + "\nResult: " + JSON.stringify( searchData, null, 2 ) );
             return searchData;
         }
 
@@ -680,13 +680,19 @@ class MyApp extends Homey.App
 
     async setDeviceCapabilityValue( DeviceID, Commands )
     {
+        while (this.homey.app.timerProcessing)
+        {
+            // Wait for polling loop to finish fetching
+            await new Promise(resolve => this.homey.setTimeout(resolve, 250));
+        }
+
         //https://api.smartthings.com/v1/devices/{deviceId}/commands
         let url = "devices/" + DeviceID + "/commands";
         let result = await this.PostURL( url, Commands );
         if ( result )
         {
             let searchData = JSON.parse( result.body );
-            this.homey.app.updateLog( JSON.stringify( searchData, null, 2 ) );
+            this.homey.app.updateLog( "Set device: " + url + "\nResult: " + JSON.stringify( searchData, null, 2 ) );
             return searchData;
         }
 
@@ -787,11 +793,11 @@ class MyApp extends Homey.App
             }
             catch ( err )
             {
-                this.homey.app.updateLog( err );
+                this.homey.app.updateLog( err.message );
                 reject(
                 {
                     statusCode: -2,
-                    statusMessage: "HTTPS Catch: " + err
+                    statusMessage: "HTTPS Catch: " + err.message
                 } );
             }
         } );
@@ -799,9 +805,9 @@ class MyApp extends Homey.App
 
     async PostURL( url, body )
     {
-        this.homey.app.updateLog( url );
+        this.homey.app.updateLog( "PostURL url: " + url );
         let bodyText = JSON.stringify( body );
-        this.homey.app.updateLog( bodyText );
+        this.homey.app.updateLog( "PostUrl body: " + bodyText );
 
         if ( ( process.env.DEBUG === '1' ) )
         {
@@ -837,8 +843,6 @@ class MyApp extends Homey.App
                     },
                 };
 
-                this.homey.app.updateLog( https_options );
-
                 let req = https.request( https_options, ( res ) =>
                 {
                     if ( res.statusCode === 200 )
@@ -846,12 +850,11 @@ class MyApp extends Homey.App
                         let body = [];
                         res.on( 'data', ( chunk ) =>
                         {
-                            this.homey.app.updateLog( "retrieve data" );
                             body.push( chunk );
                         } );
                         res.on( 'end', () =>
                         {
-                            this.homey.app.updateLog( "Done retrieval of data" );
+//                            this.homey.app.updateLog( "Done PostRUL" );
                             resolve(
                             {
                                 "body": Buffer.concat( body )
@@ -902,11 +905,11 @@ class MyApp extends Homey.App
             }
             catch ( err )
             {
-                this.homey.app.updateLog( this.varToString( err ) );
+                this.homey.app.updateLog( this.varToString( err.message ) );
                 reject(
                 {
                     statusCode: -2,
-                    statusMessage: "HTTPS Catch: " + err
+                    statusMessage: "HTTPS Catch: " + err.message
                 } );
             }
         } );
@@ -915,6 +918,7 @@ class MyApp extends Homey.App
     async onPoll()
     {
         this.homey.app.timerProcessing = true;
+        this.homey.app.updateLog( "!!!!!! Polling started" );
         const promises = [];
         try
         {
@@ -934,11 +938,11 @@ class MyApp extends Homey.App
             }
 
             await Promise.all( promises );
-
+            this.homey.app.updateLog( "!!!!!! Polling finished" );
         }
         catch ( err )
         {
-            this.homey.app.updateLog( "Polling Error: " + this.varToString( err ) );
+            this.homey.app.updateLog( "Polling Error: " + this.varToString( err.message ) );
         }
 
         var nextInterval = Number( this.homey.settings.get( 'pollInterval' ) ) * 1000;
@@ -947,7 +951,7 @@ class MyApp extends Homey.App
             nextInterval = 5000;
         }
         this.homey.app.updateLog( "Next Interval = " + nextInterval, true );
-        this.homey.app.timerID = setTimeout( this.homey.app.onPoll, nextInterval );
+        this.homey.app.timerID = this.homey.setTimeout( this.homey.app.onPoll, nextInterval );
         this.homey.app.timerProcessing = false;
     }
 

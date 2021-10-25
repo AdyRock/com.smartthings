@@ -570,7 +570,7 @@ class STDevice extends Homey.Device
                         value = ( value === mapEntry.boolCompare );
                         this.homey.app.updateLog( "Set Capability: " + capability + " - Value: " + value );
                         let lastValue = this.getCapabilityValue( capability );
-                        this.setCapabilityValue( capability, value );
+                        this.setCapabilityValue( capability, value ).catch(this.error);
                         if ( capability === 'remote_status' )
                         {
                             this.remoteControlEnabled = value;
@@ -618,7 +618,7 @@ class STDevice extends Homey.Device
 
                         this.homey.app.updateLog( "Set Capability: " + capability + " - Value: " + value );
                         let lastValue = this.getCapabilityValue( capability );
-                        this.setCapabilityValue( capability, value );
+                        this.setCapabilityValue( capability, value ).catch(this.error);
 
                         if ( mapEntry.flowTrigger )
                         {
@@ -646,7 +646,7 @@ class STDevice extends Homey.Device
             }
             catch ( err )
             {
-                this.homey.app.updateLog( "getDeviceValues error: " + this.homey.app.varToString( err ) );
+                this.homey.app.updateLog( "getDeviceValues error: " + this.homey.app.varToString( err.message ) );
             }
         }
     }
@@ -682,7 +682,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityOnoff Error " + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityOnoff Error " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -716,7 +716,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityOnDimError " + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityOnDimError " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -752,7 +752,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityRinseCycles " + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityRinseCycles " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -788,7 +788,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilitySpinLevel " + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilitySpinLevel " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -825,7 +825,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityWasherStatus " + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityWasherStatus " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -864,7 +864,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityWasherMode Error" + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityWasherMode Error" + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -901,7 +901,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityWasherWaterTemperature " + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityWasherWaterTemperature " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -935,7 +935,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityVolume " + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityVolume " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -964,7 +964,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityVolumeDown " + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityVolumeDown " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -993,7 +993,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityVolumeUp " + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityVolumeUp " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -1024,7 +1024,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityVolumeMute " + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityVolumeMute " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -1053,7 +1053,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityChannelDown " + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityChannelDown " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -1082,7 +1082,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityChannelUp " + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityChannelUp " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -1111,7 +1111,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityTargetTemperature " + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityTargetTemperature " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -1140,7 +1140,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityAirConOption " + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityAirConOption " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -1169,7 +1169,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityAirConMode " + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityAirConMode " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -1198,7 +1198,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityAirCon_fan_oscillation_mode " + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityAirCon_fan_oscillation_mode " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -1226,7 +1226,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityAirCon_auto_cleaning_mode " + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityAirCon_auto_cleaning_mode " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -1254,7 +1254,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilitySilent_mode " + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilitySilent_mode " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -1289,7 +1289,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityAc_lights_on " + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityAc_lights_on " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -1324,7 +1324,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityAc_lights_off " + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityAc_lights_off " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -1359,7 +1359,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityOnDimError " + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityOnDimError " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -1395,7 +1395,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityOnoff Error " + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityOnoff Error " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -1431,7 +1431,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityGarageDoor_set Error " + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityGarageDoor_set Error " + this.homey.app.varToString( err.message ) );
             throw ( new Error( err.statusMessage ) );
         }
     }
@@ -1467,7 +1467,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityLocked Error " + this.homey.app.varToString( err ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityLocked Error " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }

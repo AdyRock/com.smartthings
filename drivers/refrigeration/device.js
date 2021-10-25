@@ -21,7 +21,7 @@ class FridgeDevice extends Homey.Device
         }
         catch ( err )
         {
-            this.log( 'FridgeDevice initialized ', err );
+            this.log( 'FridgeDevice initialized ', err.message );
         }
     }
 
@@ -64,7 +64,7 @@ class FridgeDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            Homey.app.updateLog( this.getName() + " onCapabilityOnoff Error " + Homey.app.varToString( err ) );
+            Homey.app.updateLog( this.getName() + " onCapabilityOnoff Error " + Homey.app.varToString( err.message ) );
         }
     }
 
@@ -92,7 +92,7 @@ class FridgeDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            Homey.app.updateLog( this.getName() + " onCapabilityTargetTemperature " + Homey.app.varToString( err ) );
+            Homey.app.updateLog( this.getName() + " onCapabilityTargetTemperature " + Homey.app.varToString( err.message ) );
         }
     }
 
@@ -106,26 +106,26 @@ class FridgeDevice extends Homey.Device
             let value = await Homey.app.getDeviceCapabilityValue( devData.id, 'onedoor', 'contactSensor' );
             if ( value )
             {
-                this.setCapabilityValue( 'alarm_contact', value.contact.value === 'open' );
+                this.setCapabilityValue( 'alarm_contact', value.contact.value === 'open' ).catch(this.error);
             }
 
             // Get the Target temperature
             value = await Homey.app.getDeviceCapabilityValue( devData.id, 'freezer', 'thermostatCoolingSetpoint' );
             if ( value )
             {
-                this.setCapabilityValue( 'target_temperature', value.coolingSetpoint.value );
+                this.setCapabilityValue( 'target_temperature', value.coolingSetpoint.value ).catch(this.error);
             }
 
             // Get the rapid freeze state
             value = await Homey.app.getDeviceCapabilityValue( devData.id, 'main', 'refrigeration' );
             if ( value )
             {
-                this.setCapabilityValue( 'onoff', value.rapidFreezing.value === 'on' );
+                this.setCapabilityValue( 'onoff', value.rapidFreezing.value === 'on' ).catch(this.error);
             }
         }
         catch ( err )
         {
-            this.log( "Get Device values Error ", err );
+            this.log( "Get Device values Error ", err.message );
         }
     }
 

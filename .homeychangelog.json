@@ -67,5 +67,8 @@
     },
     "1.0.0": {
         "en": "Added water alarm capability\nAdded Accelerometer capabilities."
+    },
+    "1.0.1": {
+        "en": "Better log entry clarifications.\nSafeguard against interleaved polling and setting of values."
     }
 }
