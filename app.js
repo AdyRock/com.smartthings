@@ -167,8 +167,8 @@ const CapabilityMap2 = {
         class: "",
         exclude: "",
         capabilities: [ 'measure_temperature' ],
-        icon: "",
-        iconPriority: 0
+        icon: "thermometer.svg",
+        iconPriority: 1
     },
     "thermostatCoolingSetpoint":
     {
@@ -238,9 +238,11 @@ const CapabilityMap2 = {
     {
         class: "",
         exclude: "",
-        capabilities: [ 'washer_mode' ],
+        capabilities: [ 'washer_mode', 'washer_mode_02' ],
         icon: "",
-        iconPriority: 0
+        iconPriority: 0,
+        statusEntry: 'referenceTable',              // lookup this entry in the device status to fins out which capability to add
+        statusValue: [ 'Table_00', 'Table_02' ]     // The value that matches here determines the index of the capability to add from the capabilities list
     },
     "windowShade":
     {
@@ -511,7 +513,7 @@ class MyApp extends Homey.App
                     for ( const deviceCapability of deviceCapabilities )
                     {
                         const capabilityMapEntry = CapabilityMap2[ deviceCapability.id ];
-                        if ( capabilityMapEntry != null )
+                        if ( capabilityMapEntry )
                         {
                             // Make sure the entry has no exclusion condition or that the capabilities for the device does not have the excluded item
                             if ( ( capabilityMapEntry.exclude == "" ) || ( deviceCapabilities.findIndex( element => element.id == capabilityMapEntry.exclude ) == -1 ) )
@@ -527,9 +529,30 @@ class MyApp extends Homey.App
                                     iconName = capabilityMapEntry.icon;
                                     iconPriority = capabilityMapEntry.iconPriority;
                                 }
-                                for ( const element of capabilityMapEntry.capabilities )
+
+                                if (capabilityMapEntry.statusEntry)
                                 {
-                                    capabilities.push( element );
+                                    // We need to check the value status to get more information about which capability to add
+                                    const capabilityStatus = await this.getDeviceCapabilityValue(device.deviceId, component.id, deviceCapability.id);
+                                    if (capabilityStatus[capabilityMapEntry.statusEntry])
+                                    {
+                                        const option = capabilityStatus[capabilityMapEntry.statusEntry];
+                                        for (let entry = 0; entry < capabilityMapEntry.statusValue.length; entry++)
+                                        {
+                                            if (option.value.id === capabilityMapEntry.statusValue[entry])
+                                            {
+                                                capabilities.push( capabilityMapEntry.capabilities[entry] );
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    for ( const element of capabilityMapEntry.capabilities )
+                                    {
+                                        capabilities.push( element );
+                                    }
                                 }
                             }
                             else
