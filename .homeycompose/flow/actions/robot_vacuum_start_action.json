@@ -1,0 +1,125 @@
+{
+    "title": {
+        "en": "Start Vacuum"
+    },
+    "titleFormatted": {
+        "en": "Start the vacuum [[robotCleanerCleaningMode]] using [[robotCleanerCleaningMovement]]"
+    },
+    "args": [
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=stDevice&class=vacuumcleaner"
+        },
+        {
+            "type": "dropdown",
+            "name": "robotCleanerCleaningMode",
+            "title": "Cleaning Mode",
+            "values": [
+                {
+                    "id": "auto",
+                    "title": {
+                        "en": "Auto"
+                    }
+                },
+                {
+                    "id": "part",
+                    "title": {
+                        "en": "Part"
+                    }
+                },
+                {
+                    "id": "repeat",
+                    "title": {
+                        "en": "Repeat"
+                    }
+                },
+                {
+                    "id": "manual",
+                    "title": {
+                        "en": "Manual"
+                    }
+                },
+                {
+                    "id": "stop",
+                    "title": {
+                        "en": "Stop"
+                    }
+                },
+                {
+                    "id": "map",
+                    "title": {
+                        "en": "Map"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "dropdown",
+            "name": "robotCleanerCleaningMovement",
+            "title": "Cleaning Movement",
+            "values": [
+                {
+                    "id": "homing",
+                    "title": {
+                        "en": "Homing"
+                    }
+                },
+                {
+                    "id": "idle",
+                    "title": {
+                        "en": "Idle"
+                    }
+                },
+                {
+                    "id": "charging",
+                    "title": {
+                        "en": "Charging"
+                    }
+                },
+                {
+                    "id": "alarm",
+                    "title": {
+                        "en": "Alarm"
+                    }
+                },
+                {
+                    "id": "powerOff",
+                    "title": {
+                        "en": "powerOff"
+                    }
+                },
+                {
+                    "id": "reserve",
+                    "title": {
+                        "en": "Reserve"
+                    }
+                },
+                {
+                    "id": "point",
+                    "title": {
+                        "en": "Point"
+                    }
+                },
+                {
+                    "id": "after",
+                    "title": {
+                        "en": "After"
+                    }
+                },
+                {
+                    "id": "cleaning",
+                    "title": {
+                        "en": "Cleaning"
+                    }
+                },
+                {
+                    "id": "pause",
+                    "title": {
+                        "en": "Pause"
+                    }
+                }
+            ]
+        }
+    ]
+}

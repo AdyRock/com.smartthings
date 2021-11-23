@@ -341,6 +341,27 @@ const capabilityMap1 = {
         flowTrigger: 'acceleration_z_changed',
         keep: true,
         arrayIdx: 2
+    },
+    "robot_cleaning_mode":
+    {
+        dataEntry: [ 'robotCleanerCleaningMode', 'robotCleanerCleaningMode', 'value' ],
+        capabilityID: 'robotCleanerCleaningMode',
+        divider: 0,
+        flowTrigger: null
+    },
+    "robot_cleaning_movement":
+    {
+        dataEntry: [ 'robotCleanerMovement', 'robotCleanerMovement', 'value' ],
+        capabilityID: 'robotCleanerMovement',
+        divider: 0,
+        flowTrigger: null
+    },
+    "robot_cleaning_turbo":
+    {
+        dataEntry: [ 'robotCleanerTurboMode', 'robotCleanerTurboMode', 'value' ],
+        capabilityID: 'robotCleanerTurboMode',
+        divider: 0,
+        flowTrigger: null
     }
 };
 
@@ -496,6 +517,21 @@ class STDevice extends Homey.Device
         if ( this.hasCapability( 'locked' ) )
         {
             this.registerCapabilityListener( 'locked', this.onCapabilitylocked.bind( this ) );
+        }
+
+        if ( this.hasCapability( 'robot_cleaning_mode' ) )
+        {
+            this.registerCapabilityListener( 'robot_cleaning_mode', this.onCapabilityRobotCleaningMode.bind( this ) );
+        }
+
+        if ( this.hasCapability( 'robot_cleaning_movement' ) )
+        {
+            this.registerCapabilityListener( 'robot_cleaning_movement', this.onCapabilityRobotCleaningMovement.bind( this ) );
+        }
+
+        if ( this.hasCapability( 'robot_cleaning_turbo' ) )
+        {
+            this.registerCapabilityListener( 'robot_cleaning_turbo', this.onCapabilityRobotCleaningTurboMode.bind( this ) );
         }
 
         this.getDeviceValues();
@@ -1468,6 +1504,90 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             this.homey.app.updateLog( this.getName() + " onCapabilityLocked Error " + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
+        }
+    }
+    
+    async onCapabilityRobotCleaningMode( value, opts )
+    {
+        try
+        {
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "robotCleanerCleaningMode",
+                    "command": 'setRobotCleanerCleaningMode',
+                    "arguments": [value]
+                } ]
+            };
+
+            // Set the switch Value on the device using the unique feature ID stored during pairing
+            await this.homey.app.setDeviceCapabilityValue( devData.id, body );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            this.homey.app.updateLog( this.getName() + " onCapabilityRobotCleaningMode Error " + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
+        }
+    }
+    
+    async onCapabilityRobotCleaningMovement( value, opts )
+    {
+        try
+        {
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "robotCleanerMovement",
+                    "command": 'setRobotCleanerMovement',
+                    "arguments": [value]
+                } ]
+            };
+
+            // Set the switch Value on the device using the unique feature ID stored during pairing
+            await this.homey.app.setDeviceCapabilityValue( devData.id, body );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            this.homey.app.updateLog( this.getName() + " onCapabilityRobotCleaningMovement Error " + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
+        }
+    }
+    
+    async onCapabilityRobotCleaningTurboMode( value, opts )
+    {
+        try
+        {
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "robotCleanerTurboMode",
+                    "command": 'setRobotCleanerTurboMode',
+                    "arguments": [value]
+                } ]
+            };
+
+            // Set the switch Value on the device using the unique feature ID stored during pairing
+            await this.homey.app.setDeviceCapabilityValue( devData.id, body );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            this.homey.app.updateLog( this.getName() + " onCapabilityRobotCleaningTurboMode Error " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }

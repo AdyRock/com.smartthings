@@ -1,0 +1,29 @@
+{
+    "type": "enum",
+    "title": {
+        "en": "Cleaner Turbo Mode"
+    },
+    "getable": true,
+    "setable": true,
+    "uiComponent": "picker",
+    "values": [
+        {
+            "id": "on",
+            "title": {
+                "en": "on"
+            }
+        },
+        {
+            "id": "off",
+            "title": {
+                "en": "off"
+            }
+        },
+        {
+            "id": "silence",
+            "title": {
+                "en": "silence"
+            }
+        }
+    ]
+}

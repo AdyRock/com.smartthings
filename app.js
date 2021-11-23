@@ -1,504 +1,465 @@
 /*jslint node: true */
 'use strict';
 
-if ( process.env.DEBUG === '1' )
-{
-    require( 'inspector' ).open( 9222, '0.0.0.0', true );
+if (process.env.DEBUG === '1') {
+    require('inspector').open(9222, '0.0.0.0', true);
 }
 
-const Homey = require( 'homey' );
-const https = require( "https" );
+const Homey = require('homey');
+const https = require("https");
 
 const CapabilityMap2 = {
-    "switch":
-    {
+    "switch": {
         class: "",
         exclude: "", // Ignore if the device has this ST capability
-        capabilities: [ "onoff" ], // The list of Homey capabilities to add
+        capabilities: ["onoff"], // The list of Homey capabilities to add
         icon: "socket.svg", // Icon to apply to the device
         iconPriority: 1 // Priority to be used for the device icon. Higher numbers have a higher priority
     },
-    "switchLevel":
-    {
+    "switchLevel": {
         class: "light",
         exclude: "windowShade",
-        capabilities: [ "dim" ],
+        capabilities: ["dim"],
         icon: "light.svg",
         iconPriority: 2
     },
-    "contactSensor":
-    {
+    "contactSensor": {
         class: "sensor",
         exclude: "",
-        capabilities: [ "alarm_contact" ],
+        capabilities: ["alarm_contact"],
         icon: "door.svg",
         iconPriority: 3
     },
-    "battery":
-    {
+    "battery": {
         class: "",
         exclude: "",
-        capabilities: [ "measure_battery" ],
+        capabilities: ["measure_battery"],
         icon: "",
         iconPriority: 0
     },
-    "presenceSensor":
-    {
+    "presenceSensor": {
         class: "sensor",
         exclude: "",
-        capabilities: [ "alarm_presence" ],
+        capabilities: ["alarm_presence"],
         icon: "presence.svg",
         iconPriority: 3
     },
-    "motionSensor":
-    {
+    "motionSensor": {
         class: "sensor",
         exclude: "",
-        capabilities: [ "alarm_motion" ],
+        capabilities: ["alarm_motion"],
         icon: "presence.svg",
         iconPriority: 3
     },
-    "powerConsumptionReport":
-    {
+    "powerConsumptionReport": {
         class: "",
         exclude: "",
-        capabilities: [ "measure_power", "meter_power", "meter_power.delta" ],
+        capabilities: ["measure_power", "meter_power", "meter_power.delta"],
         icon: "",
         iconPriority: 0
     },
-    "remoteControlStatus":
-    {
+    "remoteControlStatus": {
         class: "",
         exclude: "",
-        capabilities: [ "remote_status" ],
+        capabilities: ["remote_status"],
         icon: "",
         iconPriority: 0
     },
-    "washerOperatingState":
-    {
+    "washerOperatingState": {
         class: "other",
         exclude: "",
-        capabilities: [ "washer_job_status", "completion_time", "washer_status" ],
+        capabilities: ["washer_job_status", "completion_time", "washer_status"],
         icon: "washingmachine.svg",
         iconPriority: 5
     },
-    "custom.washerWaterTemperature":
-    {
+    "custom.washerWaterTemperature": {
         class: "",
         exclude: "",
-        capabilities: [ "water_temperature" ],
+        capabilities: ["water_temperature"],
         icon: "",
         iconPriority: 0
     },
-    "custom.washerSpinLevel":
-    {
+    "custom.washerSpinLevel": {
         class: "",
         exclude: "",
-        capabilities: [ "spin_level" ],
+        capabilities: ["spin_level"],
         icon: "",
         iconPriority: 0
     },
-    "custom.washerRinseCycles":
-    {
+    "custom.washerRinseCycles": {
         class: "",
         exclude: "",
-        capabilities: [ "rinse_cycles" ],
+        capabilities: ["rinse_cycles"],
         icon: "",
         iconPriority: 0
     },
-    "washerMode":
-    {
+    "washerMode": {
         class: "other",
         exclude: "",
-        capabilities: [ "washer_status" ],
+        capabilities: ["washer_status"],
         icon: "washingmachine.svg",
         iconPriority: 5
     },
-    "audioVolume":
-    {
+    "audioVolume": {
         class: "tv",
         exclude: "airConditionerMode",
-        capabilities: [ 'volume_set', 'volume_down', 'volume_up' ],
+        capabilities: ['volume_set', 'volume_down', 'volume_up'],
         icon: "",
         iconPriority: 0
     },
-    "tvChannel":
-    {
+    "tvChannel": {
         class: "",
         exclude: "",
-        capabilities: [ 'channel_down', 'channel_up' ],
+        capabilities: ['channel_down', 'channel_up'],
         icon: "television.svg",
         iconPriority: 5
     },
-    "audioMute":
-    {
+    "audioMute": {
         class: "",
         exclude: "",
-        capabilities: [ 'volume_mute' ],
+        capabilities: ['volume_mute'],
         icon: "",
         iconPriority: 0
     },
-    "airConditionerMode":
-    {
+    "airConditionerMode": {
         class: "fan",
         exclude: "",
-        capabilities: [ 'aircon_mode', 'ac_lights_on', 'ac_lights_off', 'silent_mode' ],
+        capabilities: ['aircon_mode', 'ac_lights_on', 'ac_lights_off', 'silent_mode'],
         icon: "aircon.svg",
         iconPriority: 5
     },
-    "airConditionerFanMode":
-    {
+    "airConditionerFanMode": {
         class: "",
         exclude: "",
-        capabilities: [ 'aircon_fan_mode' ],
+        capabilities: ['aircon_fan_mode'],
         icon: "",
         iconPriority: 0
     },
-    "fanOscillationMode":
-    {
+    "fanOscillationMode": {
         class: "",
         exclude: "",
-        capabilities: [ 'aircon_fan_oscillation_mode' ],
+        capabilities: ['aircon_fan_oscillation_mode'],
         icon: "",
         iconPriority: 0
     },
-    "temperatureMeasurement":
-    {
+    "temperatureMeasurement": {
         class: "",
         exclude: "",
-        capabilities: [ 'measure_temperature' ],
+        capabilities: ['measure_temperature'],
         icon: "thermometer.svg",
         iconPriority: 1
     },
-    "thermostatCoolingSetpoint":
-    {
+    "thermostatCoolingSetpoint": {
         class: "",
         exclude: "",
-        capabilities: [ 'target_temperature' ],
+        capabilities: ['target_temperature'],
         icon: "",
         iconPriority: 0
     },
-    "relativeHumidityMeasurement":
-    {
+    "relativeHumidityMeasurement": {
         class: "",
         exclude: "",
-        capabilities: [ 'measure_humidity' ],
+        capabilities: ['measure_humidity'],
         icon: "",
         iconPriority: 0
     },
-    "custom.dustFilter":
-    {
+    "custom.dustFilter": {
         class: "",
         exclude: "",
-        capabilities: [ 'dust_filter_status' ],
+        capabilities: ['dust_filter_status'],
         icon: "",
         iconPriority: 0
     },
-    "custom.airConditionerOptionalMode":
-    {
+    "custom.airConditionerOptionalMode": {
         class: "",
         exclude: "",
-        capabilities: [ 'aircon_option' ],
+        capabilities: ['aircon_option'],
         icon: "",
         iconPriority: 0
     },
-    "custom.autoCleaningMode":
-    {
+    "custom.autoCleaningMode": {
         class: "",
         exclude: "",
-        capabilities: [ 'aircon_auto_cleaning_mode' ],
+        capabilities: ['aircon_auto_cleaning_mode'],
         icon: "",
         iconPriority: 0
     },
-    "energyMeter":
-    {
+    "energyMeter": {
         class: "sensor",
         exclude: "",
-        capabilities: [ 'measure_power' ],
+        capabilities: ['measure_power'],
         icon: "",
         iconPriority: 0
     },
-    "powerMeter":
-    {
+    "powerMeter": {
         class: "sensor",
         exclude: "",
-        capabilities: [ 'meter_power' ],
+        capabilities: ['meter_power'],
         icon: "",
         iconPriority: 0
     },
-    "refrigeration":
-    {
+    "refrigeration": {
         class: "sensor",
         exclude: "",
-        capabilities: [ 'defrost', 'rapid_cooling', 'rapid_freezing' ],
+        capabilities: ['defrost', 'rapid_cooling', 'rapid_freezing'],
         icon: "refrigerator.svg",
         iconPriority: 5
     },
-    "samsungce.washerCycle":
-    {
+    "samsungce.washerCycle": {
         class: "",
         exclude: "",
-        capabilities: [ 'washer_mode', 'washer_mode_02' ],
+        capabilities: ['washer_mode', 'washer_mode_02'],
         icon: "",
         iconPriority: 0,
-        statusEntry: 'referenceTable',              // lookup this entry in the device status to fins out which capability to add
-        statusValue: [ 'Table_00', 'Table_02' ]     // The value that matches here determines the index of the capability to add from the capabilities list
+        statusEntry: 'referenceTable', // lookup this entry in the device status to fins out which capability to add
+        statusValue: ['Table_00', 'Table_02'] // The value that matches here determines the index of the capability to add from the capabilities list
     },
-    "windowShade":
-    {
+    "windowShade": {
         class: "windowcoverings",
         exclude: "",
-        capabilities: [ 'windowcoverings_set' ],
+        capabilities: ['windowcoverings_set'],
         icon: "rollerblind.svg",
         iconPriority: 5
     },
-    "doorControl":
-    {
+    "doorControl": {
         class: "garagedoor",
         exclude: "",
-        capabilities: [ 'alarm_garage_door' ],
+        capabilities: ['alarm_garage_door'],
         icon: "garage_door.svg",
         iconPriority: 5
     },
-    "lock":
-    {
+    "lock": {
         class: "lock",
         exclude: "",
-        capabilities: [ 'locked' ],
+        capabilities: ['locked'],
         icon: "door_lock.svg",
         iconPriority: 5
     },
-    "waterSensor":
-    {
+    "waterSensor": {
         class: "sensor",
         exclude: "",
-        capabilities: [ 'alarm_water' ],
+        capabilities: ['alarm_water'],
         icon: "leak_detector.svg",
         iconPriority: 5
     },
-    "accelerationSensor":
-    {
+    "accelerationSensor": {
         class: "sensor",
         exclude: "",
-        capabilities: [ 'alarm_acceleration' ],
+        capabilities: ['alarm_acceleration'],
         icon: "acceleration.svg",
         iconPriority: 5
     },
-    "threeAxis":
-    {
+    "threeAxis": {
         class: "sensor",
         exclude: "",
-        capabilities: [ 'acceleration_x', 'acceleration_y', 'acceleration_z' ],
+        capabilities: ['acceleration_x', 'acceleration_y', 'acceleration_z'],
         icon: "acceleration.svg",
         iconPriority: 0
+    },
+    "robotCleanerCleaningMode": {
+        class: "vacuumcleaner",
+        exclude: "",
+        capabilities: ['robot_cleaning_mode'],
+        icon: "vacuum_cleaner.svg",
+        iconPriority: 5
+    },
+    "robotCleanerMovement": {
+        class: "vacuumcleaner",
+        exclude: "",
+        capabilities: ['robot_cleaning_movement'],
+        icon: "vacuum_cleaner.svg",
+        iconPriority: 5
+    },
+    "robotCleanerTurboMode": {
+        class: "vacuumcleaner",
+        exclude: "",
+        capabilities: ['robot_cleaning_turbo'],
+        icon: "vacuum_cleaner.svg",
+        iconPriority: 5
     }
 };
 
-class MyApp extends Homey.App
-{
-    async onInit()
-    {
+class MyApp extends Homey.App {
+    async onInit() {
         this.diagLog = "";
-        this.log( 'SmartThings is starting...' );
+        this.log('SmartThings is starting...');
 
-        if ( process.env.DEBUG === '1' )
-        {
-            this.homey.settings.set( 'debugMode', true );
-        }
-        else
-        {
-            this.homey.settings.set( 'debugMode', false );
+        if (process.env.DEBUG === '1') {
+            this.homey.settings.set('debugMode', true);
+        } else {
+            this.homey.settings.set('debugMode', false);
         }
 
-        this.BearerToken = this.homey.settings.get( 'BearerToken' );
-        if ( this.homey.settings.get( 'pollInterval' ) < 1 )
-        {
-            this.homey.settings.set( 'pollInterval', 5 );
+        this.BearerToken = this.homey.settings.get('BearerToken');
+        if (this.homey.settings.get('pollInterval') < 1) {
+            this.homey.settings.set('pollInterval', 5);
         }
 
-        this.log( "SmartThings has started with Key: " + this.BearerToken + " Polling every " + this.homey.settings.get( 'pollInterval' ) + " seconds" );
+        this.log("SmartThings has started with Key: " + this.BearerToken + " Polling every " + this.homey.settings.get('pollInterval') + " seconds");
 
         // Callback for app settings changed
-        this.homey.settings.on( 'set', async function( setting )
-        {
-            this.homey.app.updateLog( "Setting " + setting + " has changed." );
+        this.homey.settings.on('set', async function (setting) {
+            this.homey.app.updateLog("Setting " + setting + " has changed.");
 
-            if ( setting === 'BearerToken' )
-            {
-                this.homey.app.BearerToken = this.homey.settings.get( 'BearerToken' );
+            if (setting === 'BearerToken') {
+                this.homey.app.BearerToken = this.homey.settings.get('BearerToken');
             }
 
-            if ( setting === 'pollInterval' )
-            {
-                this.homey.clearTimeout( this.homey.app.timerID );
-                if ( this.homey.app.BearerToken && !this.homey.app.timerProcessing )
-                {
-                    if ( this.homey.settings.get( 'pollInterval' ) > 1 )
-                    {
-                        this.homey.app.timerID = this.homey.setTimeout( this.homey.app.onPoll, this.homey.settings.get( 'pollInterval' ) * 1000 );
+            if (setting === 'pollInterval') {
+                this.homey.clearTimeout(this.homey.app.timerID);
+                if (this.homey.app.BearerToken && !this.homey.app.timerProcessing) {
+                    if (this.homey.settings.get('pollInterval') > 1) {
+                        this.homey.app.timerID = this.homey.setTimeout(this.homey.app.onPoll, this.homey.settings.get('pollInterval') * 1000);
                     }
                 }
             }
-        } );
+        });
 
-        let ac_auto_cleaning_mode_action = this.homey.flow.getActionCard( 'ac_auto_cleaning_mode_action' );
+        let ac_auto_cleaning_mode_action = this.homey.flow.getActionCard('ac_auto_cleaning_mode_action');
         ac_auto_cleaning_mode_action
-            .registerRunListener( async ( args, state ) =>
-            {
-                this.homey.app.updateLog( "ac_auto_cleaning_mode_action: arg = " + args.ac_auto_cleaning_option + " - state = " + state );
-                return await args.device.triggerCapabilityListener( 'aircon_auto_cleaning_mode', args.ac_auto_cleaning_option = "auto" ); // Promise<void>
-            } );
+            .registerRunListener(async (args, state) => {
+                this.homey.app.updateLog("ac_auto_cleaning_mode_action: arg = " + args.ac_auto_cleaning_option + " - state = " + state);
+                return await args.device.triggerCapabilityListener('aircon_auto_cleaning_mode', args.ac_auto_cleaning_option = "auto"); // Promise<void>
+            });
 
-        let ac_sound_mode_action = this.homey.flow.getActionCard( 'ac_sound_mode_action' );
+        let ac_sound_mode_action = this.homey.flow.getActionCard('ac_sound_mode_action');
         ac_sound_mode_action
-            .registerRunListener( async ( args, state ) =>
-            {
-                this.homey.app.updateLog( "ac_sound_mode_action: arg = " + args.ac_sound_option + " - state = " + state );
-                return await args.device.triggerCapabilityListener( 'silent_mode', args.ac_sound_option == "on" ); // Promise<void>
-            } );
+            .registerRunListener(async (args, state) => {
+                this.homey.app.updateLog("ac_sound_mode_action: arg = " + args.ac_sound_option + " - state = " + state);
+                return await args.device.triggerCapabilityListener('silent_mode', args.ac_sound_option == "on"); // Promise<void>
+            });
 
-        let ac_fan_mode_action = this.homey.flow.getActionCard( 'ac_fan_mode_action' );
+        let ac_fan_mode_action = this.homey.flow.getActionCard('ac_fan_mode_action');
         ac_fan_mode_action
-            .registerRunListener( async ( args, state ) =>
-            {
-                this.homey.app.updateLog( "ac_fan_mode_action: arg = " + args.ac_fan_mode + " - state = " + state );
-                return await args.device.triggerCapabilityListener( 'aircon_fan_mode', args.ac_fan_mode ); // Promise<void>
-            } );
+            .registerRunListener(async (args, state) => {
+                this.homey.app.updateLog("ac_fan_mode_action: arg = " + args.ac_fan_mode + " - state = " + state);
+                return await args.device.triggerCapabilityListener('aircon_fan_mode', args.ac_fan_mode); // Promise<void>
+            });
 
-        let ac_fan_oscillation_mode_action = this.homey.flow.getActionCard( 'ac_fan_oscillation_mode_action' );
+        let ac_fan_oscillation_mode_action = this.homey.flow.getActionCard('ac_fan_oscillation_mode_action');
         ac_fan_oscillation_mode_action
-            .registerRunListener( async ( args, state ) =>
-            {
-                this.homey.app.updateLog( "ac_fan_oscillation_mode_action: arg = " + args.ac_fan_oscillation_mode + " - state = " + state );
-                return await args.device.triggerCapabilityListener( 'aircon_fan_oscillation_mode', args.ac_fan_oscillation_mode ); // Promise<void>
-            } );
+            .registerRunListener(async (args, state) => {
+                this.homey.app.updateLog("ac_fan_oscillation_mode_action: arg = " + args.ac_fan_oscillation_mode + " - state = " + state);
+                return await args.device.triggerCapabilityListener('aircon_fan_oscillation_mode', args.ac_fan_oscillation_mode); // Promise<void>
+            });
 
-        let ac_lights_action = this.homey.flow.getActionCard( 'ac_lights_action' );
+        let ac_lights_action = this.homey.flow.getActionCard('ac_lights_action');
         ac_lights_action
-            .registerRunListener( async ( args, state ) =>
-            {
-                this.homey.app.updateLog( "ac_lights_action: arg = " + args.ac_lights_option + " - state = " + state );
-                if ( args.ac_lights_option == "on" )
-                {
-                    return await args.device.onCapabilityAc_lights_on( true, null );
+            .registerRunListener(async (args, state) => {
+                this.homey.app.updateLog("ac_lights_action: arg = " + args.ac_lights_option + " - state = " + state);
+                if (args.ac_lights_option == "on") {
+                    return await args.device.onCapabilityAc_lights_on(true, null);
+                } else {
+                    return await args.device.onCapabilityAc_lights_off(true, null);
                 }
-                else
-                {
-                    return await args.device.onCapabilityAc_lights_off( true, null );
-                }
-            } );
+            });
 
-        let ac_mode_action = this.homey.flow.getActionCard( 'ac_mode_action' );
+        let ac_mode_action = this.homey.flow.getActionCard('ac_mode_action');
         ac_mode_action
-            .registerRunListener( async ( args, state ) =>
-            {
-                this.homey.app.updateLog( "ac_mode_action: arg = " + args.ac_mode + " - state = " + state );
-                return await args.device.triggerCapabilityListener( 'aircon_mode', args.ac_mode ); // Promise<void>
-            } );
+            .registerRunListener(async (args, state) => {
+                this.homey.app.updateLog("ac_mode_action: arg = " + args.ac_mode + " - state = " + state);
+                return await args.device.triggerCapabilityListener('aircon_mode', args.ac_mode); // Promise<void>
+            });
 
-        let ac_options_action = this.homey.flow.getActionCard( 'ac_options_action' );
+        let ac_options_action = this.homey.flow.getActionCard('ac_options_action');
         ac_options_action
-            .registerRunListener( async ( args, state ) =>
-            {
-                this.homey.app.updateLog( "ac_options_action: arg = " + args.ac_option + " - state = " + state );
-                return await args.device.triggerCapabilityListener( 'aircon_option', args.ac_option ); // Promise<void>
-            } );
+            .registerRunListener(async (args, state) => {
+                this.homey.app.updateLog("ac_options_action: arg = " + args.ac_option + " - state = " + state);
+                return await args.device.triggerCapabilityListener('aircon_option', args.ac_option); // Promise<void>
+            });
 
-        let door_action = this.homey.flow.getActionCard( 'door_action' );
+        let door_action = this.homey.flow.getActionCard('door_action');
         door_action
-            .registerRunListener( async ( args, state ) =>
-            {
-                this.homey.app.updateLog( "door_action: arg = " + args.garage_door + " - state = " + state );
-                return await args.device.triggerCapabilityListener( 'alarm_garage_door', args.garage_door === 'open' ); // Promise<void>
-            } );
+            .registerRunListener(async (args, state) => {
+                this.homey.app.updateLog("door_action: arg = " + args.garage_door + " - state = " + state);
+                return await args.device.triggerCapabilityListener('alarm_garage_door', args.garage_door === 'open'); // Promise<void>
+            });
 
-        let washing_mode_action = this.homey.flow.getActionCard( 'washing_machine_mode_action' );
+        let washing_mode_action = this.homey.flow.getActionCard('washing_machine_mode_action');
         washing_mode_action
-            .registerRunListener( async ( args, state ) =>
-            {
-                this.homey.app.updateLog( "washing_machine_mode_action: arg = " + args.washer_mode + " - state = " + state );
-                return await args.device.triggerCapabilityListener( 'washer_mode', args.washer_mode ); // Promise<void>
-            } );
+            .registerRunListener(async (args, state) => {
+                this.homey.app.updateLog("washing_machine_mode_action: arg = " + args.washer_mode + " - state = " + state);
+                return await args.device.triggerCapabilityListener('washer_mode', args.washer_mode); // Promise<void>
+            });
 
-        let washing_machine_temperature_action = this.homey.flow.getActionCard( 'washing_machine_temperature_action' );
+        let washing_machine_temperature_action = this.homey.flow.getActionCard('washing_machine_temperature_action');
         washing_machine_temperature_action
-            .registerRunListener( async ( args, state ) =>
-            {
-                this.homey.app.updateLog( "washing_machine_temperature_action: arg = " + args.water_temperature + " - state = " + state );
-                return await args.device.triggerCapabilityListener( 'water_temperature', args.water_temperature ); // Promise<void>
-            } );
+            .registerRunListener(async (args, state) => {
+                this.homey.app.updateLog("washing_machine_temperature_action: arg = " + args.water_temperature + " - state = " + state);
+                return await args.device.triggerCapabilityListener('water_temperature', args.water_temperature); // Promise<void>
+            });
 
-        let washing_machine_status_action = this.homey.flow.getActionCard( 'washing_machine_status_action' );
+        let washing_machine_status_action = this.homey.flow.getActionCard('washing_machine_status_action');
         washing_machine_status_action
-            .registerRunListener( async ( args, state ) =>
-            {
-                this.homey.app.updateLog( "washing_machine_status_action: arg = " + args.washer_status + " - state = " + state );
-                return await args.device.triggerCapabilityListener( 'washing_machine_status', args.washer_status ); // Promise<void>
-            } );
+            .registerRunListener(async (args, state) => {
+                this.homey.app.updateLog("washing_machine_status_action: arg = " + args.washer_status + " - state = " + state);
+                return await args.device.triggerCapabilityListener('washing_machine_status', args.washer_status); // Promise<void>
+            });
 
-        let washing_machine_rinse_cycles_action = this.homey.flow.getActionCard( 'washing_machine_rinse_cycles_action' );
+        let washing_machine_rinse_cycles_action = this.homey.flow.getActionCard('washing_machine_rinse_cycles_action');
         washing_machine_rinse_cycles_action
-            .registerRunListener( async ( args, state ) =>
-            {
-                this.homey.app.updateLog( "washing_machine_rinse_cycles_action: arg = " + args.rinse_cycles + " - state = " + state );
-                return await args.device.triggerCapabilityListener( 'rinse_cycles', args.rinse_cycles ); // Promise<void>
-            } );
+            .registerRunListener(async (args, state) => {
+                this.homey.app.updateLog("washing_machine_rinse_cycles_action: arg = " + args.rinse_cycles + " - state = " + state);
+                return await args.device.triggerCapabilityListener('rinse_cycles', args.rinse_cycles); // Promise<void>
+            });
 
-        let washing_machine_spin_level_action = this.homey.flow.getActionCard( 'washing_machine_spin_level_action' );
+        let washing_machine_spin_level_action = this.homey.flow.getActionCard('washing_machine_spin_level_action');
         washing_machine_rinse_cycles_action
-            .registerRunListener( async ( args, state ) =>
-            {
-                this.homey.app.updateLog( "washing_machine_spin_level_action: arg = " + args.spin_level + " - state = " + state );
-                return await args.device.triggerCapabilityListener( 'spin_level', args.spin_level ); // Promise<void>
-            } );
+            .registerRunListener(async (args, state) => {
+                this.homey.app.updateLog("washing_machine_spin_level_action: arg = " + args.spin_level + " - state = " + state);
+                return await args.device.triggerCapabilityListener('spin_level', args.spin_level); // Promise<void>
+            });
 
-        let doorOpenCondition = this.homey.flow.getConditionCard( 'is_door_open' );
+        let robot_vacuum_start_action = this.homey.flow.getActionCard('robot_vacuum_start_action');
+        robot_vacuum_start_action
+            .registerRunListener(async (args, state) => {
+                this.homey.app.updateLog("robot_vacuum_start_action: arg = " + args.robotCleanerCleaningMode * ", " + args.robotCleanerCleaningMovement + " - state = " + state);
+                await args.device.triggerCapabilityListener('robot_cleaning_mode', args.robotCleanerCleaningMode); // Promise<void>
+                return await args.device.triggerCapabilityListener('robot_cleaning_movement', args.robotCleanerCleaningMovement); // Promise<void>
+            });
+
+        let doorOpenCondition = this.homey.flow.getConditionCard('is_door_open');
         doorOpenCondition
-            .registerRunListener( async ( args, state ) =>
-            {
-                let doorState = args.device.getCapabilityValue( 'alarm_garage_door' );
+            .registerRunListener(async (args, state) => {
+                let doorState = args.device.getCapabilityValue('alarm_garage_door');
                 return doorState; // true or false
-            } );
+            });
 
-        this.onPoll = this.onPoll.bind( this );
+        this.onPoll = this.onPoll.bind(this);
 
-        if ( this.BearerToken )
-        {
-            if ( this.homey.settings.get( 'pollInterval' ) > 1 )
-            {
-                this.updateLog( "Start Polling" );
-                this.timerID = this.homey.setTimeout( this.onPoll, 10000 );
+        if (this.BearerToken) {
+            if (this.homey.settings.get('pollInterval') > 1) {
+                this.updateLog("Start Polling");
+                this.timerID = this.homey.setTimeout(this.onPoll, 10000);
             }
         }
 
-        this.updateLog( '************** App has initialised. ***************' );
+        this.updateLog('************** App has initialised. ***************');
     }
 
-    async getDevices()
-    {
+    async getDevices() {
         //https://api.smartthings.com/v1/devices
         const url = "devices";
-        let searchResult = await this.homey.app.GetURL( url );
-        if ( searchResult )
-        {
-            let searchData = JSON.parse( searchResult.body );
-            this.detectedDevices = JSON.stringify( searchData, null, 2 );
-            this.homey.api.realtime( 'com.smartthings.detectedDevicesUpdated', { 'devices': this.detectedDevices } );
+        let searchResult = await this.homey.app.GetURL(url);
+        if (searchResult) {
+            let searchData = JSON.parse(searchResult.body);
+            this.detectedDevices = JSON.stringify(searchData, null, 2);
+            this.homey.api.realtime('com.smartthings.detectedDevicesUpdated', {
+                'devices': this.detectedDevices
+            });
 
             const devices = [];
 
             // Create an array of devices
-            for ( const device of searchData.items )
-            {
-                this.homey.app.updateLog( "Found device: " );
-                this.homey.app.updateLog( JSON.stringify( device, null, 2 ) );
+            for (const device of searchData.items) {
+                this.homey.app.updateLog("Found device: ");
+                this.homey.app.updateLog(JSON.stringify(device, null, 2));
 
                 var components = device.components;
                 var iconName = "";
                 var iconPriority = 0;
 
-                for ( const component of components )
-                {
+                for (const component of components) {
                     var data = {};
                     data = {
                         "id": device.deviceId,
@@ -510,111 +471,88 @@ class MyApp extends Homey.App
 
                     // Find supported capabilities
                     var deviceCapabilities = component.capabilities;
-                    for ( const deviceCapability of deviceCapabilities )
-                    {
-                        const capabilityMapEntry = CapabilityMap2[ deviceCapability.id ];
-                        if ( capabilityMapEntry )
-                        {
+                    for (const deviceCapability of deviceCapabilities) {
+                        const capabilityMapEntry = CapabilityMap2[deviceCapability.id];
+                        if (capabilityMapEntry) {
                             // Make sure the entry has no exclusion condition or that the capabilities for the device does not have the excluded item
-                            if ( ( capabilityMapEntry.exclude == "" ) || ( deviceCapabilities.findIndex( element => element.id == capabilityMapEntry.exclude ) == -1 ) )
-                            {
-                                if ( capabilityMapEntry.class != "" )
-                                {
+                            if ((capabilityMapEntry.exclude == "") || (deviceCapabilities.findIndex(element => element.id == capabilityMapEntry.exclude) == -1)) {
+                                if (capabilityMapEntry.class != "") {
                                     className = capabilityMapEntry.class;
                                 }
 
                                 //Add to the table
-                                if ( capabilityMapEntry.icon && capabilityMapEntry.iconPriority > iconPriority )
-                                {
+                                if (capabilityMapEntry.icon && capabilityMapEntry.iconPriority > iconPriority) {
                                     iconName = capabilityMapEntry.icon;
                                     iconPriority = capabilityMapEntry.iconPriority;
                                 }
 
-                                if (capabilityMapEntry.statusEntry)
-                                {
+                                if (capabilityMapEntry.statusEntry) {
                                     // We need to check the value status to get more information about which capability to add
                                     const capabilityStatus = await this.getDeviceCapabilityValue(device.deviceId, component.id, deviceCapability.id);
-                                    if (capabilityStatus[capabilityMapEntry.statusEntry])
-                                    {
+                                    if (capabilityStatus[capabilityMapEntry.statusEntry]) {
                                         const option = capabilityStatus[capabilityMapEntry.statusEntry];
-                                        for (let entry = 0; entry < capabilityMapEntry.statusValue.length; entry++)
-                                        {
-                                            if (option.value.id === capabilityMapEntry.statusValue[entry])
-                                            {
-                                                capabilities.push( capabilityMapEntry.capabilities[entry] );
+                                        for (let entry = 0; entry < capabilityMapEntry.statusValue.length; entry++) {
+                                            if (option.value.id === capabilityMapEntry.statusValue[entry]) {
+                                                capabilities.push(capabilityMapEntry.capabilities[entry]);
                                                 break;
                                             }
                                         }
                                     }
-                                }
-                                else
-                                {
-                                    for ( const element of capabilityMapEntry.capabilities )
-                                    {
-                                        capabilities.push( element );
+                                } else {
+                                    for (const element of capabilityMapEntry.capabilities) {
+                                        capabilities.push(element);
                                     }
                                 }
-                            }
-                            else
-                            {
-                                this.homey.app.updateLog( "Excluded Capability: " + deviceCapability.id );
+                            } else {
+                                this.homey.app.updateLog("Excluded Capability: " + deviceCapability.id);
                             }
                         }
                     }
-                    if ( capabilities.length > 0 )
-                    {
+                    if (capabilities.length > 0) {
                         // Add this device to the table
-                        devices.push(
-                        {
+                        devices.push({
                             "name": device.label + ": " + component.id,
                             "icon": iconName, // relative to: /drivers/<driver_id>/assets/
                             "class": className,
                             "capabilities": capabilities,
                             data
-                        } );
+                        });
                     }
                 }
             }
             return devices;
-        }
-        else
-        {
-            this.homey.app.updateLog( "Getting API Key returned NULL" );
-            throw new Error( "HTTPS Error: Nothing returned" );
+        } else {
+            this.homey.app.updateLog("Getting API Key returned NULL");
+            throw new Error("HTTPS Error: Nothing returned");
         }
     }
 
-    async getDevicesByCategory( category )
-    {
-        function myFind( element )
-        {
+    async getDevicesByCategory(category) {
+        function myFind(element) {
             return element.name === category;
         }
 
         //https://api.smartthings.com/v1/devices
         const url = "devices";
-        let searchResult = await this.homey.app.GetURL( url );
-        if ( searchResult )
-        {
-            let searchData = JSON.parse( searchResult.body );
-            this.detectedDevices = JSON.stringify( searchData, null, 2 );
-            this.homey.api.realtime( 'com.smartthings.detectedDevicesUpdated', { 'devices': this.detectedDevices } );
+        let searchResult = await this.homey.app.GetURL(url);
+        if (searchResult) {
+            let searchData = JSON.parse(searchResult.body);
+            this.detectedDevices = JSON.stringify(searchData, null, 2);
+            this.homey.api.realtime('com.smartthings.detectedDevicesUpdated', {
+                'devices': this.detectedDevices
+            });
 
             const devices = [];
             // Create an array of devices
-            for ( const device of searchData.items )
-            {
+            for (const device of searchData.items) {
                 var components = device.components;
 
                 // Find the main component
-                for ( const component of components )
-                {
-                    if ( component.id === 'main' )
-                    {
-                        if ( component.categories.findIndex( myFind ) >= 0 )
-                        {
-                            this.homey.app.updateLog( "Found device: " );
-                            this.homey.app.updateLog( JSON.stringify( device, null, 2 ) );
+                for (const component of components) {
+                    if (component.id === 'main') {
+                        if (component.categories.findIndex(myFind) >= 0) {
+                            this.homey.app.updateLog("Found device: ");
+                            this.homey.app.updateLog(JSON.stringify(device, null, 2));
 
                             var data = {};
                             data = {
@@ -622,11 +560,10 @@ class MyApp extends Homey.App
                             };
 
                             // Add this device to the table
-                            devices.push(
-                            {
+                            devices.push({
                                 "name": device.label,
                                 data
-                            } );
+                            });
                         }
 
                         break;
@@ -634,385 +571,299 @@ class MyApp extends Homey.App
                 }
             }
             return devices;
-        }
-        else
-        {
-            this.homey.app.updateLog( "Getting API Key returned NULL" );
-            throw new Error( "HTTPS Error: Nothing returned" );
+        } else {
+            this.homey.app.updateLog("Getting API Key returned NULL");
+            throw new Error("HTTPS Error: Nothing returned");
         }
     }
 
-    async getAllDeviceCapabilitiesValues( DeviceID )
-    {
+    async getAllDeviceCapabilitiesValues(DeviceID) {
         //https://api.smartthings.com/v1/devices/{deviceId}/status
         let url = "devices/" + DeviceID + "/status";
-        let result = await this.GetURL( url );
-        if ( result )
-        {
-            let searchData = JSON.parse( result.body );
-            this.homey.app.updateLog( "Get all device: " + url + "\nResult: " + JSON.stringify( searchData, null, 2 ) );
+        let result = await this.GetURL(url);
+        if (result) {
+            let searchData = JSON.parse(result.body);
+            this.homey.app.updateLog("Get all device: " + url + "\nResult: " + JSON.stringify(searchData, null, 2));
             return searchData;
         }
 
         return -1;
     }
 
-    async getComponentCapabilityValue( DeviceID, ComponentID )
-    {
+    async getComponentCapabilityValue(DeviceID, ComponentID) {
         //https://api.smartthings.com/v1/devices/{deviceId}/components/{componentId}/status
         let url = "devices/" + DeviceID + "/components/" + ComponentID + "/status";
-        let result = await this.GetURL( url );
-        if ( result )
-        {
-            let searchData = JSON.parse( result.body );
-            this.homey.app.updateLog( "Get component: " + url + "\nResult: " + JSON.stringify( searchData, null, 2 ) );
+        let result = await this.GetURL(url);
+        if (result) {
+            let searchData = JSON.parse(result.body);
+            this.homey.app.updateLog("Get component: " + url + "\nResult: " + JSON.stringify(searchData, null, 2));
             return searchData;
         }
 
         return -1;
     }
 
-    async getDeviceCapabilityValue( DeviceID, ComponentID, CapabilityID )
-    {
-        if ( ( process.env.DEBUG === '1' ) )
-        {
-            let simData = this.homey.settings.get( 'simData' );
-            if ( simData )
-            {
-                simData = JSON.parse( simData );
-                if ( simData.deviceId === DeviceID )
-                {
-                    const component = simData.components[ ComponentID ];
-                    return component[ CapabilityID ];
+    async getDeviceCapabilityValue(DeviceID, ComponentID, CapabilityID) {
+        if ((process.env.DEBUG === '1')) {
+            let simData = this.homey.settings.get('simData');
+            if (simData) {
+                simData = JSON.parse(simData);
+                if (simData.deviceId === DeviceID) {
+                    const component = simData.components[ComponentID];
+                    return component[CapabilityID];
                 }
             }
         }
 
         //https://api.smartthings.com/v1/devices/{deviceId}/components/{componentId}/capabilities/{capabilityId}/status
         let url = "devices/" + DeviceID + "/components/" + ComponentID + "/capabilities/" + CapabilityID + "/status";
-        let result = await this.GetURL( url );
-        if ( result )
-        {
-            let searchData = JSON.parse( result.body );
-            this.homey.app.updateLog( "Get device: " + url + "\nResult: " + JSON.stringify( searchData, null, 2 ) );
+        let result = await this.GetURL(url);
+        if (result) {
+            let searchData = JSON.parse(result.body);
+            this.homey.app.updateLog("Get device: " + url + "\nResult: " + JSON.stringify(searchData, null, 2));
             return searchData;
         }
 
         return -1;
     }
 
-    async setDeviceCapabilityValue( DeviceID, Commands )
-    {
-        while (this.homey.app.timerProcessing)
-        {
+    async setDeviceCapabilityValue(DeviceID, Commands) {
+        while (this.homey.app.timerProcessing) {
             // Wait for polling loop to finish fetching
             await new Promise(resolve => this.homey.setTimeout(resolve, 250));
         }
 
         //https://api.smartthings.com/v1/devices/{deviceId}/commands
         let url = "devices/" + DeviceID + "/commands";
-        let result = await this.PostURL( url, Commands );
-        if ( result )
-        {
-            let searchData = JSON.parse( result.body );
-            this.homey.app.updateLog( "Set device: " + url + "\nResult: " + JSON.stringify( searchData, null, 2 ) );
+        let result = await this.PostURL(url, Commands);
+        if (result) {
+            let searchData = JSON.parse(result.body);
+            this.homey.app.updateLog("Set device: " + url + "\nResult: " + JSON.stringify(searchData, null, 2));
             return searchData;
         }
 
         return -1;
     }
 
-    async GetURL( url )
-    {
-        if ( ( process.env.DEBUG === '1' ) && ( url === 'devices' ) )
-        {
-            const simData = this.homey.settings.get( 'simData' );
-            if ( simData )
-            {
-                return { 'body': simData };
+    async GetURL(url) {
+        if ((process.env.DEBUG === '1') && (url === 'devices')) {
+            const simData = this.homey.settings.get('simData');
+            if (simData) {
+                return {
+                    'body': simData
+                };
             }
         }
 
-        this.homey.app.updateLog( url );
+        this.homey.app.updateLog(url);
 
-        return new Promise( ( resolve, reject ) =>
-        {
-            try
-            {
-                if ( !this.homey.app.BearerToken )
-                {
-                    reject(
-                    {
+        return new Promise((resolve, reject) => {
+            try {
+                if (!this.homey.app.BearerToken) {
+                    reject({
                         statusCode: 401,
                         statusMessage: "HTTPS: No Token specified"
-                    } );
+                    });
                 }
 
                 let https_options = {
                     host: "api.smartthings.com",
                     path: "/v1/" + url,
-                    headers:
-                    {
+                    headers: {
                         "Authorization": "Bearer " + this.homey.app.BearerToken,
                     },
                 };
 
-                https.get( https_options, ( res ) =>
-                {
-                    if ( res.statusCode === 200 )
-                    {
+                https.get(https_options, (res) => {
+                    if (res.statusCode === 200) {
                         let body = [];
-                        res.on( 'data', ( chunk ) =>
-                        {
-                            body.push( chunk );
-                        } );
-                        res.on( 'end', () =>
-                        {
-                            resolve(
-                            {
-                                "body": Buffer.concat( body )
-                            } );
-                        } );
-                    }
-                    else
-                    {
+                        res.on('data', (chunk) => {
+                            body.push(chunk);
+                        });
+                        res.on('end', () => {
+                            resolve({
+                                "body": Buffer.concat(body)
+                            });
+                        });
+                    } else {
                         let message = "";
-                        if ( res.statusCode === 204 )
-                        {
+                        if (res.statusCode === 204) {
                             message = "No Data Found";
-                        }
-                        else if ( res.statusCode === 400 )
-                        {
+                        } else if (res.statusCode === 400) {
                             message = "Bad request";
-                        }
-                        else if ( res.statusCode === 401 )
-                        {
+                        } else if (res.statusCode === 401) {
                             message = "Unauthorized";
-                        }
-                        else if ( res.statusCode === 403 )
-                        {
+                        } else if (res.statusCode === 403) {
                             message = "Forbidden";
-                        }
-                        else if ( res.statusCode === 404 )
-                        {
+                        } else if (res.statusCode === 404) {
                             message = "Not Found";
                         }
-                        this.homey.app.updateLog( "HTTPS Error: " + res.statusCode + ": " + message );
-                        reject(
-                        {
+                        this.homey.app.updateLog("HTTPS Error: " + res.statusCode + ": " + message);
+                        reject({
                             statusCode: res.statusCode,
                             statusMessage: "HTTPS Error: " + message
-                        } );
+                        });
                     }
-                } ).on( 'error', ( err ) =>
-                {
-                    this.homey.app.updateLog( err );
-                    reject(
-                    {
+                }).on('error', (err) => {
+                    this.homey.app.updateLog(err);
+                    reject({
                         statusCode: -1,
                         statusMessage: "HTTPS Catch : " + err
-                    } );
-                } );
-            }
-            catch ( err )
-            {
-                this.homey.app.updateLog( err.message );
-                reject(
-                {
+                    });
+                });
+            } catch (err) {
+                this.homey.app.updateLog(err.message);
+                reject({
                     statusCode: -2,
                     statusMessage: "HTTPS Catch: " + err.message
-                } );
+                });
             }
-        } );
+        });
     }
 
-    async PostURL( url, body )
-    {
-        this.homey.app.updateLog( "PostURL url: " + url );
-        let bodyText = JSON.stringify( body );
-        this.homey.app.updateLog( "PostUrl body: " + bodyText );
+    async PostURL(url, body) {
+        this.homey.app.updateLog("PostURL url: " + url);
+        let bodyText = JSON.stringify(body);
+        this.homey.app.updateLog("PostUrl body: " + bodyText);
 
-        if ( ( process.env.DEBUG === '1' ) )
-        {
-            const simData = this.homey.settings.get( 'simData' );
-            if ( simData )
-            {
+        if ((process.env.DEBUG === '1')) {
+            const simData = this.homey.settings.get('simData');
+            if (simData) {
                 return;
             }
         }
 
-        return new Promise( ( resolve, reject ) =>
-        {
-            try
-            {
-                if ( !this.homey.app.BearerToken )
-                {
-                    reject(
-                    {
+        return new Promise((resolve, reject) => {
+            try {
+                if (!this.homey.app.BearerToken) {
+                    reject({
                         statusCode: 401,
                         statusMessage: "HTTPS: No Token specified"
-                    } );
+                    });
                 }
 
                 let https_options = {
                     host: "api.smartthings.com",
                     path: "/v1/" + url,
                     method: "POST",
-                    headers:
-                    {
+                    headers: {
                         "Authorization": "Bearer " + this.homey.app.BearerToken,
                         "contentType": "application/json; charset=utf-8",
                         "Content-Length": bodyText.length
                     },
                 };
 
-                let req = https.request( https_options, ( res ) =>
-                {
-                    if ( res.statusCode === 200 )
-                    {
+                let req = https.request(https_options, (res) => {
+                    if (res.statusCode === 200) {
                         let body = [];
-                        res.on( 'data', ( chunk ) =>
-                        {
-                            body.push( chunk );
-                        } );
-                        res.on( 'end', () =>
-                        {
-//                            this.homey.app.updateLog( "Done PostRUL" );
-                            resolve(
-                            {
-                                "body": Buffer.concat( body )
-                            } );
-                        } );
-                    }
-                    else
-                    {
+                        res.on('data', (chunk) => {
+                            body.push(chunk);
+                        });
+                        res.on('end', () => {
+                            //                            this.homey.app.updateLog( "Done PostRUL" );
+                            resolve({
+                                "body": Buffer.concat(body)
+                            });
+                        });
+                    } else {
                         let message = "";
-                        if ( res.statusCode === 204 )
-                        {
+                        if (res.statusCode === 204) {
                             message = "No Data Found";
-                        }
-                        else if ( res.statusCode === 400 )
-                        {
+                        } else if (res.statusCode === 400) {
                             message = "Bad request";
-                        }
-                        else if ( res.statusCode === 401 )
-                        {
+                        } else if (res.statusCode === 401) {
                             message = "Unauthorized";
-                        }
-                        else if ( res.statusCode === 403 )
-                        {
+                        } else if (res.statusCode === 403) {
                             message = "Forbidden";
-                        }
-                        else if ( res.statusCode === 404 )
-                        {
+                        } else if (res.statusCode === 404) {
                             message = "Not Found";
                         }
-                        this.homey.app.updateLog( "HTTPS Error: " + res.statusCode + ": " + message );
-                        reject(
-                        {
+                        this.homey.app.updateLog("HTTPS Error: " + res.statusCode + ": " + message);
+                        reject({
                             statusCode: res.statusCode,
                             statusMessage: "HTTPS Error: " + message
-                        } );
+                        });
                     }
-                } ).on( 'error', ( err ) =>
-                {
-                    this.homey.app.updateLog( err );
-                    reject(
-                    {
+                }).on('error', (err) => {
+                    this.homey.app.updateLog(err);
+                    reject({
                         statusCode: -1,
                         statusMessage: "HTTPS Catch : " + err
-                    } );
-                } );
-                req.write( bodyText );
+                    });
+                });
+                req.write(bodyText);
                 req.end();
-            }
-            catch ( err )
-            {
-                this.homey.app.updateLog( this.varToString( err.message ) );
-                reject(
-                {
+            } catch (err) {
+                this.homey.app.updateLog(this.varToString(err.message));
+                reject({
                     statusCode: -2,
                     statusMessage: "HTTPS Catch: " + err.message
-                } );
+                });
             }
-        } );
+        });
     }
 
-    async onPoll()
-    {
+    async onPoll() {
         this.homey.app.timerProcessing = true;
-        this.homey.app.updateLog( "!!!!!! Polling started" );
+        this.homey.app.updateLog("!!!!!! Polling started");
         const promises = [];
-        try
-        {
+        try {
             // Fetch the list of drivers for this app
             const drivers = this.homey.drivers.getDrivers();
-            for ( const driver in drivers )
-            {
-                let devices = this.homey.drivers.getDriver( driver ).getDevices();
-                for ( var i = 0; i < devices.length; i++ )
-                {
-                    let device = devices[ i ];
-                    if ( device.getDeviceValues )
-                    {
-                        promises.push( device.getDeviceValues() );
+            for (const driver in drivers) {
+                let devices = this.homey.drivers.getDriver(driver).getDevices();
+                for (var i = 0; i < devices.length; i++) {
+                    let device = devices[i];
+                    if (device.getDeviceValues) {
+                        promises.push(device.getDeviceValues());
                     }
                 }
             }
 
-            await Promise.all( promises );
-            this.homey.app.updateLog( "!!!!!! Polling finished" );
-        }
-        catch ( err )
-        {
-            this.homey.app.updateLog( "Polling Error: " + this.varToString( err.message ) );
+            await Promise.all(promises);
+            this.homey.app.updateLog("!!!!!! Polling finished");
+        } catch (err) {
+            this.homey.app.updateLog("Polling Error: " + this.varToString(err.message));
         }
 
-        var nextInterval = Number( this.homey.settings.get( 'pollInterval' ) ) * 1000;
-        if ( nextInterval < 1000 )
-        {
+        var nextInterval = Number(this.homey.settings.get('pollInterval')) * 1000;
+        if (nextInterval < 1000) {
             nextInterval = 5000;
         }
-        this.homey.app.updateLog( "Next Interval = " + nextInterval, true );
-        this.homey.app.timerID = this.homey.setTimeout( this.homey.app.onPoll, nextInterval );
+        this.homey.app.updateLog("Next Interval = " + nextInterval, true);
+        this.homey.app.timerID = this.homey.setTimeout(this.homey.app.onPoll, nextInterval);
         this.homey.app.timerProcessing = false;
     }
 
-    varToString( source )
-    {
-        if ( source === null )
-        {
+    varToString(source) {
+        if (source === null) {
             return "null";
         }
-        if ( source === undefined )
-        {
+        if (source === undefined) {
             return "undefined";
         }
-        if ( typeof( source ) === "object" )
-        {
-            return JSON.stringify( source, null, 2 );
+        if (typeof (source) === "object") {
+            return JSON.stringify(source, null, 2);
         }
-        if ( typeof( source ) === "string" )
-        {
+        if (typeof (source) === "string") {
             return source;
         }
 
         return source.toString();
     }
 
-    updateLog( newMessage )
-    {
-        if ( this.homey.settings.get( 'logEnabled' ) )
-        {
-            console.log( newMessage );
+    updateLog(newMessage) {
+        if (this.homey.settings.get('logEnabled')) {
+            console.log(newMessage);
             this.diagLog += "* ";
             this.diagLog += newMessage;
             this.diagLog += "\r\n";
-            if ( this.diagLog.length > 60000 )
-            {
-                this.diagLog = this.diagLog.substr( this.diagLog.length - 60000 );
+            if (this.diagLog.length > 60000) {
+                this.diagLog = this.diagLog.substr(this.diagLog.length - 60000);
             }
-            this.homey.api.realtime( 'com.smartthings.logupdated', { 'log': this.diagLog } );
+            this.homey.api.realtime('com.smartthings.logupdated', {
+                'log': this.diagLog
+            });
         }
     }
 

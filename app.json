@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.smartthings",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#FF7D4B",
@@ -676,6 +676,132 @@
           }
         ],
         "id": "door_action"
+      },
+      {
+        "title": {
+          "en": "Start Vacuum"
+        },
+        "titleFormatted": {
+          "en": "Start the vacuum [[robotCleanerCleaningMode]] using [[robotCleanerCleaningMovement]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=stDevice&class=vacuumcleaner"
+          },
+          {
+            "type": "dropdown",
+            "name": "robotCleanerCleaningMode",
+            "title": "Cleaning Mode",
+            "values": [
+              {
+                "id": "auto",
+                "title": {
+                  "en": "Auto"
+                }
+              },
+              {
+                "id": "part",
+                "title": {
+                  "en": "Part"
+                }
+              },
+              {
+                "id": "repeat",
+                "title": {
+                  "en": "Repeat"
+                }
+              },
+              {
+                "id": "manual",
+                "title": {
+                  "en": "Manual"
+                }
+              },
+              {
+                "id": "stop",
+                "title": {
+                  "en": "Stop"
+                }
+              },
+              {
+                "id": "map",
+                "title": {
+                  "en": "Map"
+                }
+              }
+            ]
+          },
+          {
+            "type": "dropdown",
+            "name": "robotCleanerCleaningMovement",
+            "title": "Cleaning Movement",
+            "values": [
+              {
+                "id": "homing",
+                "title": {
+                  "en": "Homing"
+                }
+              },
+              {
+                "id": "idle",
+                "title": {
+                  "en": "Idle"
+                }
+              },
+              {
+                "id": "charging",
+                "title": {
+                  "en": "Charging"
+                }
+              },
+              {
+                "id": "alarm",
+                "title": {
+                  "en": "Alarm"
+                }
+              },
+              {
+                "id": "powerOff",
+                "title": {
+                  "en": "powerOff"
+                }
+              },
+              {
+                "id": "reserve",
+                "title": {
+                  "en": "Reserve"
+                }
+              },
+              {
+                "id": "point",
+                "title": {
+                  "en": "Point"
+                }
+              },
+              {
+                "id": "after",
+                "title": {
+                  "en": "After"
+                }
+              },
+              {
+                "id": "cleaning",
+                "title": {
+                  "en": "Cleaning"
+                }
+              },
+              {
+                "id": "pause",
+                "title": {
+                  "en": "Pause"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "robot_vacuum_start_action"
       },
       {
         "title": {
@@ -1488,6 +1614,153 @@
           "id": "5",
           "title": {
             "en": "5"
+          }
+        }
+      ]
+    },
+    "robot_cleaning_mode": {
+      "type": "enum",
+      "title": {
+        "en": "Cleaning Mode"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "auto",
+          "title": {
+            "en": "Auto"
+          }
+        },
+        {
+          "id": "part",
+          "title": {
+            "en": "Part"
+          }
+        },
+        {
+          "id": "repeat",
+          "title": {
+            "en": "Repeat"
+          }
+        },
+        {
+          "id": "manual",
+          "title": {
+            "en": "Manual"
+          }
+        },
+        {
+          "id": "stop",
+          "title": {
+            "en": "Stop"
+          }
+        },
+        {
+          "id": "map",
+          "title": {
+            "en": "Map"
+          }
+        }
+      ]
+    },
+    "robot_cleaning_movement": {
+      "type": "enum",
+      "title": {
+        "en": "Cleaning Movement"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "homing",
+          "title": {
+            "en": "Homing"
+          }
+        },
+        {
+          "id": "idle",
+          "title": {
+            "en": "Idle"
+          }
+        },
+        {
+          "id": "charging",
+          "title": {
+            "en": "Charging"
+          }
+        },
+        {
+          "id": "alarm",
+          "title": {
+            "en": "Alarm"
+          }
+        },
+        {
+          "id": "powerOff",
+          "title": {
+            "en": "powerOff"
+          }
+        },
+        {
+          "id": "reserve",
+          "title": {
+            "en": "Reserve"
+          }
+        },
+        {
+          "id": "point",
+          "title": {
+            "en": "Point"
+          }
+        },
+        {
+          "id": "after",
+          "title": {
+            "en": "After"
+          }
+        },
+        {
+          "id": "cleaning",
+          "title": {
+            "en": "Cleaning"
+          }
+        },
+        {
+          "id": "pause",
+          "title": {
+            "en": "Pause"
+          }
+        }
+      ]
+    },
+    "robot_cleaning_turbo": {
+      "type": "enum",
+      "title": {
+        "en": "Cleaner Turbo Mode"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "on",
+          "title": {
+            "en": "on"
+          }
+        },
+        {
+          "id": "off",
+          "title": {
+            "en": "off"
+          }
+        },
+        {
+          "id": "silence",
+          "title": {
+            "en": "silence"
           }
         }
       ]
