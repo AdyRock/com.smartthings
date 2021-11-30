@@ -1,0 +1,28 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Dryer Status"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [{
+      "id": "pause",
+      "title": {
+        "en": "Pause"
+      }
+    },
+    {
+      "id": "run",
+      "title": {
+        "en": "Run"
+      }
+    },
+    {
+      "id": "stop",
+      "title": {
+        "en": "Stop"
+      }
+    }
+  ]
+}

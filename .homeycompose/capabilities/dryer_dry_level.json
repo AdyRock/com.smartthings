@@ -1,0 +1,28 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Drying Level"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [{
+      "id": "1",
+      "title": {
+        "en": "1"
+      }
+    },
+    {
+      "id": "2",
+      "title": {
+        "en": "2"
+      }
+    },
+    {
+      "id": "3",
+      "title": {
+        "en": "3"
+      }
+    }
+  ]
+}

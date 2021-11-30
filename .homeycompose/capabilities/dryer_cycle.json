@@ -1,0 +1,109 @@
+{
+    "type": "enum",
+    "title": {
+      "en": "Dryer Cycle"
+    },
+    "getable": true,
+    "setable": true,
+    "uiComponent": "picker",
+    "values": [{
+        "id": "Table_03_Course_16",
+        "title": {
+          "en": "Cotton",
+          "sv": "Bomull"
+        }
+      },
+      {
+        "id": "Table_03_Course_1F",
+        "title": {
+          "en": "Mixed Wash",
+          "sv": "blandtvätt"
+        }
+      },
+      {
+        "id": "Table_03_Course_1B",
+        "title": {
+          "en": "Bed Linen",
+          "sv": "Sängkläder"
+        }
+      },
+      {
+        "id": "Table_03_Course_23",
+        "title": {
+          "en": "Quick Dry",
+          "sv": "Snabbtorkning"
+        }
+      },
+      {
+        "id": "Table_03_Course_18",
+        "title": {
+          "en": "Synthetic",
+          "sv": "Syntet"
+        }
+      },
+      {
+        "id": "Table_03_Course_19",
+        "title": {
+          "en": "Delicates",
+          "sv": "Fintvätt"
+        }
+      },
+      {
+        "id": "Table_03_Course_1D",
+        "title": {
+          "en": "Towels",
+          "sv": "Handdukar"
+        }
+      },
+      {
+        "id": "Table_03_Course_1C",
+        "title": {
+          "en": "Shirts",
+          "sv": "Skjortor"
+        }
+      },
+      {
+        "id": "Table_03_Course_1A",
+        "title": {
+          "en": "Wool",
+          "sv": "Ylle"
+        }
+      },
+      {
+        "id": "Table_03_Course_1E",
+        "title": {
+          "en": "Outerwear",
+          "sv": "Ytterplagg"
+        }
+      },
+      {
+        "id": "Table_03_Course_20",
+        "title": {
+          "en": "Iron Dry",
+          "sv": "Stryktorkning"
+        }
+      },
+      {
+        "id": "Table_03_Course_27",
+        "title": {
+          "en": "Time drying",
+          "sv": "Tidstorkning"
+        }
+      },
+      {
+        "id": "Table_03_Course_25",
+        "title": {
+          "en": "Hot Air",
+          "sv": "Varmluft"
+        }
+      },
+      {
+        "id": "Table_03_Course_24",
+        "title": {
+          "en": "Cold Air",
+          "sv": "Kallluft"
+        }
+      }
+    ]
+  }
+  

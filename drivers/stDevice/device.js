@@ -362,7 +362,75 @@ const capabilityMap1 = {
         capabilityID: 'robotCleanerTurboMode',
         divider: 0,
         flowTrigger: null
-    }
+    },
+    "dryer_status":
+    {
+        dataEntry: [ 'dryerOperatingState', 'machineState', 'value' ],
+        capabilityID: 'dryerOperatingState',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: 'dryer_status_changed',
+        keep: true
+    },
+    "dryer_job_status":
+    {
+        dataEntry: [ 'dryerOperatingState', 'dryerJobState', 'value' ],
+        capabilityID: 'dryerOperatingState',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null,
+        keep: true
+    },
+    "dryer_completion_time":
+    {
+        dataEntry: [ 'dryerOperatingState', 'completionTime', 'value' ],
+        capabilityID: 'dryerOperatingState',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null,
+        dateTime: true,
+        keep: true
+    },
+    "dryer_temperature":
+    {
+        dataEntry: [ 'samsungce.dryerDryingTemperature', 'dryingTemperature', 'value' ],
+        capabilityID: 'samsungce.dryerDryingTemperature',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null
+    },
+    "dryer_cycle":
+    {
+        dataEntry: [ 'samsungce.dryerCycle', 'dryerCycle', 'value' ],
+        capabilityID: 'samsungce.dryerCycle',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null
+    },
+    "dryer_time":
+    {
+        dataEntry: [ 'samsungce.dryerDryingTime', 'dryingTime', 'value' ],
+        capabilityID: 'samsungce.dryerDryingTime',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null
+    },
+    "dryer_dry_level":
+    {
+        dataEntry: [ 'custom.dryerDryLevel', 'dryingLevel', 'value' ],
+        capabilityID: 'custom.dryerDryLevel',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null
+    },
+    "dryer_wrinkle_prevent":
+    {
+        dataEntry: [ 'custom.dryerWrinklePrevent', 'wrinklePrevent', 'value' ],
+        capabilityID: 'custom.dryerWrinklePrevent',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null
+    },
 };
 
 class STDevice extends Homey.Device
@@ -376,6 +444,7 @@ class STDevice extends Homey.Device
 
         this.flowTriggers = {
             'washer_status_changed': this.homey.flow.getDeviceTriggerCard( 'washer_status_changed' ),
+            'dryer_status_changed': this.homey.flow.getDeviceTriggerCard( 'dryer_status_changed' ),
             'presenceStatus_changed': this.homey.flow.getDeviceTriggerCard( 'presenceStatus_changed' ),
             'dustStatus_changed': this.homey.flow.getDeviceTriggerCard( 'dustStatus_changed' ),
             'doorStatus_changed': this.homey.flow.getDeviceTriggerCard( 'doorStatus_changed' ),
@@ -422,6 +491,21 @@ class STDevice extends Homey.Device
         if ( this.hasCapability( 'washer_mode' ) )
         {
             this.registerCapabilityListener( 'washer_mode', this.onCapabilityWasherMode.bind( this ) );
+        }
+
+        if ( this.hasCapability( 'dryer_status' ) )
+        {
+            this.registerCapabilityListener( 'dryer_status', this.onCapabilityDryerStatus.bind( this ) );
+        }
+
+        if ( this.hasCapability( 'dryer_cycle' ) )
+        {
+            this.registerCapabilityListener( 'dryer_cycle', this.onCapabilityDryerCycle.bind( this ) );
+        }
+
+        if ( this.hasCapability( 'dryer_time' ) )
+        {
+            this.registerCapabilityListener( 'dryer_mode', this.onCapabilityDryerTime.bind( this ) );
         }
 
         if ( this.hasCapability( 'water_temperature' ) )
@@ -862,6 +946,160 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             this.homey.app.updateLog( this.getName() + " onCapabilityWasherStatus " + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
+        }
+    }
+
+    async onCapabilityWasherMode( value, opts )
+    {
+        try
+        {
+            if ( !this.deviceOn || !this.remoteControlEnabled )
+            {
+                this.setWarning( "Remote control not enabled", null );
+                throw new Error( "Remote control not enabled" );
+            }
+
+            let value2 = value.substr( value.length - 9, 9 );
+
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "samsungce.washerCycle",
+                    "command": "setWasherCycle",
+                    "arguments": [
+                        value2
+                    ]
+                } ]
+            };
+
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // Set the dim Value on the device using the unique feature ID stored during pairing
+            let res = await this.homey.app.setDeviceCapabilityValue( devData.id, body );
+            console.log( res );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            this.homey.app.updateLog( this.getName() + " onCapabilityWasherMode Error" + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
+        }
+    }
+
+    async onCapabilityDryerStatus( value, opts )
+    {
+        try
+        {
+            if ( !this.deviceOn || !this.remoteControlEnabled )
+            {
+                this.setWarning( "Remote control not enabled", null );
+                throw new Error( "Remote control not enabled" );
+            }
+
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "dryerOperatingState",
+                    "command": "setMachineState",
+                    "arguments": [
+                        value
+                    ]
+                } ]
+            };
+
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // Set the dim Value on the device using the unique feature ID stored during pairing
+            let res = await this.homey.app.setDeviceCapabilityValue( devData.id, body );
+            console.log( res );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            this.homey.app.updateLog( this.getName() + " onCapabilityWasherStatus " + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
+        }
+    }
+
+    async onCapabilityDryerCycle( value, opts )
+    {
+        try
+        {
+            if ( !this.deviceOn || !this.remoteControlEnabled )
+            {
+                this.setWarning( "Remote control not enabled", null );
+                throw new Error( "Remote control not enabled" );
+            }
+
+            let value2 = value.substr( value.length - 9, 9 );
+
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "samsungce.dryerCycle",
+                    "command": "setDryerCycle",
+                    "arguments": [
+                        value2
+                    ]
+                } ]
+            };
+
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // Set the dim Value on the device using the unique feature ID stored during pairing
+            let res = await this.homey.app.setDeviceCapabilityValue( devData.id, body );
+            console.log( res );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            this.homey.app.updateLog( this.getName() + " onCapabilityWasherMode Error" + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
+        }
+    }
+
+    async onCapabilityDryerTime( value, opts )
+    {
+        try
+        {
+            if ( !this.deviceOn || !this.remoteControlEnabled )
+            {
+                this.setWarning( "Remote control not enabled", null );
+                throw new Error( "Remote control not enabled" );
+            }
+
+            let value2 = value.substr( value.length - 9, 9 );
+
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "samsungce.dryerDryingTime",
+                    "command": "setDryerTime",
+                    "arguments": [
+                        value2
+                    ]
+                } ]
+            };
+
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // Set the dim Value on the device using the unique feature ID stored during pairing
+            let res = await this.homey.app.setDeviceCapabilityValue( devData.id, body );
+            console.log( res );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            this.homey.app.updateLog( this.getName() + " onCapabilityWasherMode Error" + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }

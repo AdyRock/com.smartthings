@@ -73,5 +73,17 @@
     },
     "1.0.2": {
         "en": "Added support Robot Vacuum"
+    },
+    "1.0.3": {
+        "en": "Added initial support for Dryer"
+    },
+    "1.0.4": {
+        "en": "Added initial support for Dryer"
+    },
+    "1.0.5": {
+        "en": "More support for Dryer"
+    },
+    "1.0.6": {
+        "en": "Added support for setting Dryer Cycle"
     }
 }

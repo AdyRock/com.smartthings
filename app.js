@@ -276,6 +276,48 @@ const CapabilityMap2 = {
         capabilities: ['robot_cleaning_turbo'],
         icon: "vacuum_cleaner.svg",
         iconPriority: 5
+    },
+    "dryerOperatingState": {
+        class: "other",
+        exclude: "",
+        capabilities: ['dryer_job_status', 'dryer_completion_time', 'dryer_status'],
+        icon: "washingmachine.svg",
+        iconPriority: 5
+    },
+    "custom.dryerDryLevel": {
+        class: "other",
+        exclude: "",
+        capabilities: ['dryer_dry_level'],
+        icon: "washingmachine.svg",
+        iconPriority: 5
+    },
+    "custom.dryerWrinklePrevent": {
+        class: "other",
+        exclude: "",
+        capabilities: ['dryer_wrinkle_prevent'],
+        icon: "washingmachine.svg",
+        iconPriority: 5
+    },
+    "samsungce.dryerCycle": {
+        class: "other",
+        exclude: "",
+        capabilities: ['dryer_cycle'],
+        icon: "washingmachine.svg",
+        iconPriority: 5
+    },
+    "samsungce.dryerDryingTemperature": {
+        class: "other",
+        exclude: "",
+        capabilities: ['dryer_temperature'],
+        icon: "washingmachine.svg",
+        iconPriority: 5
+    },
+    "samsungce.dryerDryingTime": {
+        class: "other",
+        exclude: "",
+        capabilities: ['dryer_time'],
+        icon: "washingmachine.svg",
+        iconPriority: 5
     }
 };
 
@@ -404,7 +446,7 @@ class MyApp extends Homey.App {
             });
 
         let washing_machine_spin_level_action = this.homey.flow.getActionCard('washing_machine_spin_level_action');
-        washing_machine_rinse_cycles_action
+        washing_machine_spin_level_action
             .registerRunListener(async (args, state) => {
                 this.homey.app.updateLog("washing_machine_spin_level_action: arg = " + args.spin_level + " - state = " + state);
                 return await args.device.triggerCapabilityListener('spin_level', args.spin_level); // Promise<void>

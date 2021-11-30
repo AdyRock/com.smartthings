@@ -1,0 +1,9 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Completion Time"
+  },
+  "icon": "/assets/finish_time.svg",
+  "getable": true,
+  "setable": false
+}

@@ -1,0 +1,9 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Drying Temperature"
+  },
+  "icon": "/assets/wash_status.svg",
+  "getable": true,
+  "setable": false
+}
