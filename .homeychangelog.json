@@ -85,5 +85,8 @@
     },
     "1.0.6": {
         "en": "Added support for setting Dryer Cycle"
+    },
+    "1.0.7": {
+        "en": "Added flow cards for Dryer"
     }
 }

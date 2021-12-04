@@ -1,38 +1,36 @@
 {
     "title": {
-        "en": "The dryer status changed to"
+        "en": "Dryer Status"
     },
     "titleFormatted": {
-        "en": "The dryer status changed to [[value]]"
+        "en": "Change the dryer status to [[dryer_status]]"
     },
-    "hint": {
-        "en": "This card starts a Flow when the dryer switches to the selected mode."
-    },
-    "tokens": [],
-    "args": [{
-            "name": "device",
+    "args": [
+        {
             "type": "device",
+            "name": "device",
             "filter": "driver_id=stDevice&capabilities=dryer_status"
         },
         {
-            "name": "value",
             "type": "dropdown",
-            "values": [{
+            "name": "dryer_status",
+            "values": [
+                {
                     "id": "pause",
                     "title": {
-                        "en": "Paused"
+                        "en": "Pause"
                     }
                 },
                 {
                     "id": "run",
                     "title": {
-                        "en": "Running"
+                        "en": "Run"
                     }
                 },
                 {
                     "id": "stop",
                     "title": {
-                        "en": "Stopped"
+                        "en": "Stop"
                     }
                 }
             ]

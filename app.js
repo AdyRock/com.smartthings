@@ -467,6 +467,13 @@ class MyApp extends Homey.App {
                 return doorState; // true or false
             });
 
+        let dryer_status_action = this.homey.flow.getActionCard('dryer_status_action');
+        dryer_status_action
+            .registerRunListener(async (args, state) => {
+                this.homey.app.updateLog("dryer_status_action: arg = " + args.dryer_status + " - state = " + state);
+                return await args.device.triggerCapabilityListener('dryer_status', args.dryer_status); // Promise<void>
+            });
+    
         this.onPoll = this.onPoll.bind(this);
 
         if (this.BearerToken) {

@@ -1,9 +1,10 @@
 {
-  "type": "string",
+  "type": "boolean",
   "title": {
     "en": "Wrinkle Prevent"
   },
   "icon": "/assets/wash_status.svg",
   "getable": true,
-  "setable": false
+  "setable": true,
+  "uiComponent": "toggle"
 }

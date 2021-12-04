@@ -417,7 +417,7 @@ const capabilityMap1 = {
     },
     "dryer_dry_level":
     {
-        dataEntry: [ 'custom.dryerDryLevel', 'dryingLevel', 'value' ],
+        dataEntry: [ 'custom.dryerDryLevel', 'dryerDryLevel', 'value' ],
         capabilityID: 'custom.dryerDryLevel',
         divider: 0,
         boolCompare: '',
@@ -425,7 +425,7 @@ const capabilityMap1 = {
     },
     "dryer_wrinkle_prevent":
     {
-        dataEntry: [ 'custom.dryerWrinklePrevent', 'wrinklePrevent', 'value' ],
+        dataEntry: [ 'custom.dryerWrinklePrevent', 'dryerWrinklePrevent', 'value' ],
         capabilityID: 'custom.dryerWrinklePrevent',
         divider: 0,
         boolCompare: '',
@@ -506,6 +506,11 @@ class STDevice extends Homey.Device
         if ( this.hasCapability( 'dryer_time' ) )
         {
             this.registerCapabilityListener( 'dryer_mode', this.onCapabilityDryerTime.bind( this ) );
+        }
+
+        if ( this.hasCapability( 'dryer_wrinkle_prevent' ) )
+        {
+            this.registerCapabilityListener( 'dryer_wrinkle_prevent', this.onCapabilityDryerWrinklePrevention.bind( this ) );
         }
 
         if ( this.hasCapability( 'water_temperature' ) )
@@ -1100,6 +1105,41 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             this.homey.app.updateLog( this.getName() + " onCapabilityWasherMode Error" + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
+        }
+    }
+    
+    async onCapabilityDryerWrinklePrevention( value, opts )
+    {
+        try
+        {
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // The device requires 'off' and 'on'
+            var data = 'off';
+            if ( value )
+            {
+                data = 'on';
+            }
+
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "custom.dryerWrinklePrevent",
+                    "command": data,
+                    "arguments": []
+                } ]
+            };
+
+            // Set the switch Value on the device using the unique feature ID stored during pairing
+            await this.homey.app.setDeviceCapabilityValue( devData.id, body );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            this.homey.app.updateLog( this.getName() + " onCapabilityOnoff Error " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
