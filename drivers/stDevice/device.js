@@ -431,6 +431,22 @@ const capabilityMap1 = {
         boolCompare: '',
         flowTrigger: null
     },
+    "media_input_source":
+    {
+        dataEntry: [ 'mediaInputSource', 'mediaInputSource', 'value' ],
+        capabilityID: 'mediaInputSource',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null
+    },
+    "sound_mode":
+    {
+        dataEntry: [ 'samsungvd.soundFrom', 'samsungvd.soundFrom', 'value' ],
+        capabilityID: 'samsungvd.soundFrom',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null
+    },
 };
 
 class STDevice extends Homey.Device
@@ -441,6 +457,11 @@ class STDevice extends Homey.Device
         this.log( 'STDevice is initialising' );
         this.deviceOn = true;
         this.remoteControlEnabled = false;
+
+        if (this.hasCapability('locked') && this.getClass() !== 'lock')
+        {
+            this.setClass('lock');
+        }
 
         this.flowTriggers = {
             'washer_status_changed': this.homey.flow.getDeviceTriggerCard( 'washer_status_changed' ),
@@ -621,6 +642,11 @@ class STDevice extends Homey.Device
         if ( this.hasCapability( 'robot_cleaning_turbo' ) )
         {
             this.registerCapabilityListener( 'robot_cleaning_turbo', this.onCapabilityRobotCleaningTurboMode.bind( this ) );
+        }
+
+        if ( this.hasCapability( 'media_input_source' ) )
+        {
+            this.registerCapabilityListener( 'media_input_source', this.onCapabilityMediaInputSource.bind( this ) );
         }
 
         this.getDeviceValues();
@@ -1869,6 +1895,35 @@ class STDevice extends Homey.Device
             throw new Error( err.message );
         }
     }
-}
+
+    async onCapabilityMediaInputSource( value, opts )
+    {
+        try
+        {
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "inputSource",
+                    "command": 'setInputSource',
+                    "arguments": [value]
+                } ]
+            };
+
+            // Set the switch Value on the device using the unique feature ID stored during pairing
+            await this.homey.app.setDeviceCapabilityValue( devData.id, body );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            this.homey.app.updateLog( this.getName() + " onCapabilityMediaInputSource Error " + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
+        }
+    }
+}    
+
 
 module.exports = STDevice;

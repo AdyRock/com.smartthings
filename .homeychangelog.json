@@ -88,5 +88,14 @@
     },
     "1.0.7": {
         "en": "Added flow cards for Dryer"
+    },
+    "1.0.8": {
+        "en": "Added priorities to class types to ensure a lock gets the Locked indicator on the tile"
+    },
+    "1.0.9": {
+        "en": "Added Media Input Source as a status value"
+    },
+    "1.0.10": {
+        "en": "Added option to set Media Input Source. Added samsungvd.soundFrom as a status"
     }
 }

@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.smartthings",
-  "version": "1.0.7",
+  "version": "1.0.10",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#FF7D4B",
@@ -1909,6 +1909,126 @@
       "getable": true,
       "setable": false
     },
+    "media_input_source": {
+      "type": "enum",
+      "title": {
+        "en": "Media Input Source"
+      },
+      "icon": "/assets/icon.svg",
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "AM",
+          "title": {
+            "en": "AM"
+          }
+        },
+        {
+          "id": "CD",
+          "title": {
+            "en": "CD"
+          }
+        },
+        {
+          "id": "FM",
+          "title": {
+            "en": "FM"
+          }
+        },
+        {
+          "id": "HDMI",
+          "title": {
+            "en": "HDMI"
+          }
+        },
+        {
+          "id": "HDMI1",
+          "title": {
+            "en": "HDMI1"
+          }
+        },
+        {
+          "id": "HDMI2",
+          "title": {
+            "en": "HDMI2"
+          }
+        },
+        {
+          "id": "HDMI3",
+          "title": {
+            "en": "HDMI3"
+          }
+        },
+        {
+          "id": "HDMI4",
+          "title": {
+            "en": "HDMI4"
+          }
+        },
+        {
+          "id": "HDMI5",
+          "title": {
+            "en": "HDMI5"
+          }
+        },
+        {
+          "id": "HDMI6",
+          "title": {
+            "en": "HDMI6"
+          }
+        },
+        {
+          "id": "digitalTv",
+          "title": {
+            "en": "digitalTv"
+          }
+        },
+        {
+          "id": "USB",
+          "title": {
+            "en": "USB"
+          }
+        },
+        {
+          "id": "YouTube",
+          "title": {
+            "en": "YouTube"
+          }
+        },
+        {
+          "id": "aux",
+          "title": {
+            "en": "aux"
+          }
+        },
+        {
+          "id": "bluetooth",
+          "title": {
+            "en": "bluetooth"
+          }
+        },
+        {
+          "id": "digital",
+          "title": {
+            "en": "digital"
+          }
+        },
+        {
+          "id": "melon",
+          "title": {
+            "en": "melon"
+          }
+        },
+        {
+          "id": "wifi",
+          "title": {
+            "en": "wifi"
+          }
+        }
+      ]
+    },
     "rapid_cooling": {
       "type": "boolean",
       "title": {
@@ -2138,6 +2258,15 @@
       "getable": true,
       "setable": true,
       "uiComponent": "toggle"
+    },
+    "sound_mode": {
+      "type": "string",
+      "title": {
+        "en": "Sound Mode"
+      },
+      "icon": "/assets/icon.svg",
+      "getable": true,
+      "setable": false
     },
     "spin_level": {
       "type": "enum",

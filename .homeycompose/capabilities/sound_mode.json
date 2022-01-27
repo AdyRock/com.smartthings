@@ -1,0 +1,9 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Sound Mode"
+  },
+  "icon": "/assets/icon.svg",
+  "getable": true,
+  "setable": false
+}
