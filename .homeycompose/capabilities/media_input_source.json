@@ -9,30 +9,6 @@
   "uiComponent": "picker",
   "values": [
       {
-          "id": "AM",
-          "title": {
-              "en": "AM"
-          }
-      },
-      {
-          "id": "CD",
-          "title": {
-              "en": "CD"
-          }
-      },
-      {
-          "id": "FM",
-          "title": {
-              "en": "FM"
-          }
-      },
-      {
-          "id": "HDMI",
-          "title": {
-              "en": "HDMI"
-          }
-      },
-      {
           "id": "HDMI1",
           "title": {
               "en": "HDMI1"
@@ -45,54 +21,6 @@
           }
       },
       {
-          "id": "HDMI3",
-          "title": {
-              "en": "HDMI3"
-          }
-      },
-      {
-          "id": "HDMI4",
-          "title": {
-              "en": "HDMI4"
-          }
-      },
-      {
-          "id": "HDMI5",
-          "title": {
-              "en": "HDMI5"
-          }
-      },
-      {
-          "id": "HDMI6",
-          "title": {
-              "en": "HDMI6"
-          }
-      },
-      {
-          "id": "digitalTv",
-          "title": {
-              "en": "digitalTv"
-          }
-      },
-      {
-          "id": "USB",
-          "title": {
-              "en": "USB"
-          }
-      },
-      {
-          "id": "YouTube",
-          "title": {
-              "en": "YouTube"
-          }
-      },
-      {
-          "id": "aux",
-          "title": {
-              "en": "aux"
-          }
-      },
-      {
           "id": "bluetooth",
           "title": {
               "en": "bluetooth"
@@ -102,12 +30,6 @@
           "id": "digital",
           "title": {
               "en": "digital"
-          }
-      },
-      {
-          "id": "melon",
-          "title": {
-              "en": "melon"
           }
       },
       {

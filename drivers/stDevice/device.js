@@ -433,16 +433,16 @@ const capabilityMap1 = {
     },
     "media_input_source":
     {
-        dataEntry: [ 'mediaInputSource', 'mediaInputSource', 'value' ],
+        dataEntry: [ 'mediaInputSource', 'inputSource', 'value' ],
         capabilityID: 'mediaInputSource',
         divider: 0,
         boolCompare: '',
         flowTrigger: null
     },
-    "sound_mode":
+    "tag_button_status":
     {
-        dataEntry: [ 'samsungvd.soundFrom', 'samsungvd.soundFrom', 'value' ],
-        capabilityID: 'samsungvd.soundFrom',
+        dataEntry: [ 'tag.tagButton', 'tagButton', 'timestamp' ],
+        capabilityID: 'tag.tagButton',
         divider: 0,
         boolCompare: '',
         flowTrigger: null

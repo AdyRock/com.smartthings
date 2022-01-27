@@ -1,7 +1,7 @@
 {
   "type": "string",
   "title": {
-    "en": "Sound Mode"
+    "en": "Button Pressed"
   },
   "icon": "/assets/icon.svg",
   "getable": true,

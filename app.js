@@ -42,6 +42,14 @@ const CapabilityMap2 = {
         icon: "",
         iconPriority: 0
     },
+    "tag.tagButton":
+    {
+        class: "",
+        exclude: "",
+        capabilities: [ "tag_button_status" ],
+        icon: "tag.svg",
+        iconPriority: 5
+    },
     "presenceSensor":
     {
         class: "sensor",
@@ -117,7 +125,7 @@ const CapabilityMap2 = {
     "audioVolume":
     {
         class: "tv",
-        exclude: "airConditionerMode",
+        exclude: ['airConditionerMode', 'tag.tagButton'],
         capabilities: [ 'volume_set', 'volume_down', 'volume_up' ],
         icon: "",
         iconPriority: 0
@@ -565,6 +573,15 @@ class MyApp extends Homey.App
                 return await args.device.triggerCapabilityListener( 'dryer_status', args.dryer_status ); // Promise<void>
             } );
 
+
+        let media_input_source_action = this.homey.flow.getActionCard( 'media_input_source_action' );
+        media_input_source_action
+            .registerRunListener( async ( args, state ) =>
+            {
+                this.homey.app.updateLog( "media_input_source_action: arg = " + args.media_input_source + " - state = " + state );
+                return await args.device.triggerCapabilityListener( 'media_input_source', args.media_input_source ); // Promise<void>
+            } );
+
         this.onPoll = this.onPoll.bind( this );
 
         if ( this.BearerToken )
@@ -624,7 +641,7 @@ class MyApp extends Homey.App
                         if ( capabilityMapEntry )
                         {
                             // Make sure the entry has no exclusion condition or that the capabilities for the device does not have the excluded item
-                            if ( ( capabilityMapEntry.exclude == "" ) || ( deviceCapabilities.findIndex( element => element.id == capabilityMapEntry.exclude ) == -1 ) )
+                            if ( ( capabilityMapEntry.exclude == "" ) || ( deviceCapabilities.findIndex( element => capabilityMapEntry.exclude.indexOf(element) ) == -1 ) )
                             {
                                 //Add to the table
                                 if ( capabilityMapEntry.icon && capabilityMapEntry.iconPriority > iconPriority )
