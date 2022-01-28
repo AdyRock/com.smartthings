@@ -380,14 +380,6 @@ const CapabilityMap2 = {
         icon: "",
         iconPriority: 0
     },  
-    "samsungvd.soundFrom":
-    {
-        class: "",
-        exclude: "",
-        capabilities: [ 'sound_mode' ],
-        icon: "",
-        iconPriority: 0
-    }
 };
 
 class MyApp extends Homey.App

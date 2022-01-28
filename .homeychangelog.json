@@ -96,9 +96,12 @@
         "en": "Added Media Input Source as a status value"
     },
     "1.0.10": {
-        "en": "Added option to set Media Input Source. Added samsungvd.soundFrom as a status"
+        "en": "Added option to set Media Input Source.\nAdded samsungvd.soundFrom as a status"
     },
     "1.0.11": {
-        "en": "Fix Media Input Source. Added flow action for media input source. Removed samsungvd.soundFrom"
+        "en": "Fix Media Input Source.\nAdded flow action for media input source.\nRemoved samsungvd.soundFrom"
+    },
+    "1.0.12": {
+        "en": "Fix setting Media Input Source."
     }
 }

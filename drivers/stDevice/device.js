@@ -797,7 +797,7 @@ class STDevice extends Homey.Device
             }
             catch ( err )
             {
-                this.homey.app.updateLog( "getDeviceValues error: " + this.homey.app.varToString( err.message ) );
+                this.homey.app.updateLog( "getDeviceValues error: " + this.homey.app.varToString( err.message ) + " for capability: " + this.homey.app.varToString( capability ) );
             }
         }
     }
@@ -1907,7 +1907,7 @@ class STDevice extends Homey.Device
                 "commands": [
                 {
                     "component": "main",
-                    "capability": "inputSource",
+                    "capability": "mediaInputSource",
                     "command": 'setInputSource',
                     "arguments": [value]
                 } ]
