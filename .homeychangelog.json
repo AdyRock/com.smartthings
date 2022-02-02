@@ -106,5 +106,8 @@
     },
     "1.0.13": {
         "en": "Fix Washer Status flow and added support for washer mode with Table_02."
+    },
+    "1.0.14": {
+        "en": "Fixed unlucky 13."
     }
 }
