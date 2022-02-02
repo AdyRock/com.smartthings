@@ -508,6 +508,14 @@ class MyApp extends Homey.App
                 return await args.device.triggerCapabilityListener( 'washer_mode', args.washer_mode ); // Promise<void>
             } );
 
+        let washing_mode_02_action = this.homey.flow.getActionCard( 'washing_machine_mode_02_action' );
+        washing_mode_02_action
+            .registerRunListener( async ( args, state ) =>
+            {
+                this.homey.app.updateLog( "washing_machine_mode_02_action: arg = " + args.washer_mode + " - state = " + state );
+                return await args.device.triggerCapabilityListener( 'washer_mode_02', args.washer_mode ); // Promise<void>
+            } );
+    
         let washing_machine_temperature_action = this.homey.flow.getActionCard( 'washing_machine_temperature_action' );
         washing_machine_temperature_action
             .registerRunListener( async ( args, state ) =>
@@ -521,7 +529,7 @@ class MyApp extends Homey.App
             .registerRunListener( async ( args, state ) =>
             {
                 this.homey.app.updateLog( "washing_machine_status_action: arg = " + args.washer_status + " - state = " + state );
-                return await args.device.triggerCapabilityListener( 'washing_machine_status', args.washer_status ); // Promise<void>
+                return await args.device.triggerCapabilityListener( 'washer_status', args.washer_status ); // Promise<void>
             } );
 
         let washing_machine_rinse_cycles_action = this.homey.flow.getActionCard( 'washing_machine_rinse_cycles_action' );

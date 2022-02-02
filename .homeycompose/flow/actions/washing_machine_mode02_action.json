@@ -1,0 +1,167 @@
+{
+    "title": {
+        "en": "Mode"
+    },
+    "titleFormatted": {
+        "en": "Change the washer mode to [[washer_mode]]"
+    },
+    "args": [
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=stDevice&capabilities=washer_mode_02"
+        },
+        {
+            "type": "dropdown",
+            "name": "washer_mode",
+            "values": [
+                {
+                    "id": "Table_02_Course_1C",
+                    "title": {
+                        "en": "Eco 40-60"
+                    }
+                },
+                {
+                    "id": "Table_02_Course_1B",
+                    "title": {
+                        "en": "Cotton",
+                        "nl": "Katoen"
+                    }
+                },
+                {
+                    "id": "Table_02_Course_21",
+                    "title": {
+                        "en": "Coloured",
+                        "nl": "Geleurde was"
+                    }
+                },
+                {
+                    "id": "Table_02_Course_24",
+                    "title": {
+                        "en": "Linen",
+                        "nl": "Beddengoed"
+                    }
+                },
+                {
+                    "id": "Table_02_Course_1D",
+                    "title": {
+                        "en": "Quick Wash",
+                        "nl": "Super Speed"
+                    }
+                },
+                {
+                    "id": "Table_02_Course_1E",
+                    "title": {
+                        "en": "15' short program",
+                        "nl": "15' kort programma"
+                    }
+                },
+                {
+                    "id": "Table_02_Course_22",
+                    "title": {
+                        "en": "Wool",
+                        "nl": "Wol"
+                    }
+                },
+                {
+                    "id": "Table_02_Course_29",
+                    "title": {
+                        "en": "Eco Drum Clean",
+                        "nl": "Trommelreiniging"
+                    }
+                },
+                {
+                    "id": "Table_02_Course_26",
+                    "title": {
+                        "en": "Delicates",
+                        "nl": "Fijne Was"
+                    }
+                },
+                {
+                    "id": "Table_02_Course_27",
+                    "title": {
+                        "en": "Rinse + Spin",
+                        "nl": "Spoelen + centrifugeren"
+                    }
+                },
+                {
+                    "id": "Table_02_Course_20",
+                    "title": {
+                        "en": "Hygienic Steam",
+                        "nl": "Hygienisch stomen"
+                    }
+                },
+                {
+                    "id": "Table_02_Course_32",
+                    "title": {
+                        "en": "Shirts",
+                        "nl": "Overhemden"
+                    }
+                },
+                {
+                    "id": "Table_02_Course_2E",
+                    "title": {
+                        "en": "Baby Clothes",
+                        "nl": "Babykleding"
+                    }
+                },
+                {
+                    "id": "Table_02_Course_33",
+                    "title": {
+                        "en": "Towels",
+                        "nl": "Handdoeken"
+                    }
+                },
+                {
+                    "id": "Table_02_Course_28",
+                    "title": {
+                        "en": "Empty + Spin",
+                        "nl": "Afvoeren/centrifugeren "
+                    }
+                },
+                {
+                    "id": "Table_02_Course_25",
+                    "title": {
+                        "en": "Synthetic",
+                        "nl": "Synthetisch"
+                    }
+                },
+                {
+                    "id": "Table_02_Course_23",
+                    "title": {
+                        "en": "Outdoor",
+                        "nl": "Outdoor"
+                    }
+                },
+                {
+                    "id": "Table_02_Course_2A",
+                    "title": {
+                        "en": "Jeans",
+                        "nl": "spijkerbroeken"
+                    }
+                },
+                {
+                    "id": "Table_02_Course_2F",
+                    "title": {
+                        "en": "Sportswear",
+                        "nl": "Sportkleding"
+                    }
+                },
+                {
+                    "id": "Table_02_Course_1F",
+                    "title": {
+                        "en": "Cold Wash",
+                        "nl": "Intens koud"
+                    }
+                },
+                {
+                    "id": "Table_02_Course_2D",
+                    "title": {
+                        "en": "Silent Wash",
+                        "nl": "Stille was"
+                    }
+                }
+            ]
+        }
+    ]
+}

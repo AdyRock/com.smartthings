@@ -103,5 +103,8 @@
     },
     "1.0.12": {
         "en": "Fix setting Media Input Source."
+    },
+    "1.0.13": {
+        "en": "Fix Washer Status flow and added support for washer mode with Table_02."
     }
 }

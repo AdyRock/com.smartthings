@@ -87,6 +87,14 @@ const capabilityMap1 = {
         boolCompare: '',
         flowTrigger: null
     },
+    "washer_mode_02":
+    {
+        dataEntry: [ 'samsungce.washerCycle', 'washerCycle', 'value' ],
+        capabilityID: 'samsungce.washerCycle',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null
+    },
     "washer_status":
     {
         dataEntry: [ 'washerOperatingState', 'machineState', 'value' ],
@@ -512,6 +520,11 @@ class STDevice extends Homey.Device
         if ( this.hasCapability( 'washer_mode' ) )
         {
             this.registerCapabilityListener( 'washer_mode', this.onCapabilityWasherMode.bind( this ) );
+        }
+
+        if ( this.hasCapability( 'washer_mode_02' ) )
+        {
+            this.registerCapabilityListener( 'washer_mode_02', this.onCapabilityWasherMode.bind( this ) );
         }
 
         if ( this.hasCapability( 'dryer_status' ) )
@@ -1091,7 +1104,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityWasherMode Error" + this.homey.app.varToString( err.message ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityDryerCycle Error" + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -1130,7 +1143,7 @@ class STDevice extends Homey.Device
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityWasherMode Error" + this.homey.app.varToString( err.message ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityDryerTime Error" + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
@@ -1166,45 +1179,6 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             this.homey.app.updateLog( this.getName() + " onCapabilityOnoff Error " + this.homey.app.varToString( err.message ) );
-            throw new Error( err.message );
-        }
-    }
-
-    async onCapabilityWasherMode( value, opts )
-    {
-        try
-        {
-            if ( !this.deviceOn || !this.remoteControlEnabled )
-            {
-                this.setWarning( "Remote control not enabled", null );
-                throw new Error( "Remote control not enabled" );
-            }
-
-            let value2 = value.substr( value.length - 9, 9 );
-
-            let body = {
-                "commands": [
-                {
-                    "component": "main",
-                    "capability": "samsungce.washerCycle",
-                    "command": "setWasherCycle",
-                    "arguments": [
-                        value2
-                    ]
-                } ]
-            };
-
-            // Get the device information stored during pairing
-            const devData = this.getData();
-
-            // Set the dim Value on the device using the unique feature ID stored during pairing
-            let res = await this.homey.app.setDeviceCapabilityValue( devData.id, body );
-            console.log( res );
-        }
-        catch ( err )
-        {
-            //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityWasherMode Error" + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
