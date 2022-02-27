@@ -491,6 +491,13 @@ class STDevice extends Homey.Device
                 return Promise.resolve( args.value === state.value );
             } );
 
+        this.flowTriggers.dryer_status_changed
+            .registerRunListener( ( args, state ) =>
+            {
+                // If true, this flow should run
+                return Promise.resolve( args.value === state.value );
+            } );
+
         // register a capability listeners
         if ( this.hasCapability( 'onoff' ) )
         {
