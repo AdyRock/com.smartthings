@@ -1520,7 +1520,44 @@
       "images": {
         "large": "/drivers/stDevice/assets/images/large.png",
         "small": "/drivers/stDevice/assets/images/small.png"
-      }
+      },
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "RGBW Bulb",
+            "nl": "RGBW-lamp"
+          },
+          "children": [
+            {
+              "id": "minTemperature",
+              "type": "number",
+              "label": {
+                "en": "Min Colour Temperature (K)",
+                "nl": "Minimale kleurtemperatuur (K)"
+              },
+              "value": 2200,
+              "hint": {
+                "en": "Min colour temperature of the light",
+                "nl": "Min kleurtemperatuur van het licht"
+              }
+            },
+            {
+              "id": "maxTemperature",
+              "type": "number",
+              "label": {
+                "en": "Max Colour Temperature (K)",
+                "nl": "Maximale kleurtemperatuur (K)"
+              },
+              "value": 6500,
+              "hint": {
+                "en": "Max colour temperature of the light",
+                "nl": "Max kleurtemperatuur van het licht"
+              }
+            }
+          ]
+        }
+      ]
     }
   ],
   "capabilities": {

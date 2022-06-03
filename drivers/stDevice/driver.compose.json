@@ -1,37 +1,75 @@
 {
-  "id": "stDevice",
-  "name": {
-    "en": "SmartThings Device"
-  },
-  "class": "other",
-  "capabilities": [
-    "onoff",
-    "meter_power.delta"
-  ],
-  "capabilitiesOptions": {
-    "meter_power.delta": {
-      "title": {
-        "en": "Power Delta"
-      },
-      "units": {
-        "en": "W"
-      }
-    }
-  },
-  "pair": [{
-      "id": "list_devices",
-      "template": "list_devices",
-      "navigation": {
-        "next": "add_devices"
-      }
+    "id": "stDevice",
+    "name": {
+        "en": "SmartThings Device"
     },
-    {
-      "id": "add_devices",
-      "template": "add_devices"
-    }
-  ],
-  "images": {
-    "large": "/drivers/stDevice/assets/images/large.png",
-    "small": "/drivers/stDevice/assets/images/small.png"
-  }
+    "class": "other",
+    "capabilities": [
+        "onoff",
+        "meter_power.delta"
+    ],
+    "capabilitiesOptions": {
+        "meter_power.delta": {
+            "title": {
+                "en": "Power Delta"
+            },
+            "units": {
+                "en": "W"
+            }
+        }
+    },
+    "pair": [
+        {
+            "id": "list_devices",
+            "template": "list_devices",
+            "navigation": {
+                "next": "add_devices"
+            }
+        },
+        {
+            "id": "add_devices",
+            "template": "add_devices"
+        }
+    ],
+    "images": {
+        "large": "/drivers/stDevice/assets/images/large.png",
+        "small": "/drivers/stDevice/assets/images/small.png"
+    },
+    "settings": [
+        {
+            "type": "group",
+            "label": {
+                "en": "RGBW Bulb",
+                "nl": "RGBW-lamp"
+            },
+            "children": [
+                {
+                    "id": "minTemperature",
+                    "type": "number",
+                    "label": {
+                        "en": "Min Colour Temperature (K)",
+                        "nl": "Minimale kleurtemperatuur (K)"
+                    },
+                    "value": 2200,
+                    "hint": {
+                        "en": "Min colour temperature of the light",
+                        "nl": "Min kleurtemperatuur van het licht"
+                    }
+                },
+                {
+                    "id": "maxTemperature",
+                    "type": "number",
+                    "label": {
+                        "en": "Max Colour Temperature (K)",
+                        "nl": "Maximale kleurtemperatuur (K)"
+                    },
+                    "value": 6500,
+                    "hint": {
+                        "en": "Max colour temperature of the light",
+                        "nl": "Max kleurtemperatuur van het licht"
+                    }
+                }
+            ]
+        }
+    ]
 }

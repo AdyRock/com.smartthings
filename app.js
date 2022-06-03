@@ -21,8 +21,24 @@ const CapabilityMap2 = {
     "switchLevel":
     {
         class: "light",
-        exclude: "windowShade",
+        exclude: ["windowShade"],
         capabilities: [ "dim" ],
+        icon: "light.svg",
+        iconPriority: 2
+    },
+    "colorTemperature":
+    {
+        class: "light",
+        exclude: "",
+        capabilities: [ "light_temperature" ],
+        icon: "light.svg",
+        iconPriority: 2
+    },
+    "colorControl":
+    {
+        class: "light",
+        exclude: "",
+        capabilities: [ "light_hue", "light_saturation" ],
         icon: "light.svg",
         iconPriority: 2
     },
@@ -641,7 +657,7 @@ class MyApp extends Homey.App
                         if ( capabilityMapEntry )
                         {
                             // Make sure the entry has no exclusion condition or that the capabilities for the device does not have the excluded item
-                            if ( ( capabilityMapEntry.exclude == "" ) || ( deviceCapabilities.findIndex( element => capabilityMapEntry.exclude.indexOf(element) ) == -1 ) )
+                            if ( ( capabilityMapEntry.exclude == "" ) || ( deviceCapabilities.findIndex( element => capabilityMapEntry.exclude.indexOf(element) >= 0 ) == -1 ) )
                             {
                                 //Add to the table
                                 if ( capabilityMapEntry.icon && capabilityMapEntry.iconPriority > iconPriority )

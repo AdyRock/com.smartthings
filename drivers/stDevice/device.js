@@ -20,6 +20,32 @@ const capabilityMap1 = {
         boolCompare: '',
         flowTrigger: null
     },
+    "light_temperature":
+    {
+        dataEntry: [ 'colorTemperature', 'colorTemperature', 'value' ],
+        capabilityID: 'colorTemperature',
+        lowValue: 'minTemperature', // Specify a seting name or a number
+        hiValue: 'maxTemperature', // Specify a seting name or a number
+        invert: true,
+        boolCompare: '',
+        flowTrigger: null
+    },
+    "light_hue":
+    {
+        dataEntry: [ 'colorControl', 'hue', 'value' ],
+        capabilityID: 'colorControl',
+        divider: 100,
+        boolCompare: '',
+        flowTrigger: null
+    },
+    "light_saturation":
+    {
+        dataEntry: [ 'colorControl', 'saturation', 'value' ],
+        capabilityID: 'colorControl',
+        divider: 100,
+        boolCompare: '',
+        flowTrigger: null
+    },
     "volume_set":
     {
         dataEntry: [ 'audioVolume', 'volume', 'value' ],
@@ -509,6 +535,16 @@ class STDevice extends Homey.Device
             this.registerCapabilityListener( 'dim', this.onCapabilityDim.bind( this ) );
         }
 
+        if ( this.hasCapability( 'light_temperature' ) )
+        {
+            this.registerCapabilityListener( 'light_temperature', this.onCapabilityLightTemperature.bind( this ) );
+        }
+
+        if ( this.hasCapability( 'light_hue' ) )
+        {
+            this.registerMultipleCapabilityListener(['light_hue', 'light_saturation'], this.onCapabilityLightHueSat.bind(this), 500);
+        }
+
         if ( this.hasCapability( 'rinse_cycles' ) )
         {
             this.registerCapabilityListener( 'rinse_cycles', this.onCapabilityRinseCycles.bind( this ) );
@@ -773,6 +809,44 @@ class STDevice extends Homey.Device
                             value = value[ mapEntry.arrayIdx ];
                         }
 
+                        if ( mapEntry.lowValue )
+                        {
+                            let lowValue;
+                            if (typeof mapEntry.lowValue === 'string')
+                            {
+                                // Fetch the setting
+                                lowValue = this.getSetting(mapEntry.lowValue);
+                            }
+                            else
+                            {
+                                lowValue = mapEntry.lowValue;
+                            }
+
+                            if (value < lowValue)
+                            {
+                                continue;
+                            }
+                            
+                            value -= lowValue;
+
+                            if ( mapEntry.hiValue )
+                            {
+                                let hiValue;
+                                if (typeof mapEntry.hiValue === 'string')
+                                {
+                                    // Fetch the setting
+                                    hiValue = this.getSetting(mapEntry.hiValue);
+                                }
+                                else
+                                {
+                                    hiValue = mapEntry.hiValue;
+                                }
+
+                                const divider = hiValue - lowValue;
+                                value /= divider;
+                            }
+                        }
+
                         if ( mapEntry.divider > 0 )
                         {
                             value /= mapEntry.divider;
@@ -785,6 +859,11 @@ class STDevice extends Homey.Device
                                 var d = new Date( value );
                                 value = d.getHours() + ":" + ( d.getMinutes() < 10 ? "0" : "" ) + d.getMinutes() + " " + ( d.getDate() < 10 ? "0" : "" ) + d.getDate() + "-" + ( d.getMonth() < 10 ? "0" : "" ) + d.getMonth();
                             }
+                        }
+
+                        if ( mapEntry.invert )
+                        {
+                            value = 1 - value;
                         }
 
                         this.homey.app.updateLog( "Set Capability: " + capability + " - Value: " + value );
@@ -888,6 +967,80 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             this.homey.app.updateLog( this.getName() + " onCapabilityOnDimError " + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
+        }
+    }
+
+    // this method is called when the Homey device has requested a color temperature level change ( 0 to 1)
+    async onCapabilityLightTemperature( value, opts )
+    {
+        try
+        {
+            // Homey return a value of 0 to 1 but the real device requires a value of minTemperature to maxTemperature
+            const lowValue = this.getSetting('minTemperature');
+            const hiValue = this.getSetting('maxTemperature');
+            value = 1 - value;
+            value *= (hiValue - lowValue);
+            value = value + lowValue;
+
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "colorTemperature",
+                    "command": "setColorTemperature",
+                    "arguments": [
+                        Math.round( value )
+                    ]
+                } ]
+            };
+
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // Set the dim Value on the device using the unique feature ID stored during pairing
+            await this.homey.app.setDeviceCapabilityValue( devData.id, body );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            this.homey.app.updateLog( this.getName() + " onCapabilityLightTemperature " + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
+        }
+    }
+
+    // this method is called when the Homey device has requested a Hue level change ( 0 to 1)
+    async onCapabilityLightHueSat( values, opts )
+    {
+        try
+        {
+            // Homey return a value of 0 to 1 but the real device requires a value of 0 to 100
+            const hue = values.light_hue * 100;
+            const sat = values.light_saturation * 100;
+
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "colorControl",
+                    "command": "setColor",
+                    "arguments": [{
+                        "hue": Math.round( hue ),
+                        "saturation": Math.round( sat )
+                    }]
+                } ]
+            };
+
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // Set the dim Value on the device using the unique feature ID stored during pairing
+            await this.homey.app.setDeviceCapabilityValue( devData.id, body );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            this.homey.app.updateLog( this.getName() + " onCapabilityLightTemperature " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
