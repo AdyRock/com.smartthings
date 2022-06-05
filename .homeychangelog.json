@@ -115,5 +115,8 @@
     },
     "1.0.16": {
         "en": "Fix Dim for bulb.\nAdded Colour and Temperature to RGB / RGBW bulbs."
+    },
+    "1.0.17": {
+        "en": "Add button status capability."
     }
 }

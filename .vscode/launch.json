@@ -30,7 +30,7 @@
         "restart": true,
         "name": "Attach to Homey Pro USB",
         "address": "10.76.225.1",
-        "port": 9222,
+        "port": 9227,
         "localRoot": "${workspaceFolder}",
         "remoteRoot": "/"
     }]

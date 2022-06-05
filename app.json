@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.smartthings",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#FF7D4B",
@@ -174,6 +174,31 @@
           }
         ],
         "id": "alarm_water_changed"
+      },
+      {
+        "title": {
+          "en": "The button status changed"
+        },
+        "hint": {
+          "en": "This card starts a Flow when the the status of the button changes."
+        },
+        "tokens": [
+          {
+            "name": "value",
+            "type": "string",
+            "title": {
+              "en": "Button status"
+            }
+          }
+        ],
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=stDevice&capabilities=tag_button_status"
+          }
+        ],
+        "id": "button_status_changed"
       },
       {
         "title": {
@@ -1838,6 +1863,15 @@
       "getable": true,
       "setable": false
     },
+    "button_status": {
+      "type": "string",
+      "title": {
+        "en": "Button State"
+      },
+      "icon": "/assets/button.svg",
+      "getable": true,
+      "setable": false
+    },
     "completion_time": {
       "type": "string",
       "title": {
@@ -2496,7 +2530,7 @@
       "title": {
         "en": "Button Pressed"
       },
-      "icon": "/assets/icon.svg",
+      "icon": "/assets/button.svg",
       "getable": true,
       "setable": false
     },

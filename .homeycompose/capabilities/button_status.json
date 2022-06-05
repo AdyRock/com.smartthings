@@ -1,7 +1,7 @@
 {
   "type": "string",
   "title": {
-    "en": "Button Pressed"
+    "en": "Button State"
   },
   "icon": "/assets/button.svg",
   "getable": true,

@@ -1,6 +1,6 @@
 {
     "id": "com.smartthings",
-    "version": "1.0.16",
+    "version": "1.0.17",
     "compatibility": ">=5.0.0",
     "sdk": 3,
     "brandColor": "#FF7D4B",

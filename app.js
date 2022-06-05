@@ -3,7 +3,7 @@
 
 if ( process.env.DEBUG === '1' )
 {
-    require( 'inspector' ).open( 9222, '0.0.0.0', true );
+    require( 'inspector' ).open( 9227, '0.0.0.0', true );
 }
 
 const Homey = require( 'homey' );
@@ -21,7 +21,7 @@ const CapabilityMap2 = {
     "switchLevel":
     {
         class: "light",
-        exclude: ["windowShade"],
+        exclude: [ "windowShade" ],
         capabilities: [ "dim" ],
         icon: "light.svg",
         iconPriority: 2
@@ -64,6 +64,14 @@ const CapabilityMap2 = {
         exclude: "",
         capabilities: [ "tag_button_status" ],
         icon: "tag.svg",
+        iconPriority: 5
+    },
+    "button":
+    {
+        class: "",
+        exclude: "",
+        capabilities: [ "button_status" ],
+        icon: "button.svg",
         iconPriority: 5
     },
     "presenceSensor":
@@ -141,7 +149,7 @@ const CapabilityMap2 = {
     "audioVolume":
     {
         class: "tv",
-        exclude: ['airConditionerMode', 'tag.tagButton'],
+        exclude: [ 'airConditionerMode', 'tag.tagButton' ],
         capabilities: [ 'volume_set', 'volume_down', 'volume_up' ],
         icon: "",
         iconPriority: 0
@@ -395,7 +403,7 @@ const CapabilityMap2 = {
         capabilities: [ 'media_input_source' ],
         icon: "",
         iconPriority: 0
-    },  
+    },
 };
 
 class MyApp extends Homey.App
@@ -531,7 +539,7 @@ class MyApp extends Homey.App
                 this.homey.app.updateLog( "washing_machine_mode_02_action: arg = " + args.washer_mode + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'washer_mode_02', args.washer_mode ); // Promise<void>
             } );
-    
+
         let washing_machine_temperature_action = this.homey.flow.getActionCard( 'washing_machine_temperature_action' );
         washing_machine_temperature_action
             .registerRunListener( async ( args, state ) =>
@@ -614,6 +622,21 @@ class MyApp extends Homey.App
 
     async getDevices()
     {
+        function isExcluded(capabilities, exclusions)
+        {
+            for ( const capability of capabilities )
+            {
+                const idx = exclusions.indexOf( capability.id );
+                if (idx >= 0)
+                {
+                    // Excluded
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         //https://api.smartthings.com/v1/devices
         const url = "devices";
         let searchResult = await this.homey.app.GetURL( url );
@@ -657,7 +680,7 @@ class MyApp extends Homey.App
                         if ( capabilityMapEntry )
                         {
                             // Make sure the entry has no exclusion condition or that the capabilities for the device does not have the excluded item
-                            if ( ( capabilityMapEntry.exclude == "" ) || ( deviceCapabilities.findIndex( element => capabilityMapEntry.exclude.indexOf(element) >= 0 ) == -1 ) )
+                            if ( ( capabilityMapEntry.exclude == "" ) || (!isExcluded(deviceCapabilities, capabilityMapEntry.exclude) ))
                             {
                                 //Add to the table
                                 if ( capabilityMapEntry.icon && capabilityMapEntry.iconPriority > iconPriority )
@@ -1161,7 +1184,7 @@ class MyApp extends Homey.App
             this.homey.api.realtime( 'com.smartthings.logupdated',
             {
                 'log': this.diagLog
-            });
+            } );
         }
     }
 

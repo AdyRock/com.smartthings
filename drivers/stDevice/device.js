@@ -479,7 +479,15 @@ const capabilityMap1 = {
         capabilityID: 'tag.tagButton',
         divider: 0,
         boolCompare: '',
-        flowTrigger: null
+        flowTrigger: 'button_status_changed'
+    },
+    "button_status":
+    {
+        dataEntry: [ 'button', 'button', 'value' ],
+        capabilityID: 'button',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: 'button_status_changed'
     },
 };
 
@@ -496,33 +504,6 @@ class STDevice extends Homey.Device
         {
             this.setClass('lock');
         }
-
-        this.flowTriggers = {
-            'washer_status_changed': this.homey.flow.getDeviceTriggerCard( 'washer_status_changed' ),
-            'dryer_status_changed': this.homey.flow.getDeviceTriggerCard( 'dryer_status_changed' ),
-            'presenceStatus_changed': this.homey.flow.getDeviceTriggerCard( 'presenceStatus_changed' ),
-            'dustStatus_changed': this.homey.flow.getDeviceTriggerCard( 'dustStatus_changed' ),
-            'doorStatus_changed': this.homey.flow.getDeviceTriggerCard( 'doorStatus_changed' ),
-            'alarm_water_changed': this.homey.flow.getDeviceTriggerCard( 'alarm_water_changed' ),
-            'alarm_acceleration_changed': this.homey.flow.getDeviceTriggerCard( 'alarm_acceleration_changed' ),
-            'acceleration_x_changed': this.homey.flow.getDeviceTriggerCard( 'acceleration_x_changed' ),
-            'acceleration_y_changed': this.homey.flow.getDeviceTriggerCard( 'acceleration_y_changed' ),
-            'acceleration_z_changed': this.homey.flow.getDeviceTriggerCard( 'acceleration_z_changed' ),
-        };
-
-        this.flowTriggers.washer_status_changed
-            .registerRunListener( ( args, state ) =>
-            {
-                // If true, this flow should run
-                return Promise.resolve( args.value === state.value );
-            } );
-
-        this.flowTriggers.dryer_status_changed
-            .registerRunListener( ( args, state ) =>
-            {
-                // If true, this flow should run
-                return Promise.resolve( args.value === state.value );
-            } );
 
         // register a capability listeners
         if ( this.hasCapability( 'onoff' ) )
@@ -794,7 +775,7 @@ class STDevice extends Homey.Device
                                     'value': value
                                 };
 
-                                this.flowTriggers[ mapEntry.flowTrigger ]
+                                this.driver.flowTriggers[ mapEntry.flowTrigger ]
                                     .trigger( this, tokens )
                                     .catch( this.error );
                             }
@@ -881,8 +862,12 @@ class STDevice extends Homey.Device
                                     'value': value
                                 };
 
-                                this.flowTriggers[ mapEntry.flowTrigger ]
-                                    .trigger( this, {}, state )
+                                let tokens = {
+                                    'value': value
+                                };
+
+                                this.driver.flowTriggers[ mapEntry.flowTrigger ]
+                                    .trigger( this, tokens, state )
                                     .catch( this.error );
                             }
 
