@@ -118,5 +118,8 @@
     },
     "1.0.17": {
         "en": "Add button status capability."
+    },
+    "1.0.18": {
+        "en": "Add button time stamp\nAdded Send Log buttons to detected devices and Information Log."
     }
 }
