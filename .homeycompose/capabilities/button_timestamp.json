@@ -1,0 +1,9 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Button Timestamp"
+  },
+  "icon": "/assets/time.svg",
+  "getable": true,
+  "setable": false
+}

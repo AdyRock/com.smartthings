@@ -3,12 +3,35 @@
 
 <head>
     <link rel="stylesheet" type="text/css" href="lwsa.css">
+    <link rel="stylesheet" type="text/css" href="busy_indicator.css" />
+    <style type="text/css">
+        .fog_div {
+            display: none;
+            position: fixed;
+            top: 0px;
+            left: 0px;
+            height: 100%;
+            width: 100%;
+            z-index: 100;
+            background-color: rgba(30, 30, 30, 0.5);
+        }
+
+        #busybox.show {
+            display: block;
+        }
+    </style>
 
     <!-- The '/homey.js' script must be included in your settings view to work -->
     <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+    <script type="text/javascript" src="busy_indicator.js"></script>
 </head>
 
 <body>
+    <!-- Busy indicator -->
+    <div id="busybox" class="fog_div">
+        <div></div>
+    </div>
+
     <!-- Tab links -->
     <div class="tab">
         <button class="tablinks" onclick="setPage(event, 'settings')" id="defaultOpen">Settings</button>
@@ -47,11 +70,8 @@
     <!-- detected-->
     <div id="detected" class="tabcontent">
         <fieldset>
-            <p data-i18n="settings.detectedDescription">
-                <!--
-                    This field will also be translated
-                    -->
-            </p>
+            <button id="getDeviceLog" style="background-color:#0f9e16;color:white;margin:10px 20px 5px 5px;">Get Log</button>
+            <button id="sendDeviceLog" style="background-color:#0f9e16;color:white;margin:10px 20px 5px 5px;">Send Log</button>
             <div class="field row">
                 <textarea id="detectedDevices"></textarea>
             </div>
@@ -69,7 +89,8 @@
             </div>
         </fieldset>
         <fieldset>
-            <p><button id="clearLog">Clear Log</button></p>
+            <button id="clearLog">Clear Log</button>
+            <button id="sendInfoLog" style="background-color:#0f9e16;color:white;margin:5px 20px 5px 5px;">Send Log</button>
             <div class="field row">
                 <textarea id="diagLog"></textarea>
             </div>
@@ -99,14 +120,22 @@
     </div>
 
     <script type="text/javascript">
+        // Create the busy indicator
+        var busyi;
+        busyi = new busy_indicator(document.getElementById("busybox"), document.querySelector("#busybox div"));
+
         var BearerTokenElement = document.getElementById( 'BearerToken' );
-        var detectedDevicesElement = document.getElementById( 'detectedDevices' );
         var diagLogElement = document.getElementById( 'diagLog' );
         var logEnabledElement = document.getElementById( 'logEnabled' );
         var pollIntervalElement = document.getElementById( 'pollInterval' );
 
+        var detectedDevicesElement = document.getElementById( 'detectedDevices' );
+        var getDeviceLogElement = document.getElementById('getDeviceLog');
+        var sendDeviceLogElement = document.getElementById('sendDeviceLog');
+
         var saveElement = document.getElementById( 'save' );
         var clearLogElement = document.getElementById( 'clearLog' );
+        var sendInfoLogElement = document.getElementById('sendInfoLog');
 
         // Send data tab
 
@@ -201,6 +230,21 @@
                 }
             } );
 
+            getDeviceLogElement.addEventListener('click', function(e)
+            {
+                Homey.api('GET', '/getDetect/', {}, function(err, result)
+                {
+                    if ( err )
+                    {
+                        return Homey.alert( err );
+                    }
+                    else
+                    {
+                        detectedDevicesElement.value = result;
+                    }
+                });
+            });
+
             saveElement.addEventListener( 'click', function( e )
             {
                 BearerTokenElement.value = BearerTokenElement.value.replace( /[\"\']/g, '' );
@@ -244,6 +288,67 @@
                     }
                 } );
             } );
+
+            sendInfoLogElement.addEventListener('click', function(e)
+            {
+                if (diagLogElement.value.length < 15)
+                {
+                    return Homey.alert("No Data to send");
+                }
+
+                Homey.confirm("Send the error log contents to the developer?", null, function(e, ok)
+                {
+                    if (ok)
+                    {
+                        waitCursor(true);
+                        Homey.api('POST', '/sendInfoLog/',
+                        {
+                            notify: true
+                        }, function(err, result)
+                        {
+                            if (err)
+                            {
+                                Homey.alert(err);
+                            }
+                            else
+                            {
+                                Homey.alert("Log sent successfully");
+                            }
+                            waitCursor(false);
+                        });
+                    }
+                });
+            });
+
+            sendDeviceLogElement.addEventListener('click', function(e)
+            {
+                if (detectedDevicesElement.value.length < 15)
+                {
+                    return Homey.alert("No Data to send");
+                }
+                Homey.confirm("Send the device log contents to the developer?", null, function(e, ok)
+                {
+                    if (ok)
+                    {
+                        waitCursor(true);
+                        Homey.api('POST', '/SendDeviceLog/',
+                        {
+                            notify: true
+                        }, function(err, result)
+                        {
+                            if (err)
+                            {
+                                Homey.alert(err);
+                            }
+                            else
+                            {
+                                Homey.alert("Log sent successfully");
+                            }
+                            waitCursor(false);
+                        });
+                    }
+                });
+            });
 
             sendCmdElement.addEventListener( 'click', function( e )
             {
@@ -382,6 +487,18 @@
                 // Make the simulator text box fill the page
                 simDataElement.setAttribute( 'cols', simDataElement.parentElement.clientWidth / 8 );
                 simDataElement.style.height = ( window.innerHeight - simDataElement.offsetTop - 40 ) + 'px';
+            }
+        }
+
+        function waitCursor(On)
+        {
+            if (On)
+            {
+                busyi.show();
+            }
+            else
+            {
+                busyi.hide();
             }
         }
     </script>

@@ -42,6 +42,15 @@
         "sendCmd": {
             "method": "post",
             "path": "/sendCmd/"
+        },
+        "SendDeviceLog": {
+            "method": "post",
+            "path": "/SendDeviceLog/",
+            "public": true
+        },
+        "SendInfoLog": {
+            "method": "post",
+            "path": "/SendInfoLog/"
         }
     }
 }

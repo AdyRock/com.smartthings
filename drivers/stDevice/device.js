@@ -487,6 +487,14 @@ const capabilityMap1 = {
         capabilityID: 'button',
         divider: 0,
         boolCompare: '',
+        flowTrigger: ''
+    },
+    "button_timestamp":
+    {
+        dataEntry: [ 'button', 'button', 'timestamp' ],
+        capabilityID: 'timestamp',
+        divider: 0,
+        boolCompare: '',
         flowTrigger: 'button_status_changed'
     },
 };

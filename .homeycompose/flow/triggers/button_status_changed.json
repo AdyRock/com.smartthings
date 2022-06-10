@@ -13,6 +13,6 @@
     "args": [{
         "name": "device",
         "type": "device",
-        "filter": "driver_id=stDevice&capabilities=tag_button_status"
+        "filter": "driver_id=stDevice&capabilities=tag_button_status,button_status"
     }]
 }

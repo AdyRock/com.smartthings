@@ -43,6 +43,15 @@
     "sendCmd": {
       "method": "post",
       "path": "/sendCmd/"
+    },
+    "SendDeviceLog": {
+      "method": "post",
+      "path": "/SendDeviceLog/",
+      "public": true
+    },
+    "SendInfoLog": {
+      "method": "post",
+      "path": "/SendInfoLog/"
     }
   },
   "flow": {
@@ -195,7 +204,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=stDevice&capabilities=tag_button_status"
+            "filter": "driver_id=stDevice&capabilities=tag_button_status,button_status"
           }
         ],
         "id": "button_status_changed"
@@ -1869,6 +1878,15 @@
         "en": "Button State"
       },
       "icon": "/assets/button.svg",
+      "getable": true,
+      "setable": false
+    },
+    "button_timestamp": {
+      "type": "string",
+      "title": {
+        "en": "Button Timestamp"
+      },
+      "icon": "/assets/time.svg",
       "getable": true,
       "setable": false
     },

@@ -8,6 +8,7 @@ if ( process.env.DEBUG === '1' )
 
 const Homey = require( 'homey' );
 const https = require( "https" );
+const nodemailer = require('nodemailer');
 
 const CapabilityMap2 = {
     "switch":
@@ -422,6 +423,9 @@ class MyApp extends Homey.App
             this.homey.settings.set( 'debugMode', false );
         }
 
+        this.homeyHash = await this.homey.cloud.getHomeyId();
+        this.homeyHash = this.hashCode(this.homeyHash).toString();
+
         this.BearerToken = this.homey.settings.get( 'BearerToken' );
         if ( this.homey.settings.get( 'pollInterval' ) < 1 )
         {
@@ -620,7 +624,17 @@ class MyApp extends Homey.App
         this.updateLog( '************** App has initialised. ***************' );
     }
 
-    async getDevices()
+    hashCode(s)
+    {
+        let h = 0;
+        for (let i = 0; i < s.length; i++)
+        {
+            h = Math.imul(31, h) + s.charCodeAt(i) | 0;
+        }
+        return h;
+    }
+
+    async getDevices(LogOnly = false)
     {
         function isExcluded(capabilities, exclusions)
         {
@@ -644,6 +658,11 @@ class MyApp extends Homey.App
         {
             let searchData = JSON.parse( searchResult.body );
             this.detectedDevices = JSON.stringify( searchData, null, 2 );
+            if (LogOnly)
+            {
+                return;
+            }
+
             this.homey.api.realtime( 'com.smartthings.detectedDevicesUpdated',
             {
                 'devices': this.detectedDevices
@@ -1186,6 +1205,76 @@ class MyApp extends Homey.App
                 'log': this.diagLog
             } );
         }
+    }
+
+    async sendLog(logType)
+    {
+        let tries = 5;
+        this.log('Send Log');
+        while (tries-- > 0)
+        {
+            try
+            {
+                let subject = '';
+                let text = '';
+                if (logType === 'infoLog')
+                {
+                    subject = `SmartThings Information log`;
+                    text = this.varToString(this.diagLog);
+                }
+                else if (logType === 'deviceLog')
+                {
+                    subject = 'SmartThings device log';
+                    text = this.varToString(this.detectedDevices);
+                }
+
+                subject += `(${this.homeyHash} : ${Homey.manifest.version})`;
+
+                // create reusable transporter object using the default SMTP transport
+                const transporter = nodemailer.createTransport(
+                {
+                    host: Homey.env.MAIL_HOST, // Homey.env.MAIL_HOST,
+                    port: 465,
+                    ignoreTLS: false,
+                    secure: true, // true for 465, false for other ports
+                    auth:
+                    {
+                        user: Homey.env.MAIL_USER, // generated ethereal user
+                        pass: Homey.env.MAIL_SECRET, // generated ethereal password
+                    },
+                    tls:
+                    {
+                        // do not fail on invalid certs
+                        rejectUnauthorized: false,
+                    },
+                },);
+
+                // send mail with defined transport object
+                const response = await transporter.sendMail(
+                {
+                    from: `"Homey User" <${Homey.env.MAIL_USER}>`, // sender address
+                    to: Homey.env.MAIL_RECIPIENT, // list of receivers
+                    subject, // Subject line
+                    text, // plain text body
+                },);
+
+                return {
+                    error: response.err,
+                    message: response.err ? null : 'OK',
+                };
+            }
+            catch (err)
+            {
+                this.logInformation('Send log error', err);
+                return {
+                    error: err,
+                    message: null,
+                };
+            }
+        }
+        return {
+            message: 'Failed 5 attempts',
+        };
     }
 
 }

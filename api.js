@@ -7,6 +7,7 @@ module.exports = {
     },
     async getDetect( { homey, query } )
     {
+        homey.app.getDevices(true);
         return homey.app.detectedDevices;
     },
     async clearLog( { homey, body } )
@@ -24,5 +25,13 @@ module.exports = {
         }
 
         throw new Error( "No Response" );
+    },
+    async SendDeviceLog({ homey, body })
+    {
+        return homey.app.sendLog('deviceLog');
+    },
+    async SendInfoLog({ homey, body })
+    {
+        return homey.app.sendLog('infoLog');
     },
 };
