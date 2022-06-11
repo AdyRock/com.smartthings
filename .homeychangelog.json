@@ -121,5 +121,8 @@
     },
     "1.0.18": {
         "en": "Add button time stamp\nAdded Send Log buttons to detected devices and Information Log."
+    },
+    "1.0.19": {
+        "en": "Added button pressed flow trigger card."
     }
 }

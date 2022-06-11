@@ -21,6 +21,7 @@ class STDriver extends Homey.Driver
             'acceleration_x_changed': this.homey.flow.getDeviceTriggerCard( 'acceleration_x_changed' ),
             'acceleration_y_changed': this.homey.flow.getDeviceTriggerCard( 'acceleration_y_changed' ),
             'acceleration_z_changed': this.homey.flow.getDeviceTriggerCard( 'acceleration_z_changed' ),
+            'tag_button_status_changed': this.homey.flow.getDeviceTriggerCard( 'tag_button_status_changed' ),
             'button_status_changed': this.homey.flow.getDeviceTriggerCard( 'button_status_changed' ),
         };
 

@@ -204,7 +204,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=stDevice&capabilities=tag_button_status,button_status"
+            "filter": "driver_id=stDevice&capabilities=button_status"
           }
         ],
         "id": "button_status_changed"
@@ -329,6 +329,31 @@
           }
         ],
         "id": "presenceStatus_changed"
+      },
+      {
+        "title": {
+          "en": "The button status changed"
+        },
+        "hint": {
+          "en": "This card starts a Flow when the the status of the button changes."
+        },
+        "tokens": [
+          {
+            "name": "value",
+            "type": "string",
+            "title": {
+              "en": "Button status"
+            }
+          }
+        ],
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=stDevice&capabilities=tag_button_status"
+          }
+        ],
+        "id": "tag_button_status_changed"
       },
       {
         "title": {
@@ -1526,7 +1551,9 @@
       "class": "other",
       "capabilities": [
         "onoff",
-        "meter_power.delta"
+        "meter_power.delta",
+        "tag_button_status",
+        "button_status"
       ],
       "capabilitiesOptions": {
         "meter_power.delta": {

@@ -479,7 +479,8 @@ const capabilityMap1 = {
         capabilityID: 'tag.tagButton',
         divider: 0,
         boolCompare: '',
-        flowTrigger: 'button_status_changed'
+        flowTrigger: 'tag_button_status_changed',
+        keep: true
     },
     "button_status":
     {
@@ -487,15 +488,17 @@ const capabilityMap1 = {
         capabilityID: 'button',
         divider: 0,
         boolCompare: '',
-        flowTrigger: ''
+        flowTrigger: '',
+        keep: true
     },
     "button_timestamp":
     {
         dataEntry: [ 'button', 'button', 'timestamp' ],
-        capabilityID: 'timestamp',
+        capabilityID: 'button',
         divider: 0,
         boolCompare: '',
-        flowTrigger: 'button_status_changed'
+        flowTrigger: 'button_status_changed',
+        flowTag: 'button_status'
     },
 };
 
@@ -857,7 +860,14 @@ class STDevice extends Homey.Device
 
                         this.homey.app.updateLog( "Set Capability: " + capability + " - Value: " + value );
                         let lastValue = this.getCapabilityValue( capability );
-                        this.setCapabilityValue( capability, value ).catch(this.error);
+                        try
+                        {
+                            await this.setCapabilityValue( capability, value )
+                        }
+                        catch( err )
+                        {
+                            this.log( err);
+                        }
 
                         if ( mapEntry.flowTrigger )
                         {
@@ -870,9 +880,19 @@ class STDevice extends Homey.Device
                                     'value': value
                                 };
 
-                                let tokens = {
-                                    'value': value
-                                };
+                                let tokens;
+                                if (mapEntry.flowTag)
+                                {
+                                    tokens = {
+                                        'value': this.getCapabilityValue(mapEntry.flowTag)
+                                    };
+                                }
+                                else
+                                {
+                                    tokens = {
+                                        'value': value
+                                    };
+                                }
 
                                 this.driver.flowTriggers[ mapEntry.flowTrigger ]
                                     .trigger( this, tokens, state )

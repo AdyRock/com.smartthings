@@ -6,7 +6,9 @@
     "class": "other",
     "capabilities": [
         "onoff",
-        "meter_power.delta"
+        "meter_power.delta",
+        "tag_button_status",
+        "button_status"
     ],
     "capabilitiesOptions": {
         "meter_power.delta": {

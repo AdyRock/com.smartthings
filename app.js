@@ -63,7 +63,7 @@ const CapabilityMap2 = {
     {
         class: "",
         exclude: "",
-        capabilities: [ "tag_button_status" ],
+        capabilities: [ "tag_button_status", "button_timestamp" ],
         icon: "tag.svg",
         iconPriority: 5
     },
@@ -71,7 +71,7 @@ const CapabilityMap2 = {
     {
         class: "",
         exclude: "",
-        capabilities: [ "button_status" ],
+        capabilities: [ "button_status", "button_timestamp" ],
         icon: "button.svg",
         iconPriority: 5
     },
