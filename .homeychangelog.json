@@ -124,5 +124,8 @@
     },
     "1.0.19": {
         "en": "Added button pressed flow trigger card."
+    },
+    "1.0.20": {
+        "en": "Added checks for valid data when processing device list. Log devices special status during device list processing."
     }
 }
