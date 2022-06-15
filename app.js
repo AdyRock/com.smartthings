@@ -722,7 +722,7 @@ class MyApp extends Homey.App
                                         const option = capabilityStatus[ capabilityMapEntry.statusEntry ];
                                         for ( let entry = 0; entry < capabilityMapEntry.statusValue.length; entry++ )
                                         {
-                                            if ( option.value.id === capabilityMapEntry.statusValue[ entry ] )
+                                            if ( option.value && option.value.id && (option.value.id === capabilityMapEntry.statusValue[ entry ]) )
                                             {
                                                 capabilities.push( capabilityMapEntry.capabilities[ entry ] );
                                                 break;
