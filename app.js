@@ -876,14 +876,20 @@ class MyApp extends Homey.App
 
         //https://api.smartthings.com/v1/devices/{deviceId}/components/{componentId}/capabilities/{capabilityId}/status
         let url = "devices/" + DeviceID + "/components/" + ComponentID + "/capabilities/" + CapabilityID + "/status";
-        let result = await this.GetURL( url );
-        if ( result )
+        try
         {
-            let searchData = JSON.parse( result.body );
-            this.homey.app.updateLog( "Get device: " + url + "\nResult: " + JSON.stringify( searchData, null, 2 ) );
-            return searchData;
+            let result = await this.GetURL( url );
+            if ( result )
+            {
+                let searchData = JSON.parse( result.body );
+                this.homey.app.updateLog( "Get device: " + url + "\nResult: " + JSON.stringify( searchData, null, 2 ) );
+                return searchData;
+            }
         }
-
+        catch (err )
+        {
+            this.homey.app.updateLog( "Get device error: " + url + "\nError: " + JSON.stringify( err, null, 2 ) );
+        }
         return -1;
     }
 
