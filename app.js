@@ -717,6 +717,7 @@ class MyApp extends Homey.App
                                 {
                                     // We need to check the value status to get more information about which capability to add
                                     const capabilityStatus = await this.getDeviceCapabilityValue( device.deviceId, component.id, deviceCapability.id );
+                                    this.homey.app.updateLog( `Capability status for: ${deviceCapability.id} = ${this.varToString( capabilityStatus )}` );
                                     if ( capabilityStatus[ capabilityMapEntry.statusEntry ] )
                                     {
                                         const option = capabilityStatus[ capabilityMapEntry.statusEntry ];
