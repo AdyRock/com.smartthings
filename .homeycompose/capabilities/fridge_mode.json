@@ -1,7 +1,7 @@
 {
   "type": "string",
   "title": {
-    "en": "Washing Course Details"
+    "en": "Water Filter"
   },
   "icon": "/assets/wash_status.svg",
   "getable": true,

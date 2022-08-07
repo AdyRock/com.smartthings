@@ -1,9 +1,76 @@
 {
-  "type": "string",
-  "title": {
-    "en": "Washing Course"
-  },
-  "icon": "/assets/wash_status.svg",
-  "getable": true,
-  "setable": false
-}
+    "type": "enum",
+    "title": {
+      "en": "Washing Mode"
+    },
+    "getable": true,
+    "setable": true,
+    "uiComponent": "picker",
+    "values": [{
+        "id": "auto",
+        "title": {
+          "en": "Auto"
+        }
+      },
+      {
+        "id": "eco",
+        "title": {
+          "en": "Eco"
+        }
+      },
+      {
+        "id": "intensive",
+        "title": {
+          "en": "Intensive"
+        }
+      },
+      {
+        "id": "delicate",
+        "title": {
+          "en": "Delicate"
+        }
+      },
+      {
+        "id": "express",
+        "title": {
+          "en": "Express"
+        }
+      },
+      {
+        "id": "preWash",
+        "title": {
+          "en": "PreWash"
+        }
+      },
+      {
+        "id": "selfClean",
+        "title": {
+          "en": "Self Clean"
+        }
+      },
+      {
+        "id": "extraSilence",
+        "title": {
+          "en": "Extra Silence"
+        }
+      },
+      {
+        "id": "babycare",
+        "title": {
+          "en": "Baby Care"
+        }
+      },
+      {
+        "id": "plastics",
+        "title": {
+          "en": "Plastics"
+        }
+      },
+      {
+        "id": "potsAndPans",
+        "title": {
+          "en": "Pots and Pans"
+        }
+      }
+    ]
+  }

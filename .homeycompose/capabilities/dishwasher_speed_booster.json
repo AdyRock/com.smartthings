@@ -1,0 +1,9 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Speed Booter"
+  },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle"
+}

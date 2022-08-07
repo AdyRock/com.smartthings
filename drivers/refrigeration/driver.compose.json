@@ -7,7 +7,13 @@
   "capabilities": [
     "alarm_contact",
     "target_temperature",
-    "onoff"
+    "onoff",
+    "fridge_deodor_filter",
+    "fridge_device_report_state_configuration",
+    "fridge_mode",
+    "fridge_power_cool",
+    "fridge_power_freeze",
+    "fridge_water_filter"
   ],
   "capabilitiesOptions":
   {

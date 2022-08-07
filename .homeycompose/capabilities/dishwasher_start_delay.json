@@ -1,0 +1,10 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Time until start"
+  },
+  "units": { "en": "min" },
+  "icon": "/assets/time.svg",
+  "getable": true,
+  "setable": false
+}

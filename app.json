@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.smartthings",
-  "version": "1.0.20",
+  "version": "1.0.21",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#FF7D4B",
@@ -1510,7 +1510,13 @@
       "capabilities": [
         "alarm_contact",
         "target_temperature",
-        "onoff"
+        "onoff",
+        "fridge_deodor_filter",
+        "fridge_device_report_state_configuration",
+        "fridge_mode",
+        "fridge_power_cool",
+        "fridge_power_freeze",
+        "fridge_water_filter"
       ],
       "capabilitiesOptions": {
         "target_temperature": {
@@ -2301,6 +2307,60 @@
       "type": "string",
       "title": {
         "en": "Error And Alarm State"
+      },
+      "icon": "/assets/wash_status.svg",
+      "getable": true,
+      "setable": false
+    },
+    "fridge_deodor_filter": {
+      "type": "string",
+      "title": {
+        "en": "Deodorant Filter"
+      },
+      "icon": "/assets/wash_status.svg",
+      "getable": true,
+      "setable": false
+    },
+    "fridge_device_report_state_configuration": {
+      "type": "string",
+      "title": {
+        "en": "Device Report State Configuration"
+      },
+      "icon": "/assets/wash_status.svg",
+      "getable": true,
+      "setable": false
+    },
+    "fridge_mode": {
+      "type": "string",
+      "title": {
+        "en": "Water Filter"
+      },
+      "icon": "/assets/wash_status.svg",
+      "getable": true,
+      "setable": false
+    },
+    "fridge_power_cool": {
+      "type": "string",
+      "title": {
+        "en": "Power Cool"
+      },
+      "icon": "/assets/wash_status.svg",
+      "getable": true,
+      "setable": false
+    },
+    "fridge_power_freeze": {
+      "type": "string",
+      "title": {
+        "en": "Power Freeze"
+      },
+      "icon": "/assets/wash_status.svg",
+      "getable": true,
+      "setable": false
+    },
+    "fridge_water_filter": {
+      "type": "string",
+      "title": {
+        "en": "Water Filter"
       },
       "icon": "/assets/wash_status.svg",
       "getable": true,

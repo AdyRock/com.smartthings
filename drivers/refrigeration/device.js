@@ -122,6 +122,42 @@ class FridgeDevice extends Homey.Device
             {
                 this.setCapabilityValue( 'onoff', value.rapidFreezing.value === 'on' ).catch(this.error);
             }
+
+            value = await Homey.app.getDeviceCapabilityValue( devData.id, 'main', 'custom.deodorFilter' );
+            if ( value )
+            {
+                this.setCapabilityValue( 'fridge_deodor_filter', value ).catch(this.error);
+            }
+
+            value = await Homey.app.getDeviceCapabilityValue( devData.id, 'main', 'custom.deviceReportStateConfiguration' );
+            if ( value )
+            {
+                this.setCapabilityValue( 'fridge_device_report_state_configuration', value ).catch(this.error);
+            }
+
+            value = await Homey.app.getDeviceCapabilityValue( devData.id, 'main', 'custom.fridgeMode' );
+            if ( value )
+            {
+                this.setCapabilityValue( 'fidge_mode', value ).catch(this.error);
+            }
+
+            value = await Homey.app.getDeviceCapabilityValue( devData.id, 'main', 'custom.waterFilter' );
+            if ( value )
+            {
+                this.setCapabilityValue( 'fridge_water_filter', value ).catch(this.error);
+            }
+
+            value = await Homey.app.getDeviceCapabilityValue( devData.id, 'main', 'samsungce.powerCool' );
+            if ( value )
+            {
+                this.setCapabilityValue( 'fridge_power_cool', value ).catch(this.error);
+            }
+
+            value = await Homey.app.getDeviceCapabilityValue( devData.id, 'main', 'samsungce.powerFreeze' );
+            if ( value )
+            {
+                this.setCapabilityValue( 'fridge_power_freeze', value ).catch(this.error);
+            }
         }
         catch ( err )
         {

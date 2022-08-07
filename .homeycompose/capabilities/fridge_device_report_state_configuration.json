@@ -1,7 +1,7 @@
 {
-  "type": "number",
+  "type": "string",
   "title": {
-    "en": "Cycles Since Self Cleaning"
+    "en": "Device Report State Configuration"
   },
   "icon": "/assets/wash_status.svg",
   "getable": true,

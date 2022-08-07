@@ -500,6 +500,115 @@ const capabilityMap1 = {
         flowTrigger: 'button_status_changed',
         flowTag: 'button_status'
     },
+    "dishwasher_job_status":
+    {
+        dataEntry: [ 'samsungce.dishwasherJobState', 'dishwasherJobState', 'value' ],
+        capabilityID: 'samsungce.dishwasherJobState',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null,
+        keep: true
+    },
+    "dishwasher_auto_door_release":
+    {
+        dataEntry: [ 'samsungce.autoDoorRelease', 'autoDoorReleaseEnabled', 'value' ],
+        capabilityID: 'samsungce.autoDoorRelease',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null,
+        keep: true
+    },
+    "dishwasher_drum_self_cleaning":
+    {
+        dataEntry: [ 'samsungce.drumSelfCleaning', 'washingCountAfterSelfClean', 'value' ],
+        capabilityID: 'samsungce.drumSelfCleaning',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null,
+        keep: true
+    },
+    "dishwasher_operation":
+    {
+        dataEntry: [ 'samsungce.dishwasherOperation', 'operatingState', 'value' ],
+        capabilityID: 'samsungce.dishwasherOperation',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null,
+        keep: true
+    },
+    "dishwasher_washing_course":
+    {
+        dataEntry: [ 'samsungce.dishwasherWashingCourse', 'washingCourse', 'value' ],
+        capabilityID: 'samsungce.dishwasherWashingCourse',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null,
+        keep: true
+    },
+    "dishwasher_zone":
+    {
+        dataEntry: [ 'samsungce.dishwasherWashingOptions', 'selectedZone', 'value', 'value' ],
+        capabilityID: 'samsungce.dishwasherWashingOptions',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null,
+        keep: true
+    },
+    "dishwasher_speed_booster":
+    {
+        dataEntry: [ 'samsungce.dishwasherWashingOptions', 'speedBooster', 'value', 'value' ],
+        capabilityID: 'samsungce.dishwasherWashingOptions',
+        divider: 0,
+        boolCompare: 'true',
+        flowTrigger: null,
+        keep: true
+    },
+    "dishwasher_sanitize":
+    {
+        dataEntry: [ 'samsungce.dishwasherWashingOptions', 'sanitize', 'value', 'value' ],
+        capabilityID: 'samsungce.dishwasherWashingOptions',
+        divider: 0,
+        boolCompare: 'true',
+        flowTrigger: null,
+        keep: true
+    },
+    "error_alarm_state":
+    {
+        dataEntry: [ 'samsungce.errorAndAlarmState', 'events', 'value', 'description' ],
+        capabilityID: 'samsungce.errorAndAlarmState',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null,
+        keep: true
+    },
+    "dishwasher_remaining_time":
+    {
+        dataEntry: [ 'samsungce.dishwasherOperation', 'remainingTimeStr', 'value' ],
+        capabilityID: 'samsungce.dishwasherOperation',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null,
+        keep: true
+    },
+    "dishwasher_progress_percentage":
+    {
+        dataEntry: [ 'samsungce.dishwasherOperation', 'progressPercentage', 'value' ],
+        capabilityID: 'samsungce.dishwasherOperation',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null,
+        keep: true
+    },
+    "dishwasher_dertergent":
+    {
+        dataEntry: [ 'samsungce.dishwasher_dertergent', 'dishwasher_dertergent', 'value' ],
+        capabilityID: 'samsungce.dishwasher_dertergent',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null,
+        keep: true
+    },
+
 };
 
 class STDevice extends Homey.Device
@@ -695,6 +804,26 @@ class STDevice extends Homey.Device
         if ( this.hasCapability( 'media_input_source' ) )
         {
             this.registerCapabilityListener( 'media_input_source', this.onCapabilityMediaInputSource.bind( this ) );
+        }
+
+        if ( this.hasCapability( 'dishwasher_washing_course' ) )
+        {
+            this.registerCapabilityListener( 'dishwasher_washing_course', this.onCapabilityDishwasherWashingCourse.bind( this ) );
+        }
+
+        if ( this.hasCapability( 'dishwasher_sanitize' ) )
+        {
+            this.registerCapabilityListener( 'dishwasher_sanitize', this.onCapabilityDishwasherSanitize.bind( this ) );
+        }
+
+        if ( this.hasCapability( 'dishwasher_speed_booster' ) )
+        {
+            this.registerCapabilityListener( 'dishwasher_speed_booster', this.onCapabilityDishwasherSpeedBooster.bind( this ) );
+        }
+
+        if ( this.hasCapability( 'dishwasher_zone' ) )
+        {
+            this.registerCapabilityListener( 'dishwasher_zone', this.onCapabilityDishwasherZone.bind( this ) );
         }
 
         this.getDeviceValues();
@@ -2067,6 +2196,154 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             this.homey.app.updateLog( this.getName() + " onCapabilityMediaInputSource Error " + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
+        }
+    }
+
+    async onCapabilityDishwasherWashingCourse( value, opts )
+    {
+        try
+        {
+            if ( !this.deviceOn || !this.remoteControlEnabled )
+            {
+                this.setWarning( "Remote control not enabled", null );
+                throw new Error( "Remote control not enabled" );
+            }
+
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "samsungce.dishwasherWashingCourse",
+                    "command": "setWashingCourse",
+                    "arguments": [
+                        value
+                    ]
+                } ]
+            };
+
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // Set the dim Value on the device using the unique feature ID stored during pairing
+            let res = await this.homey.app.setDeviceCapabilityValue( devData.id, body );
+            console.log( res );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            this.homey.app.updateLog( this.getName() + " onCapabilityDishwasherWashingCourse " + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
+        }
+    }
+
+    async onCapabilityDishwasherSanitize( value, opts )
+    {
+        try
+        {
+            if ( !this.deviceOn || !this.remoteControlEnabled )
+            {
+                this.setWarning( "Remote control not enabled", null );
+                throw new Error( "Remote control not enabled" );
+            }
+
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "samsungce.dishwasherWashingOptions",
+                    "command": "setSanitize",
+                    "arguments": [
+                        value
+                    ]
+                } ]
+            };
+
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // Set the dim Value on the device using the unique feature ID stored during pairing
+            let res = await this.homey.app.setDeviceCapabilityValue( devData.id, body );
+            console.log( res );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            this.homey.app.updateLog( this.getName() + " onCapabilityDishwasherSanitize " + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
+        }
+    }
+
+    async onCapabilityDishwasherSpeedBooster( value, opts )
+    {
+        try
+        {
+            if ( !this.deviceOn || !this.remoteControlEnabled )
+            {
+                this.setWarning( "Remote control not enabled", null );
+                throw new Error( "Remote control not enabled" );
+            }
+
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "samsungce.dishwasherWashingOptions",
+                    "command": "setSpeedBooster",
+                    "arguments": [
+                        value
+                    ]
+                } ]
+            };
+
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // Set the dim Value on the device using the unique feature ID stored during pairing
+            let res = await this.homey.app.setDeviceCapabilityValue( devData.id, body );
+            console.log( res );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            this.homey.app.updateLog( this.getName() + " onCapabilityDishwasherSpeedBooster " + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
+        }
+    }
+
+    async onCapabilityDishwasherZone( value, opts )
+    {
+        try
+        {
+            if ( !this.deviceOn || !this.remoteControlEnabled )
+            {
+                this.setWarning( "Remote control not enabled", null );
+                throw new Error( "Remote control not enabled" );
+            }
+
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "samsungce.dishwasherWashingOptions",
+                    "command": "setSelectedZone",
+                    "arguments": [
+                        value
+                    ]
+                } ]
+            };
+
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // Set the dim Value on the device using the unique feature ID stored during pairing
+            let res = await this.homey.app.setDeviceCapabilityValue( devData.id, body );
+            console.log( res );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            this.homey.app.updateLog( this.getName() + " onCapabilityDishwasherSpeedBooster " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }

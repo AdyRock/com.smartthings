@@ -1,0 +1,10 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Progress"
+  },
+  "units": { "en": "%" },
+  "icon": "/assets/finish_time.svg",
+  "getable": true,
+  "setable": false
+}

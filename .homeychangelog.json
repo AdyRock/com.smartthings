@@ -127,5 +127,8 @@
     },
     "1.0.20": {
         "en": "Added checks for valid data when processing device list. Log devices special status during device list processing."
+    },
+    "1.0.21": {
+        "en": "First attempt at adding a dishwasher and extra fridge capabilities."
     }
 }

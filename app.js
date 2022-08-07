@@ -437,19 +437,11 @@ const CapabilityMap2 = {
         icon: "dishwasher.svg",
         iconPriority: 5
     },
-    "samsungce.dishwasherWashingCourseDetails":
-    {
-        class: "other",
-        exclude: "",
-        capabilities: [ 'dishwasher_washing_course_details' ],
-        icon: "dishwasher.svg",
-        iconPriority: 5
-    },
     "samsungce.dishwasherWashingOptions":
     {
         class: "other",
         exclude: "",
-        capabilities: [ 'dishwasher_washing_options' ],
+        capabilities: [ 'dishwasher_zone' ],
         icon: "dishwasher.svg",
         iconPriority: 5
     },
@@ -465,7 +457,7 @@ const CapabilityMap2 = {
     {
         class: "other",
         exclude: "",
-        capabilities: [ 'dishwasher_operation' ],
+        capabilities: [ 'dishwasher_operation', 'dishwasher_remaining_time', 'dishwasher_progress_percentage' ],
         icon: "dishwasher.svg",
         iconPriority: 5
     },

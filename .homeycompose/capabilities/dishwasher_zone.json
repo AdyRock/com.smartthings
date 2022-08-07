@@ -1,0 +1,23 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Washing Zone"
+  },
+  "icon": "/assets/wash_status.svg",
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [{
+      "id": "all",
+      "title": {
+        "en": "All"
+      }
+    },
+    {
+      "id": "lower",
+      "title": {
+        "en": "Lower"
+      }
+    }
+  ]
+}
