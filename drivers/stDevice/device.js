@@ -862,7 +862,7 @@ class STDevice extends Homey.Device
                         let lastValue = this.getCapabilityValue( capability );
                         try
                         {
-                            await this.setCapabilityValue( capability, value )
+                            await this.setCapabilityValue( capability, value );
                         }
                         catch( err )
                         {

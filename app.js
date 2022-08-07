@@ -166,7 +166,7 @@ const CapabilityMap2 = {
     "audioMute":
     {
         class: "",
-        exclude: "",
+        exclude: ['samsungce.dishwasherJobState'],
         capabilities: [ 'volume_mute' ],
         icon: "",
         iconPriority: 0
@@ -404,6 +404,78 @@ const CapabilityMap2 = {
         capabilities: [ 'media_input_source' ],
         icon: "",
         iconPriority: 0
+    },
+    "samsungce.dishwasherJobState":
+    {
+        class: "other",
+        exclude: "",
+        capabilities: [ 'dishwasher_job_status' ],
+        icon: "dishwasher.svg",
+        iconPriority: 5
+    },
+    "samsungce.autoDoorRelease":
+    {
+        class: "other",
+        exclude: "",
+        capabilities: [ 'dishwasher_auto_door_release' ],
+        icon: "dishwasher.svg",
+        iconPriority: 5
+    },
+    "samsungce.detergentState":
+    {
+        class: "other",
+        exclude: "",
+        capabilities: [ 'dishwasher_dertergent' ],
+        icon: "dishwasher.svg",
+        iconPriority: 5
+    },
+    "samsungce.dishwasherWashingCourse":
+    {
+        class: "other",
+        exclude: "",
+        capabilities: [ 'dishwasher_washing_course' ],
+        icon: "dishwasher.svg",
+        iconPriority: 5
+    },
+    "samsungce.dishwasherWashingCourseDetails":
+    {
+        class: "other",
+        exclude: "",
+        capabilities: [ 'dishwasher_washing_course_details' ],
+        icon: "dishwasher.svg",
+        iconPriority: 5
+    },
+    "samsungce.dishwasherWashingOptions":
+    {
+        class: "other",
+        exclude: "",
+        capabilities: [ 'dishwasher_washing_options' ],
+        icon: "dishwasher.svg",
+        iconPriority: 5
+    },
+    "samsungce.drumSelfCleaning":
+    {
+        class: "other",
+        exclude: "",
+        capabilities: [ 'dishwasher_drum_self_cleaning' ],
+        icon: "dishwasher.svg",
+        iconPriority: 5
+    },
+    "samsungce.dishwasherOperation":
+    {
+        class: "other",
+        exclude: "",
+        capabilities: [ 'dishwasher_operation' ],
+        icon: "dishwasher.svg",
+        iconPriority: 5
+    },
+    "samsungce.errorAndAlarmState":
+    {
+        class: "other",
+        exclude: "",
+        capabilities: [ 'error_alarm_state' ],
+        icon: "dishwasher.svg",
+        iconPriority: 5
     },
 };
 

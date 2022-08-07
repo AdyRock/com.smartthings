@@ -1935,6 +1935,78 @@
       "setable": true,
       "uiComponent": "toggle"
     },
+    "dishwasher_auto_door_release": {
+      "type": "string",
+      "title": {
+        "en": "Auto Door Release"
+      },
+      "icon": "/assets/wash_status.svg",
+      "getable": true,
+      "setable": false
+    },
+    "dishwasher_dertergent": {
+      "type": "string",
+      "title": {
+        "en": "Detergent Order"
+      },
+      "icon": "/assets/wash_status.svg",
+      "getable": true,
+      "setable": false
+    },
+    "dishwasher_drum_self_cleaning": {
+      "type": "string",
+      "title": {
+        "en": "Drum Self Cleaning"
+      },
+      "icon": "/assets/wash_status.svg",
+      "getable": true,
+      "setable": false
+    },
+    "dishwasher_job_status": {
+      "type": "string",
+      "title": {
+        "en": "Job Status"
+      },
+      "icon": "/assets/wash_status.svg",
+      "getable": true,
+      "setable": false
+    },
+    "dishwasher_operation": {
+      "type": "string",
+      "title": {
+        "en": "Dishwasher Operation"
+      },
+      "icon": "/assets/wash_status.svg",
+      "getable": true,
+      "setable": false
+    },
+    "dishwasher_washing_course": {
+      "type": "string",
+      "title": {
+        "en": "Washing Course"
+      },
+      "icon": "/assets/wash_status.svg",
+      "getable": true,
+      "setable": false
+    },
+    "dishwasher_washing_course_details": {
+      "type": "string",
+      "title": {
+        "en": "Washing Course Details"
+      },
+      "icon": "/assets/wash_status.svg",
+      "getable": true,
+      "setable": false
+    },
+    "dishwasher_washing_options": {
+      "type": "string",
+      "title": {
+        "en": "Washing Options"
+      },
+      "icon": "/assets/wash_status.svg",
+      "getable": true,
+      "setable": false
+    },
     "dryer_completion_time": {
       "type": "string",
       "title": {
@@ -2222,6 +2294,15 @@
         "en": "Dust Filter Status"
       },
       "icon": "/assets/dust_filter.svg",
+      "getable": true,
+      "setable": false
+    },
+    "error_alarm_state": {
+      "type": "string",
+      "title": {
+        "en": "Error And Alarm State"
+      },
+      "icon": "/assets/wash_status.svg",
       "getable": true,
       "setable": false
     },

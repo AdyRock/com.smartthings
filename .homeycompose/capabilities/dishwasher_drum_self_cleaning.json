@@ -1,0 +1,9 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Drum Self Cleaning"
+  },
+  "icon": "/assets/wash_status.svg",
+  "getable": true,
+  "setable": false
+}

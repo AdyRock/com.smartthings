@@ -1,0 +1,9 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Error And Alarm State"
+  },
+  "icon": "/assets/wash_status.svg",
+  "getable": true,
+  "setable": false
+}

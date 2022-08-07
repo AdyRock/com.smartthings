@@ -1,0 +1,9 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Washing Course"
+  },
+  "icon": "/assets/wash_status.svg",
+  "getable": true,
+  "setable": false
+}

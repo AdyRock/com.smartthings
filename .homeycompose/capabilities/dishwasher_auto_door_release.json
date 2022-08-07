@@ -1,0 +1,9 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Auto Door Release"
+  },
+  "icon": "/assets/wash_status.svg",
+  "getable": true,
+  "setable": false
+}
