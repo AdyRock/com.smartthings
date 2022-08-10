@@ -296,10 +296,29 @@ const capabilityMap1 = {
     "rapid_freezing":
     {
         dataEntry: [ 'refrigeration', 'rapidFreezing', 'value' ],
-        capabilityID: 'rapidFreezing',
+        capabilityID: 'refrigeration',
         divider: 0,
         boolCompare: 'on',
-        flowTrigger: null
+        flowTrigger: null,
+        keep: true
+    },
+    "defrost":
+    {
+        dataEntry: [ 'refrigeration', 'defrost', 'value' ],
+        capabilityID: 'refrigeration',
+        divider: 0,
+        boolCompare: 'on',
+        flowTrigger: null,
+        keep: true
+    },
+    "rapid_cooling":
+    {
+        dataEntry: [ 'refrigeration', 'rapidCooling', 'value' ],
+        capabilityID: 'refrigeration',
+        divider: 0,
+        boolCompare: 'on',
+        flowTrigger: null,
+        keep: true
     },
     "volume_down":
     {
@@ -601,8 +620,26 @@ const capabilityMap1 = {
     },
     "dishwasher_dertergent":
     {
-        dataEntry: [ 'samsungce.dishwasher_dertergent', 'dishwasher_dertergent', 'value' ],
+        dataEntry: [ 'samsungce.dishwasher_dertergent', 'dishwasherDetergent', 'value' ],
         capabilityID: 'samsungce.dishwasher_dertergent',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null,
+        keep: true
+    },
+    "disabled_capabilities":
+    {
+        dataEntry: [ 'custom.disabledCapabilities', 'disabledCapabilities', 'value' ],
+        capabilityID: 'custom.disabledCapabilities',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null,
+        keep: true
+    },
+    "disabled_components":
+    {
+        dataEntry: [ 'custom.disabledComponents', 'disabledComponents', 'value' ],
+        capabilityID: 'custom.disabledComponents',
         divider: 0,
         boolCompare: '',
         flowTrigger: null,

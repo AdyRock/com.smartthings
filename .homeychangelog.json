@@ -130,5 +130,8 @@
     },
     "1.0.21": {
         "en": "First attempt at adding a dishwasher and extra fridge capabilities."
+    },
+    "1.0.22": {
+        "en": "Second attempt at adding a dishwasher and extra fridge capabilities."
     }
 }

@@ -1,0 +1,9 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Disbaled Components"
+  },
+  "icon": "/assets/wash_status.svg",
+  "getable": true,
+  "setable": false
+}

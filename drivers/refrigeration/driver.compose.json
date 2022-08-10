@@ -13,7 +13,10 @@
     "fridge_mode",
     "fridge_power_cool",
     "fridge_power_freeze",
-    "fridge_water_filter"
+    "fridge_water_filter",
+    "rapid_freezing",
+    "defrost",
+    "rapid_cooling"
   ],
   "capabilitiesOptions":
   {

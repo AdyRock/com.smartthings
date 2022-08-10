@@ -469,6 +469,70 @@ const CapabilityMap2 = {
         icon: "dishwasher.svg",
         iconPriority: 5
     },
+    "custom.deodorFilter":
+    {
+        class: "other",
+        exclude: "",
+        capabilities: [ 'fridge_deodor_filter' ],
+        icon: "refrigerator.svg",
+        iconPriority: 5
+    },
+    "custom.deviceReportStateConfiguration":
+    {
+        class: "other",
+        exclude: "",
+        capabilities: [ 'fridge_device_report_state_configuration' ],
+        icon: "refrigerator.svg",
+        iconPriority: 5
+    },
+    "custom.fridgeMode":
+    {
+        class: "other",
+        exclude: "",
+        capabilities: [ 'fidge_mode' ],
+        icon: "refrigerator.svg",
+        iconPriority: 5
+    },
+    "custom.waterFilter":
+    {
+        class: "other",
+        exclude: "",
+        capabilities: [ 'fridge_water_filter' ],
+        icon: "refrigerator.svg",
+        iconPriority: 5
+    },
+    "samsungce.powerCool":
+    {
+        class: "other",
+        exclude: "",
+        capabilities: [ 'fridge_power_cool' ],
+        icon: "refrigerator.svg",
+        iconPriority: 5
+    },
+    "samsungce.powerFreeze":
+    {
+        class: "other",
+        exclude: "",
+        capabilities: [ 'fridge_power_freeze' ],
+        icon: "refrigerator.svg",
+        iconPriority: 5
+    },
+    "custom.disabledCapabilities":
+    {
+        class: "other",
+        exclude: "",
+        capabilities: [ 'disabled_capabilities' ],
+        icon: "refrigerator.svg",
+        iconPriority: 5
+    },
+    "custom.disabledComponents":
+    {
+        class: "other",
+        exclude: "",
+        capabilities: [ 'disabled_components' ],
+        icon: "refrigerator.svg",
+        iconPriority: 5
+    },
 };
 
 class MyApp extends Homey.App
