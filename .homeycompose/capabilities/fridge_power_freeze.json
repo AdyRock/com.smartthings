@@ -3,7 +3,7 @@
   "title": {
     "en": "Power Freeze"
   },
-  "icon": "/assets/wash_status.svg",
+  "icon": "/assets/power_freeze.svg",
   "getable": true,
   "setable": false
 }

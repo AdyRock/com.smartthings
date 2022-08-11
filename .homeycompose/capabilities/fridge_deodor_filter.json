@@ -3,7 +3,7 @@
   "title": {
     "en": "Deodorant Filter"
   },
-  "icon": "/assets/wash_status.svg",
+  "icon": "/assets/air-filter.svg",
   "getable": true,
   "setable": false
 }

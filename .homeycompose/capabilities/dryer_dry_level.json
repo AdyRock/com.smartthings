@@ -1,28 +1,77 @@
 {
-  "type": "enum",
-  "title": {
-    "en": "Drying Level"
-  },
-  "getable": true,
-  "setable": true,
-  "uiComponent": "picker",
-  "values": [{
-      "id": "1",
-      "title": {
-        "en": "1"
-      }
+    "type": "enum",
+    "title": {
+        "en": "Drying Level"
     },
-    {
-      "id": "2",
-      "title": {
-        "en": "2"
-      }
-    },
-    {
-      "id": "3",
-      "title": {
-        "en": "3"
-      }
-    }
-  ]
+    "getable": true,
+    "setable": true,
+    "uiComponent": "picker",
+    "values": [
+        {
+            "id": "none",
+            "title": {
+                "en": "None"
+            }
+        },
+        {
+            "id": "cupboard",
+            "title": {
+                "en": "Cupboard"
+            }
+        },
+        {
+            "id": "30",
+            "title": {
+                "en": "30"
+            }
+        },
+        {
+            "id": "60",
+            "title": {
+                "en": "60"
+            }
+        },
+        {
+            "id": "90",
+            "title": {
+                "en": "90"
+            }
+        },
+        {
+            "id": "120",
+            "title": {
+                "en": "120"
+            }
+        },
+        {
+            "id": "150",
+            "title": {
+                "en": "150"
+            }
+        },
+        {
+            "id": "180",
+            "title": {
+                "en": "180"
+            }
+        },
+        {
+            "id": "210",
+            "title": {
+                "en": "210"
+            }
+        },
+        {
+            "id": "240",
+            "title": {
+                "en": "240"
+            }
+        },
+        {
+            "id": "270",
+            "title": {
+                "en": "270"
+            }
+        }
+    ]
 }

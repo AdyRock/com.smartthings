@@ -1944,24 +1944,6 @@
       "setable": true,
       "uiComponent": "toggle"
     },
-    "disabled_capabilities": {
-      "type": "string",
-      "title": {
-        "en": "Disbaled Capabilities"
-      },
-      "icon": "/assets/wash_status.svg",
-      "getable": true,
-      "setable": false
-    },
-    "disabled_components": {
-      "type": "string",
-      "title": {
-        "en": "Disbaled Components"
-      },
-      "icon": "/assets/wash_status.svg",
-      "getable": true,
-      "setable": false
-    },
     "dishwasher_auto_door_release": {
       "type": "string",
       "title": {
@@ -1974,9 +1956,9 @@
     "dishwasher_dertergent": {
       "type": "string",
       "title": {
-        "en": "Detergent Order"
+        "en": "Detergent Type"
       },
-      "icon": "/assets/wash_status.svg",
+      "icon": "/assets/laundry-detergent.svg",
       "getable": true,
       "setable": false
     },
@@ -1985,7 +1967,7 @@
       "title": {
         "en": "Cycles Since Self Cleaning"
       },
-      "icon": "/assets/wash_status.svg",
+      "icon": "/assets/clean.svg",
       "getable": true,
       "setable": false
     },
@@ -2287,21 +2269,69 @@
       "uiComponent": "picker",
       "values": [
         {
-          "id": "1",
+          "id": "none",
           "title": {
-            "en": "1"
+            "en": "None"
           }
         },
         {
-          "id": "2",
+          "id": "cupboard",
           "title": {
-            "en": "2"
+            "en": "Cupboard"
           }
         },
         {
-          "id": "3",
+          "id": "30",
           "title": {
-            "en": "3"
+            "en": "30"
+          }
+        },
+        {
+          "id": "60",
+          "title": {
+            "en": "60"
+          }
+        },
+        {
+          "id": "90",
+          "title": {
+            "en": "90"
+          }
+        },
+        {
+          "id": "120",
+          "title": {
+            "en": "120"
+          }
+        },
+        {
+          "id": "150",
+          "title": {
+            "en": "150"
+          }
+        },
+        {
+          "id": "180",
+          "title": {
+            "en": "180"
+          }
+        },
+        {
+          "id": "210",
+          "title": {
+            "en": "210"
+          }
+        },
+        {
+          "id": "240",
+          "title": {
+            "en": "240"
+          }
+        },
+        {
+          "id": "270",
+          "title": {
+            "en": "270"
           }
         }
       ]
@@ -2349,7 +2379,7 @@
       "title": {
         "en": "Drying Temperature"
       },
-      "icon": "/assets/wash_status.svg",
+      "icon": "/assets/thermometer.svg",
       "getable": true,
       "setable": false
     },
@@ -2435,7 +2465,7 @@
       "title": {
         "en": "Wrinkle Prevent"
       },
-      "icon": "/assets/wash_status.svg",
+      "icon": "/assets/no-wrinkles.svg",
       "getable": true,
       "setable": true,
       "uiComponent": "toggle"
@@ -2454,7 +2484,7 @@
       "title": {
         "en": "Error And Alarm State"
       },
-      "icon": "/assets/wash_status.svg",
+      "icon": "/assets/bell.svg",
       "getable": true,
       "setable": false
     },
@@ -2463,7 +2493,7 @@
       "title": {
         "en": "Deodorant Filter"
       },
-      "icon": "/assets/wash_status.svg",
+      "icon": "/assets/air-filter.svg",
       "getable": true,
       "setable": false
     },
@@ -2490,7 +2520,7 @@
       "title": {
         "en": "Power Cool"
       },
-      "icon": "/assets/wash_status.svg",
+      "icon": "/assets/power_cool.svg",
       "getable": true,
       "setable": false
     },
@@ -2499,7 +2529,7 @@
       "title": {
         "en": "Power Freeze"
       },
-      "icon": "/assets/wash_status.svg",
+      "icon": "/assets/power_freeze.svg",
       "getable": true,
       "setable": false
     },
@@ -2508,7 +2538,16 @@
       "title": {
         "en": "Water Filter"
       },
-      "icon": "/assets/wash_status.svg",
+      "icon": "/assets/water_filter.svg",
+      "getable": true,
+      "setable": false
+    },
+    "kids_lock": {
+      "type": "string",
+      "title": {
+        "en": "Child Lock"
+      },
+      "icon": "/assets/kids_lock.svg",
       "getable": true,
       "setable": false
     },

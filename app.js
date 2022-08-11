@@ -517,20 +517,12 @@ const CapabilityMap2 = {
         icon: "refrigerator.svg",
         iconPriority: 5
     },
-    "custom.disabledCapabilities":
+    "samsungce.kidsLock":
     {
         class: "other",
         exclude: "",
-        capabilities: [ 'disabled_capabilities' ],
-        icon: "refrigerator.svg",
-        iconPriority: 5
-    },
-    "custom.disabledComponents":
-    {
-        class: "other",
-        exclude: "",
-        capabilities: [ 'disabled_components' ],
-        icon: "refrigerator.svg",
+        capabilities: [ 'kids_lock' ],
+        icon: "washingmachine.svg",
         iconPriority: 5
     },
 };
@@ -807,9 +799,16 @@ class MyApp extends Homey.App
                 var components = device.components;
                 var iconName = "";
                 var iconPriority = 0;
+                const disabledComponents = await this.getDeviceCapabilityValue( device.deviceId, 'main', 'custom.disabledComponents' );
 
                 for ( const component of components )
                 {
+                    if (disabledComponents && disabledComponents.findIndex((element) => element === component.id) >= 0)
+                    {
+                        // This component is disabled
+                        continue;
+                    }
+
                     var data = {};
                     data = {
                         "id": device.deviceId,
@@ -846,7 +845,7 @@ class MyApp extends Homey.App
                                     // We need to check the value status to get more information about which capability to add
                                     const capabilityStatus = await this.getDeviceCapabilityValue( device.deviceId, component.id, deviceCapability.id );
                                     this.homey.app.updateLog( `Capability status for: ${deviceCapability.id} = ${this.varToString( capabilityStatus )}` );
-                                    if ( capabilityStatus[ capabilityMapEntry.statusEntry ] )
+                                    if ( capabilityStatus && capabilityStatus[ capabilityMapEntry.statusEntry ] )
                                     {
                                         const option = capabilityStatus[ capabilityMapEntry.statusEntry ];
                                         for ( let entry = 0; entry < capabilityMapEntry.statusValue.length; entry++ )
@@ -894,6 +893,17 @@ class MyApp extends Homey.App
             this.homey.app.updateLog( "Getting API Key returned NULL" );
             throw new Error( "HTTPS Error: Nothing returned" );
         }
+    }
+
+    getCapabilitiesForSTCapability(stCapability)
+    {
+        const capabilityMapEntry = CapabilityMap2[ stCapability ];
+        if (capabilityMapEntry)
+        {
+            return capabilityMapEntry.capabilities;
+        }
+
+        return null;
     }
 
     async getDevicesByCategory( category )
@@ -1019,7 +1029,7 @@ class MyApp extends Homey.App
         {
             this.homey.app.updateLog( "Get device error: " + url + "\nError: " + JSON.stringify( err, null, 2 ) );
         }
-        return -1;
+        return null;
     }
 
     async setDeviceCapabilityValue( DeviceID, Commands )

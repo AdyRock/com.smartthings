@@ -3,7 +3,7 @@
   "title": {
     "en": "Error And Alarm State"
   },
-  "icon": "/assets/wash_status.svg",
+  "icon": "/assets/bell.svg",
   "getable": true,
   "setable": false
 }

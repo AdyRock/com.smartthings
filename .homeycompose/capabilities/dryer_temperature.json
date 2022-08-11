@@ -3,7 +3,7 @@
   "title": {
     "en": "Drying Temperature"
   },
-  "icon": "/assets/wash_status.svg",
+  "icon": "/assets/thermometer.svg",
   "getable": true,
   "setable": false
 }

@@ -3,7 +3,7 @@
   "title": {
     "en": "Cycles Since Self Cleaning"
   },
-  "icon": "/assets/wash_status.svg",
+  "icon": "/assets/clean.svg",
   "getable": true,
   "setable": false
 }

@@ -11,6 +11,29 @@ class FridgeDevice extends Homey.Device
     async onInit()
     {
         this.log( 'FridgeDevice has been initialized' );
+        const devData = this.getData();
+        var component = 'main';
+        if ( devData.component )
+        {
+            component = devData.component;
+        }
+
+        const value = await this.homey.app.getDeviceCapabilityValue( devData.id, component, 'custom.disabledCapabilities' );
+        if ( value && value.disabledCapabilities && value.disabledCapabilities.value )
+        {
+            value.disabledCapabilities.value.forEach(element => {
+                const capabilities = this.homey.app.getCapabilitiesForSTCapability(element);
+                if (capabilities)
+                {
+                    capabilities.forEach(capability => {
+                        if ( this.hasCapability( capability ) )
+                        {
+                            this.removeCapability(capability);
+                        }
+                    });
+                }
+            });
+        }
 
         this.registerCapabilityListener( 'onoff', this.onCapabilityOnoff.bind( this ) );
         this.registerCapabilityListener( 'target_temperature', this.onCapabilityTargetTemperature.bind( this ) );
@@ -59,12 +82,12 @@ class FridgeDevice extends Homey.Device
             };
 
             // Set the switch Value on the device using the unique feature ID stored during pairing
-            await Homey.app.setDeviceCapabilityValue( devData.id, body );
+            await this.homey.app.setDeviceCapabilityValue( devData.id, body );
         }
         catch ( err )
         {
             //this.setUnavailable();
-            Homey.app.updateLog( this.getName() + " onCapabilityOnoff Error " + Homey.app.varToString( err.message ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityOnoff Error " + this.homey.app.varToString( err.message ) );
         }
     }
 
@@ -87,12 +110,12 @@ class FridgeDevice extends Homey.Device
             const devData = this.getData();
 
             // Set the dim Value on the device using the unique feature ID stored during pairing
-            await Homey.app.setDeviceCapabilityValue( devData.id, body );
+            await this.homey.app.setDeviceCapabilityValue( devData.id, body );
         }
         catch ( err )
         {
             //this.setUnavailable();
-            Homey.app.updateLog( this.getName() + " onCapabilityTargetTemperature " + Homey.app.varToString( err.message ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityTargetTemperature " + this.homey.app.varToString( err.message ) );
         }
     }
 
@@ -102,61 +125,90 @@ class FridgeDevice extends Homey.Device
 
         try
         {
-            // Get the door open state
-            let value = await Homey.app.getDeviceCapabilityValue( devData.id, 'onedoor', 'contactSensor' );
-            if ( value )
+            let value = 0;
+            
+            if ( this.hasCapability( 'alarm_contact' ) )
             {
-                this.setCapabilityValue( 'alarm_contact', value.contact.value === 'open' ).catch(this.error);
+                // Get the door open state
+                value = await this.homey.app.getDeviceCapabilityValue( devData.id, 'onedoor', 'contactSensor' );
+                if ( value )
+                {
+                    this.setCapabilityValue( 'alarm_contact', value.contact.value === 'open' ).catch(this.error);
+                }
             }
 
-            // Get the Target temperature
-            value = await Homey.app.getDeviceCapabilityValue( devData.id, 'freezer', 'thermostatCoolingSetpoint' );
-            if ( value )
+            if ( this.hasCapability( 'target_temperature' ) )
             {
-                this.setCapabilityValue( 'target_temperature', value.coolingSetpoint.value ).catch(this.error);
+                // Get the Target temperature
+                value = await this.homey.app.getDeviceCapabilityValue( devData.id, 'freezer', 'thermostatCoolingSetpoint' );
+                if ( value )
+                {
+                    this.setCapabilityValue( 'target_temperature', value.coolingSetpoint.value ).catch(this.error);
+                }
             }
 
-            // Get the rapid freeze state
-            value = await Homey.app.getDeviceCapabilityValue( devData.id, 'main', 'refrigeration' );
-            if ( value )
+            if ( this.hasCapability( 'onoff' ) )
             {
-                this.setCapabilityValue( 'onoff', value.rapidFreezing.value === 'on' ).catch(this.error);
+                // Get the rapid freeze state
+                value = await this.homey.app.getDeviceCapabilityValue( devData.id, 'main', 'refrigeration' );
+                if ( value )
+                {
+                    this.setCapabilityValue( 'onoff', value.rapidFreezing.value === 'on' ).catch(this.error);
+                }
             }
 
-            value = await Homey.app.getDeviceCapabilityValue( devData.id, 'main', 'custom.deodorFilter' );
-            if ( value )
+            if ( this.hasCapability( 'fridge_deodor_filter' ) )
             {
-                this.setCapabilityValue( 'fridge_deodor_filter', value ).catch(this.error);
+                value = await this.homey.app.getDeviceCapabilityValue( devData.id, 'main', 'custom.deodorFilter' );
+                if ( value )
+                {
+                    this.setCapabilityValue( 'fridge_deodor_filter', value ).catch(this.error);
+                }
             }
 
-            value = await Homey.app.getDeviceCapabilityValue( devData.id, 'main', 'custom.deviceReportStateConfiguration' );
-            if ( value )
+            if ( this.hasCapability( 'fridge_device_report_state_configuration' ) )
             {
-                this.setCapabilityValue( 'fridge_device_report_state_configuration', value ).catch(this.error);
+                value = await this.homey.app.getDeviceCapabilityValue( devData.id, 'main', 'custom.deviceReportStateConfiguration' );
+                if ( value )
+                {
+                    this.setCapabilityValue( 'fridge_device_report_state_configuration', value ).catch(this.error);
+                }
             }
 
-            value = await Homey.app.getDeviceCapabilityValue( devData.id, 'main', 'custom.fridgeMode' );
-            if ( value )
+            if ( this.hasCapability( 'fidge_mode' ) )
             {
-                this.setCapabilityValue( 'fidge_mode', value ).catch(this.error);
+                value = await this.homey.app.getDeviceCapabilityValue( devData.id, 'main', 'custom.fridgeMode' );
+                if ( value )
+                {
+                    this.setCapabilityValue( 'fidge_mode', value ).catch(this.error);
+                }
             }
 
-            value = await Homey.app.getDeviceCapabilityValue( devData.id, 'main', 'custom.waterFilter' );
-            if ( value )
+            if ( this.hasCapability( 'fridge_water_filter' ) )
             {
-                this.setCapabilityValue( 'fridge_water_filter', value ).catch(this.error);
+                value = await this.homey.app.getDeviceCapabilityValue( devData.id, 'main', 'custom.waterFilter' );
+                if ( value )
+                {
+                    this.setCapabilityValue( 'fridge_water_filter', value ).catch(this.error);
+                }
             }
 
-            value = await Homey.app.getDeviceCapabilityValue( devData.id, 'main', 'samsungce.powerCool' );
-            if ( value )
+            if ( this.hasCapability( 'fridge_power_cool' ) )
             {
-                this.setCapabilityValue( 'fridge_power_cool', value ).catch(this.error);
+                value = await this.homey.app.getDeviceCapabilityValue( devData.id, 'main', 'samsungce.powerCool' );
+                if ( value )
+                {
+                    this.setCapabilityValue( 'fridge_power_cool', value ).catch(this.error);
+                }
             }
 
-            value = await Homey.app.getDeviceCapabilityValue( devData.id, 'main', 'samsungce.powerFreeze' );
-            if ( value )
+            if ( this.hasCapability( 'fridge_power_freeze' ) )
             {
-                this.setCapabilityValue( 'fridge_power_freeze', value ).catch(this.error);
+                value = await this.homey.app.getDeviceCapabilityValue( devData.id, 'main', 'samsungce.powerFreeze' );
+                if ( value )
+                {
+                    this.setCapabilityValue( 'fridge_power_freeze', value ).catch(this.error);
+                }
             }
         }
         catch ( err )

@@ -3,7 +3,7 @@
   "title": {
     "en": "Wrinkle Prevent"
   },
-  "icon": "/assets/wash_status.svg",
+  "icon": "/assets/no-wrinkles.svg",
   "getable": true,
   "setable": true,
   "uiComponent": "toggle"

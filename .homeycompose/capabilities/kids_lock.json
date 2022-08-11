@@ -1,9 +1,9 @@
 {
   "type": "string",
   "title": {
-    "en": "Disbaled Components"
+    "en": "Child Lock"
   },
-  "icon": "/assets/wash_status.svg",
+  "icon": "/assets/kids_lock.svg",
   "getable": true,
   "setable": false
 }

@@ -1,9 +1,9 @@
 {
   "type": "string",
   "title": {
-    "en": "Detergent Order"
+    "en": "Detergent Type"
   },
-  "icon": "/assets/wash_status.svg",
+  "icon": "/assets/laundry-detergent.svg",
   "getable": true,
   "setable": false
 }

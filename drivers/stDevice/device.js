@@ -526,7 +526,6 @@ const capabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: null,
-        keep: true
     },
     "dishwasher_auto_door_release":
     {
@@ -535,7 +534,6 @@ const capabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: null,
-        keep: true
     },
     "dishwasher_drum_self_cleaning":
     {
@@ -544,7 +542,6 @@ const capabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: null,
-        keep: true
     },
     "dishwasher_operation":
     {
@@ -553,7 +550,6 @@ const capabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: null,
-        keep: true
     },
     "dishwasher_washing_course":
     {
@@ -562,7 +558,6 @@ const capabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: null,
-        keep: true
     },
     "dishwasher_zone":
     {
@@ -598,7 +593,6 @@ const capabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: null,
-        keep: true
     },
     "dishwasher_remaining_time":
     {
@@ -607,7 +601,6 @@ const capabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: null,
-        keep: true
     },
     "dishwasher_progress_percentage":
     {
@@ -616,34 +609,70 @@ const capabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: null,
-        keep: true
     },
     "dishwasher_dertergent":
     {
-        dataEntry: [ 'samsungce.dishwasher_dertergent', 'dishwasherDetergent', 'value' ],
-        capabilityID: 'samsungce.dishwasher_dertergent',
+        dataEntry: [ 'samsungce.detergentState', 'detergentType', 'value' ],
+        capabilityID: 'samsungce.detergentState',
         divider: 0,
         boolCompare: '',
         flowTrigger: null,
-        keep: true
     },
-    "disabled_capabilities":
+    "fidge_mode":
     {
-        dataEntry: [ 'custom.disabledCapabilities', 'disabledCapabilities', 'value' ],
-        capabilityID: 'custom.disabledCapabilities',
+        dataEntry: [ 'custom.fridgeMode', 'fridgeMode', 'value' ],
+        capabilityID: 'custom.fridgeMode',
         divider: 0,
         boolCompare: '',
         flowTrigger: null,
-        keep: true
     },
-    "disabled_components":
+    "fridge_deodor_filter":
     {
-        dataEntry: [ 'custom.disabledComponents', 'disabledComponents', 'value' ],
-        capabilityID: 'custom.disabledComponents',
+        dataEntry: [ 'custom.deodorFilter', 'deodorFilter', 'value' ],
+        capabilityID: 'custom.deodorFilter',
         divider: 0,
         boolCompare: '',
         flowTrigger: null,
-        keep: true
+    },
+    "fridge_device_report_state_configuration":
+    {
+        dataEntry: [ 'custom.deviceReportStateConfiguration', 'deviceReportStateConfiguration', 'value' ],
+        capabilityID: 'custom.deviceReportStateConfiguration',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null,
+    },
+    "fridge_water_filter":
+    {
+        dataEntry: [ 'custom.waterFilter', 'waterFilter', 'value' ],
+        capabilityID: 'custom.waterFilter',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null,
+    },
+    "fridge_power_cool":
+    {
+        dataEntry: [ 'samsungce.powerCool', 'powerCool', 'value' ],
+        capabilityID: 'samsungce.powerCool',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null,
+    },
+    "fridge_power_freeze":
+    {
+        dataEntry: [ 'samsungce.powerFreeze', 'powerFreeze', 'value' ],
+        capabilityID: 'samsungce.powerFreeze',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null,
+    },
+    "kids_lock":
+    {
+        dataEntry: [ 'samsungce.kidsLock', 'lockState', 'value' ],
+        capabilityID: 'samsungce.kidsLock',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null,
     },
 
 };
@@ -656,6 +685,30 @@ class STDevice extends Homey.Device
         this.log( 'STDevice is initialising' );
         this.deviceOn = true;
         this.remoteControlEnabled = false;
+
+        const devData = this.getData();
+        var component = 'main';
+        if ( devData.component )
+        {
+            component = devData.component;
+        }
+
+        const value = await this.homey.app.getDeviceCapabilityValue( devData.id, component, 'custom.disabledCapabilities' );
+        if ( value && value.disabledCapabilities && value.disabledCapabilities.value )
+        {
+            value.disabledCapabilities.value.forEach(element => {
+                const capabilities = this.homey.app.getCapabilitiesForSTCapability(element);
+                if (capabilities)
+                {
+                    capabilities.forEach(capability => {
+                        if ( this.hasCapability( capability ) )
+                        {
+                            this.removeCapability(capability);
+                        }
+                    });
+                }
+            });
+        }
 
         if (this.hasCapability('locked') && this.getClass() !== 'lock')
         {
@@ -866,7 +919,32 @@ class STDevice extends Homey.Device
         this.getDeviceValues();
     }
 
-    async onAdded() {}
+    async onAdded()
+    {
+        const devData = this.getData();
+        var component = 'main';
+        if ( devData.component )
+        {
+            component = devData.component;
+        }
+
+        const value = await this.homey.app.getDeviceCapabilityValue( devData.id, component, 'custom.disabledCapabilities' );
+        if ( value && value.disabledCapabilities && value.disabledCapabilities.value )
+        {
+            value.disabledCapabilities.value.forEach(element => {
+                const capabilities = this.homey.app.getCapabilitiesForSTCapability(element);
+                if (capabilities)
+                {
+                    capabilities.forEach(capability => {
+                        if ( this.hasCapability( capability ) )
+                        {
+                            this.removeCapability(capability);
+                        }
+                    });
+                }
+            });
+        }
+    }
 
 
     async getDeviceValues()
@@ -1028,6 +1106,10 @@ class STDevice extends Homey.Device
                         let lastValue = this.getCapabilityValue( capability );
                         try
                         {
+                            if (Array.isArray(value))
+                            {
+                                value = value.toString();
+                            }
                             await this.setCapabilityValue( capability, value );
                         }
                         catch( err )

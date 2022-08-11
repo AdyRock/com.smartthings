@@ -3,7 +3,7 @@
   "title": {
     "en": "Water Filter"
   },
-  "icon": "/assets/wash_status.svg",
+  "icon": "/assets/water_filter.svg",
   "getable": true,
   "setable": false
 }
