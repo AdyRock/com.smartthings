@@ -10,54 +10,14 @@ class FridgeDevice extends Homey.Device
      */
     async onInit()
     {
-        this.log( 'FridgeDevice has been initialized' );
+        this.log( 'FridgeDevice has been initializing' );
         const devData = this.getData();
-
-        if (devData.components)
-        {
-            for ( let c = 0; c < devData.components.length; c++ )
-            {
-                const value = await this.homey.app.getDeviceCapabilityValue( devData.id, devData.components[ c ], 'custom.disabledCapabilities' );
-                if ( value && value.disabledCapabilities && value.disabledCapabilities.value )
-                {
-                    for (const element of value.disabledCapabilities.value)
-                    {
-                        const capabilities = this.homey.app.getCapabilitiesForSTCapability(element);
-                        if (capabilities)
-                        {
-                            for (const capability of capabilities)
-                            {
-                                if ( this.hasCapability( `${capability}.${devData.components[ c ]}` ) )
-                                {
-                                    this.removeCapability(`${capability}.${devData.components[ c ]}`);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
 
         const capabilities = this.getCapabilities();
         for ( let c = 0; c < capabilities.length; c++ )
         {
             const dotCapability = capabilities[ c ];
             let components = dotCapability.split( "." );
-
-            let options = this.getCapabilityOptions(dotCapability);
-            if (!options)
-            {
-                options = {};
-            }
-
-            if (!options.title)
-            {
-                options.title = this.homey.__(`refrigeration.${components[0]}_${components[1]}`);
-                if (options.title)
-                {
-                    this.setCapabilityOptions(dotCapability, options);
-                }
-            }
 
             if (components[0] === 'onoff')
             {
@@ -73,14 +33,9 @@ class FridgeDevice extends Homey.Device
             }
         }
 
-        try
-        {
-            this.getDeviceValues();
-        }
-        catch ( err )
-        {
-            this.log( 'FridgeDevice initialized ', err.message );
-        }
+        this.getDeviceValues().catch(this.error);
+
+        this.log( 'FridgeDevice has been initialized' );
     }
 
     /**
@@ -88,6 +43,28 @@ class FridgeDevice extends Homey.Device
      */
     async onAdded()
     {
+        const devData = this.getData();
+
+        if ( this.hasCapability( 'target_temperature.onedoor' ) )
+        {
+            this.removeCapability('target_temperature.onedoor');
+        }
+
+        if ( this.hasCapability( 'target_temperature.main' ) )
+        {
+            this.removeCapability('target_temperature.main');
+        }
+
+        if ( this.hasCapability( 'measure_temperature.main' ) )
+        {
+            this.removeCapability('measure_temperature.main');
+        }
+
+        if ( this.hasCapability( 'measure_temperature.onedoor' ) )
+        {
+            this.removeCapability('measure_temperature.onedoor');
+        }
+
         this.log( 'FridgeDevice has been added' );
     }
 

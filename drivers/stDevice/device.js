@@ -1492,7 +1492,7 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             this.homey.app.updateLog( this.getName() + " onCapabilityGarageDoor_set Error " + this.homey.app.varToString( err.message ) );
-            throw ( new Error( err.statusMessage ) );
+            throw ( new Error( err.message ) );
         }
     }
 

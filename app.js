@@ -1614,72 +1614,11 @@ class MyApp extends Homey.App
             // Create an array of devices
             for ( const device of searchData.items )
             {
-                const disabledComponents = await this.getDeviceCapabilityValue( device.deviceId, 'main', 'custom.disabledComponents' );
-
                 var components = device.components;
 
                 let label = null;
-                let supportedComponets = [];
-                var capabilities = [];
-                var capabilitiesOptions = {};
                 for ( const component of components )
                 {
-                    if (disabledComponents && disabledComponents.disabledComponents && disabledComponents.disabledComponents.value && disabledComponents.disabledComponents.value.findIndex((element) => element === component.id) >= 0)
-                    {
-                        // This component is disabled
-                        continue;
-                    }
-
-                    supportedComponets.push(component.id);
-
-                    // Find supported capabilities
-                    var deviceCapabilities = component.capabilities;
-                    for ( const deviceCapability of deviceCapabilities )
-                    {
-                        const capabilityMapEntry = CapabilityMap2[ deviceCapability.id ];
-                        if ( capabilityMapEntry )
-                        {
-                            //Add to the table
-                            if ( capabilityMapEntry.statusEntry )
-                            {
-                                // We need to check the value status to get more information about which capability to add
-                                const capabilityStatus = await this.getDeviceCapabilityValue( device.deviceId, component.id, deviceCapability.id );
-                                this.homey.app.updateLog( `Capability status for: ${deviceCapability.id} = ${this.varToString( capabilityStatus )}` );
-                                if ( capabilityStatus && capabilityStatus[ capabilityMapEntry.statusEntry ] )
-                                {
-                                    const option = capabilityStatus[ capabilityMapEntry.statusEntry ];
-                                    for ( let entry = 0; entry < capabilityMapEntry.statusValue.length; entry++ )
-                                    {
-                                        if ( option.value && option.value.id && (option.value.id === capabilityMapEntry.statusValue[ entry ]) )
-                                        {
-                                            capabilities.push( `${capabilityMapEntry.capabilities[ entry ]}.${component.id}` );
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                for ( const element of capabilityMapEntry.capabilities )
-                                {
-                                    capabilities.push( `${element}.${component.id}` );
-                                    capabilitiesOptions[`${element}.${component.id}`] = {};
-                                    //capabilitiesOptions[`${element}.${component.id}`].title = {"en": `${capabilityName} ${component.id}`};
-                                    if (`${element}.${component.id}` === 'target_temperature.freezer')
-                                    {
-                                        capabilitiesOptions[`${element}.${component.id}`].min = -25;
-                                        capabilitiesOptions[`${element}.${component.id}`].max = -5;
-                                    }
-                                    else if (`${element}.${component.id}` === 'target_temperature.cooler')
-                                    {
-                                        capabilitiesOptions[`${element}.${component.id}`].min = 0;
-                                        capabilitiesOptions[`${element}.${component.id}`].max = 10;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
                     if ( component.id === 'main' )
                     {
                         if ( component.categories.findIndex( myFind ) >= 0 )
@@ -1688,15 +1627,90 @@ class MyApp extends Homey.App
                             this.homey.app.updateLog( JSON.stringify( device, null, 2 ) );
                             label = device.label;
                         }
-                        else
-                        {
-                            break;
-                        }
+
+                        break;
                     }
                 }
 
                 if (label)
                 {
+                    let supportedComponets = [];
+                    var capabilities = [];
+                    var capabilitiesOptions = {};
+
+                    const disabledComponents = await this.getDeviceCapabilityValue( device.deviceId, 'main', 'custom.disabledComponents' );
+                    for ( const component of components )
+                    {
+                        if (disabledComponents && disabledComponents.disabledComponents && disabledComponents.disabledComponents.value && disabledComponents.disabledComponents.value.findIndex((element) => element === component.id) >= 0)
+                        {
+                            // This component is disabled
+                            continue;
+                        }
+
+                        supportedComponets.push(component.id);
+
+                        const disabledCapabilities = await this.getDeviceCapabilityValue( device.deviceId, 'main', 'custom.disabledCapabilities' );
+
+                        // Find supported capabilities
+                        var deviceCapabilities = component.capabilities;
+                        for ( const deviceCapability of deviceCapabilities )
+                        {
+                            if (disabledCapabilities && disabledCapabilities.disabledCapabilities && disabledCapabilities.disabledCapabilities.value && disabledCapabilities.disabledCapabilities.value.findIndex((element) => element === deviceCapability.id) >= 0 )
+                            {
+                                // This capability is disabled
+                                continue;
+                            }
+
+                            const capabilityMapEntry = CapabilityMap2[ deviceCapability.id ];
+                            if ( capabilityMapEntry )
+                            {
+                                //Add to the table
+                                if ( capabilityMapEntry.statusEntry )
+                                {
+                                    // We need to check the value status to get more information about which capability to add
+                                    const capabilityStatus = await this.getDeviceCapabilityValue( device.deviceId, component.id, deviceCapability.id );
+                                    this.homey.app.updateLog( `Capability status for: ${deviceCapability.id} = ${this.varToString( capabilityStatus )}` );
+                                    if ( capabilityStatus && capabilityStatus[ capabilityMapEntry.statusEntry ] )
+                                    {
+                                        const option = capabilityStatus[ capabilityMapEntry.statusEntry ];
+                                        for ( let entry = 0; entry < capabilityMapEntry.statusValue.length; entry++ )
+                                        {
+                                            if ( option.value && option.value.id && (option.value.id === capabilityMapEntry.statusValue[ entry ]) )
+                                            {
+                                                capabilities.push( `${capabilityMapEntry.capabilities[ entry ]}.${component.id}` );
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    for ( const element of capabilityMapEntry.capabilities )
+                                    {
+                                        capabilities.push( `${element}.${component.id}` );
+                                        capabilitiesOptions[`${element}.${component.id}`] = {};
+                                        let componentTitle = this.homey.__(`${category}.${element}_${component.id}`);
+                                        if (componentTitle)
+                                        {
+                                            capabilitiesOptions[`${element}.${component.id}`].title = componentTitle;
+                                        }
+
+                                        if (`${element}.${component.id}` === 'target_temperature.freezer')
+                                        {
+                                            capabilitiesOptions[`${element}.${component.id}`].min = -25;
+                                            capabilitiesOptions[`${element}.${component.id}`].max = -5;
+                                        }
+                                        else if (`${element}.${component.id}` === 'target_temperature.cooler')
+                                        {
+                                            capabilitiesOptions[`${element}.${component.id}`].min = 0;
+                                            capabilitiesOptions[`${element}.${component.id}`].max = 10;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     var data = {};
                     data = {
                         "id": device.deviceId,
@@ -1843,7 +1857,7 @@ class MyApp extends Homey.App
                     reject(
                     {
                         statusCode: 401,
-                        statusMessage: "HTTPS: No Token specified"
+                        message: "No Token specified"
                     } );
                 }
 
@@ -1900,7 +1914,7 @@ class MyApp extends Homey.App
                         reject(
                         {
                             statusCode: res.statusCode,
-                            statusMessage: "HTTPS Error: " + message
+                            message: "HTTPS Error: " + message
                         } );
                     }
                 } ).on( 'error', ( err ) =>
@@ -1909,7 +1923,7 @@ class MyApp extends Homey.App
                     reject(
                     {
                         statusCode: -1,
-                        statusMessage: "HTTPS Catch : " + err
+                        message: "HTTPS Catch : " + err
                     } );
                 } );
             }
@@ -1919,7 +1933,7 @@ class MyApp extends Homey.App
                 reject(
                 {
                     statusCode: -2,
-                    statusMessage: "HTTPS Catch: " + err.message
+                    message: "HTTPS Catch: " + err.message
                 } );
             }
         } );
@@ -1949,7 +1963,7 @@ class MyApp extends Homey.App
                     reject(
                     {
                         statusCode: 401,
-                        statusMessage: "HTTPS: No Token specified"
+                        message: "No Token specified"
                     } );
                 }
 
@@ -2010,7 +2024,7 @@ class MyApp extends Homey.App
                         reject(
                         {
                             statusCode: res.statusCode,
-                            statusMessage: "HTTPS Error: " + message
+                            message: "HTTPS Error: " + message
                         } );
                     }
                 } ).on( 'error', ( err ) =>
@@ -2019,7 +2033,7 @@ class MyApp extends Homey.App
                     reject(
                     {
                         statusCode: -1,
-                        statusMessage: "HTTPS Catch : " + err
+                        message: "HTTPS Catch : " + err
                     } );
                 } );
                 req.write( bodyText );
@@ -2031,7 +2045,7 @@ class MyApp extends Homey.App
                 reject(
                 {
                     statusCode: -2,
-                    statusMessage: "HTTPS Catch: " + err.message
+                    message: "HTTPS Catch: " + err.message
                 } );
             }
         } );
