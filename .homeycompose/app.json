@@ -1,11 +1,11 @@
 {
-    "id": "com.smartthings",
-    "version": "1.0.22",
+    "id": "ady.smartthings",
+    "version": "2.0.00",
     "compatibility": ">=5.0.0",
     "sdk": 3,
     "brandColor": "#FF7D4B",
     "name": {
-        "en": "SmartThings Hub"
+        "en": "SmartThings 2"
     },
     "description": {
         "en": "Add devices from SmartThings to Homey"

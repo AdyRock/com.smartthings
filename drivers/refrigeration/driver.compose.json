@@ -1,54 +1,25 @@
 {
-  "id": "refrigeration",
-  "name": {
-    "en": "Refrigeration"
-  },
-  "class": "sensor",
-  "capabilities": [
-    "alarm_contact",
-    "target_temperature",
-    "onoff",
-    "fridge_deodor_filter",
-    "fridge_device_report_state_configuration",
-    "fridge_mode",
-    "fridge_power_cool",
-    "fridge_power_freeze",
-    "fridge_water_filter",
-    "rapid_freezing",
-    "defrost",
-    "rapid_cooling"
-  ],
-  "capabilitiesOptions":
-  {
-      "target_temperature":
-      {
-          "min": -25,
-          "max": -5,
-          "title": "Freezer Temperature"
-      },
-      "alarm_contact":
-      {
-          "title": "Door Open"
-      },
-      "onoff":
-      {
-          "title": "Rapid Freeze"
-      }
-  },
-"pair": [{
-      "id": "list_devices",
-      "template": "list_devices",
-      "navigation": {
-        "next": "add_devices"
-      }
+    "id": "refrigeration",
+    "name": {
+        "en": "Refrigeration"
     },
-    {
-      "id": "add_devices",
-      "template": "add_devices"
+    "class": "sensor",
+    "capabilities": [],
+    "pair": [
+        {
+            "id": "list_devices",
+            "template": "list_devices",
+            "navigation": {
+                "next": "add_devices"
+            }
+        },
+        {
+            "id": "add_devices",
+            "template": "add_devices"
+        }
+    ],
+    "images": {
+        "large": "/drivers/refrigeration/assets/images/large.jpg",
+        "small": "/drivers/refrigeration/assets/images/small.png"
     }
-  ],
-  "images": {
-    "large": "/drivers/refrigeration/assets/images/large.jpg",
-    "small": "/drivers/refrigeration/assets/images/small.png"
-  }
 }

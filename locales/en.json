@@ -1,1 +1,22 @@
-{}
+{
+    "refrigeration": {
+        "target_temperature_freezer": "Freezer Temperature",
+        "target_temperature_cooler": "Cooler Temperature",
+        "target_temperature_cvroom": "CV Room Temperature",
+        "target_temperature_onedoor": "One Door Temperature",
+        "onoff_icemaker": "Ice Maker",
+        "onoff_icemaker-02": "Ice Maker 2",
+        "alarm_contact_main": "Door Open",
+        "alarm_contact_freezer": "Freezer Door Open",
+        "alarm_contact_cooler": "Cooler Door Open",
+        "alarm_contact_cvroom": "CV Room Door Open",
+        "alarm_contact_onedoor": "One Door Open",
+        "measure_temperature_freezer": "Freezer Temperature",
+        "measure_temperature_cooler": "Cooler Temperature",
+        "measure_temperature_cvroom": "CV Room Temperature",
+        "fridge_mode_freezer": "Freezer Mode",
+        "fridge_mode_cooler": "Cooler Mode",
+        "fridge_mode_cvroom": "CV Room Mode",
+        "fridge_mode_onedor": "One Door Mode"
+    }
+}

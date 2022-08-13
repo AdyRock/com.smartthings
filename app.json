@@ -1507,33 +1507,7 @@
         "en": "Refrigeration"
       },
       "class": "sensor",
-      "capabilities": [
-        "alarm_contact",
-        "target_temperature",
-        "onoff",
-        "fridge_deodor_filter",
-        "fridge_device_report_state_configuration",
-        "fridge_mode",
-        "fridge_power_cool",
-        "fridge_power_freeze",
-        "fridge_water_filter",
-        "rapid_freezing",
-        "defrost",
-        "rapid_cooling"
-      ],
-      "capabilitiesOptions": {
-        "target_temperature": {
-          "min": -25,
-          "max": -5,
-          "title": "Freezer Temperature"
-        },
-        "alarm_contact": {
-          "title": "Door Open"
-        },
-        "onoff": {
-          "title": "Rapid Freeze"
-        }
-      },
+      "capabilities": [],
       "pair": [
         {
           "id": "list_devices",
@@ -2509,7 +2483,7 @@
     "fridge_mode": {
       "type": "string",
       "title": {
-        "en": "Water Filter"
+        "en": "Mode"
       },
       "icon": "/assets/wash_status.svg",
       "getable": true,
