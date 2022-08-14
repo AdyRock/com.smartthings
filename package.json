@@ -1,6 +1,6 @@
 {
     "name": "com.smartthings",
-    "version": "1.0.22",
+    "version": "2.0.1",
     "main": "app.js",
     "dependencies": {
         "nodemailer": "^6.7.7"

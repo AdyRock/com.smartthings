@@ -1,5 +1,8 @@
 {
     "2.0.0": {
         "en": "Replacement for SmartThings Hub so the app id doesn't conflict with the Athom SmartThings app"
+    },
+    "2.0.1": {
+        "en": "Updates for regridgeration."
     }
 }
