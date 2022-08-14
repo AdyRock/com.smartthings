@@ -625,14 +625,6 @@ const CapabilityMap1 = {
         boolCompare: '',
         flowTrigger: null,
     },
-    "fridge_mode":
-    {
-        dataEntry: [ 'custom.fridgeMode', 'fridgeMode', 'value' ],
-        capabilityID: 'custom.fridgeMode',
-        divider: 0,
-        boolCompare: '',
-        flowTrigger: null,
-    },
     "fridge_deodor_filter":
     {
         dataEntry: [ 'custom.deodorFilter', 'deodorFilter', 'value' ],
@@ -641,14 +633,14 @@ const CapabilityMap1 = {
         boolCompare: '',
         flowTrigger: null,
     },
-    "fridge_device_report_state_configuration":
-    {
-        dataEntry: [ 'custom.deviceReportStateConfiguration', 'deviceReportStateConfiguration', 'value' ],
-        capabilityID: 'custom.deviceReportStateConfiguration',
-        divider: 0,
-        boolCompare: '',
-        flowTrigger: null,
-    },
+    // "fridge_device_report_state_configuration":
+    // {
+    //     dataEntry: [ 'custom.deviceReportStateConfiguration', 'deviceReportStateConfiguration', 'value' ],
+    //     capabilityID: 'custom.deviceReportStateConfiguration',
+    //     divider: 0,
+    //     boolCompare: '',
+    //     flowTrigger: null,
+    // },
     "fridge_water_filter":
     {
         dataEntry: [ 'custom.waterFilter', 'waterFilter', 'value' ],
@@ -659,7 +651,7 @@ const CapabilityMap1 = {
     },
     "fridge_power_cool":
     {
-        dataEntry: [ 'samsungce.powerCool', 'powerCool', 'value' ],
+        dataEntry: [ 'samsungce.powerCool', 'activated', 'value' ],
         capabilityID: 'samsungce.powerCool',
         divider: 0,
         boolCompare: '',
@@ -667,7 +659,7 @@ const CapabilityMap1 = {
     },
     "fridge_power_freeze":
     {
-        dataEntry: [ 'samsungce.powerFreeze', 'powerFreeze', 'value' ],
+        dataEntry: [ 'samsungce.powerFreeze', 'activated', 'value' ],
         capabilityID: 'samsungce.powerFreeze',
         divider: 0,
         boolCompare: '',
@@ -688,7 +680,7 @@ const CapabilityMap2 = {
     "switch":
     {
         class: "",
-        exclude: "", // Ignore if the device has this ST capability
+        exclude: ["custom.fridgeMode"], // Ignore if the device has this ST capability
         capabilities: [ "onoff" ], // The list of Homey capabilities to add
         icon: "socket.svg", // Icon to apply to the device
         iconPriority: 1 // Priority to be used for the device icon. Higher numbers have a higher priority
@@ -768,7 +760,7 @@ const CapabilityMap2 = {
     "powerConsumptionReport":
     {
         class: "",
-        exclude: "",
+        exclude: ["custom.fridgeMode"], // Ignore if the device has this ST capability
         capabilities: [ "measure_power", "meter_power", "meter_power.delta" ],
         icon: "",
         iconPriority: 0
@@ -948,7 +940,7 @@ const CapabilityMap2 = {
         capabilities: [ 'washer_mode', 'washer_mode_02' ],
         icon: "",
         iconPriority: 0,
-        statusEntry: 'referenceTable', // lookup this entry in the device status to fins out which capability to add
+        statusEntry: 'referenceTable', // lookup this entry in the device status to find out which capability to add
         statusValue: [ 'Table_00', 'Table_02' ] // The value that matches here determines the index of the capability to add from the capabilities list
     },
     "windowShade":
@@ -1143,30 +1135,22 @@ const CapabilityMap2 = {
         icon: "dishwasher.svg",
         iconPriority: 5
     },
-    "custom.deodorFilter":
-    {
-        class: "other",
-        exclude: "",
-        capabilities: [ 'fridge_deodor_filter' ],
-        icon: "refrigerator.svg",
-        iconPriority: 5
-    },
-    "custom.deviceReportStateConfiguration":
-    {
-        class: "other",
-        exclude: "",
-        capabilities: [ 'fridge_device_report_state_configuration' ],
-        icon: "refrigerator.svg",
-        iconPriority: 5
-    },
-    "custom.fridgeMode":
-    {
-        class: "other",
-        exclude: "",
-        capabilities: [ 'fridge_mode' ],
-        icon: "refrigerator.svg",
-        iconPriority: 5
-    },
+    // "custom.deodorFilter":
+    // {
+    //     class: "other",
+    //     exclude: "",
+    //     capabilities: [ 'fridge_deodor_filter' ],
+    //     icon: "refrigerator.svg",
+    //     iconPriority: 5
+    // },
+    // "custom.deviceReportStateConfiguration":
+    // {
+    //     class: "other",
+    //     exclude: "",
+    //     capabilities: [ 'fridge_device_report_state_configuration' ],
+    //     icon: "refrigerator.svg",
+    //     iconPriority: 5
+    // },
     "custom.waterFilter":
     {
         class: "other",
@@ -1598,6 +1582,22 @@ class MyApp extends Homey.App
             return element.name === category;
         }
 
+        function isExcluded(capabilities, exclusions)
+        {
+            for ( const capability of capabilities )
+            {
+                const idx = exclusions.indexOf( capability.id );
+                if (idx >= 0)
+                {
+                    // Excluded
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+
         //https://api.smartthings.com/v1/devices
         const url = "devices";
         let searchResult = await this.homey.app.GetURL( url );
@@ -1649,7 +1649,7 @@ class MyApp extends Homey.App
 
                         supportedComponets.push(component.id);
 
-                        const disabledCapabilities = await this.getDeviceCapabilityValue( device.deviceId, 'main', 'custom.disabledCapabilities' );
+                        const disabledCapabilities = await this.getDeviceCapabilityValue( device.deviceId, component.id, 'custom.disabledCapabilities' );
 
                         // Find supported capabilities
                         var deviceCapabilities = component.capabilities;
@@ -1664,46 +1664,50 @@ class MyApp extends Homey.App
                             const capabilityMapEntry = CapabilityMap2[ deviceCapability.id ];
                             if ( capabilityMapEntry )
                             {
-                                //Add to the table
-                                if ( capabilityMapEntry.statusEntry )
+                                // Make sure the entry has no exclusion condition or that the capabilities for the device does not have the excluded item
+                                if ( ( capabilityMapEntry.exclude == "" ) || (!isExcluded(deviceCapabilities, capabilityMapEntry.exclude) ))
                                 {
-                                    // We need to check the value status to get more information about which capability to add
-                                    const capabilityStatus = await this.getDeviceCapabilityValue( device.deviceId, component.id, deviceCapability.id );
-                                    this.homey.app.updateLog( `Capability status for: ${deviceCapability.id} = ${this.varToString( capabilityStatus )}` );
-                                    if ( capabilityStatus && capabilityStatus[ capabilityMapEntry.statusEntry ] )
+                                    //Add to the table
+                                    if ( capabilityMapEntry.statusEntry )
                                     {
-                                        const option = capabilityStatus[ capabilityMapEntry.statusEntry ];
-                                        for ( let entry = 0; entry < capabilityMapEntry.statusValue.length; entry++ )
+                                        // We need to check the value status to get more information about which capability to add
+                                        const capabilityStatus = await this.getDeviceCapabilityValue( device.deviceId, component.id, deviceCapability.id );
+                                        this.homey.app.updateLog( `Capability status for: ${deviceCapability.id} = ${this.varToString( capabilityStatus )}` );
+                                        if ( capabilityStatus && capabilityStatus[ capabilityMapEntry.statusEntry ] )
                                         {
-                                            if ( option.value && option.value.id && (option.value.id === capabilityMapEntry.statusValue[ entry ]) )
+                                            const option = capabilityStatus[ capabilityMapEntry.statusEntry ];
+                                            for ( let entry = 0; entry < capabilityMapEntry.statusValue.length; entry++ )
                                             {
-                                                capabilities.push( `${capabilityMapEntry.capabilities[ entry ]}.${component.id}` );
-                                                break;
+                                                if ( option.value && option.value.id && (option.value.id === capabilityMapEntry.statusValue[ entry ]) )
+                                                {
+                                                    capabilities.push( `${capabilityMapEntry.capabilities[ entry ]}.${component.id}` );
+                                                    break;
+                                                }
                                             }
                                         }
                                     }
-                                }
-                                else
-                                {
-                                    for ( const element of capabilityMapEntry.capabilities )
+                                    else
                                     {
-                                        capabilities.push( `${element}.${component.id}` );
-                                        capabilitiesOptions[`${element}.${component.id}`] = {};
-                                        let componentTitle = this.homey.__(`${category}.${element}_${component.id}`);
-                                        if (componentTitle)
+                                        for ( const element of capabilityMapEntry.capabilities )
                                         {
-                                            capabilitiesOptions[`${element}.${component.id}`].title = componentTitle;
-                                        }
+                                            capabilities.push( `${element}.${component.id}` );
+                                            capabilitiesOptions[`${element}.${component.id}`] = {};
+                                            let componentTitle = this.homey.__(`${category}.${element}_${component.id}`);
+                                            if (componentTitle)
+                                            {
+                                                capabilitiesOptions[`${element}.${component.id}`].title = componentTitle;
+                                            }
 
-                                        if (`${element}.${component.id}` === 'target_temperature.freezer')
-                                        {
-                                            capabilitiesOptions[`${element}.${component.id}`].min = -25;
-                                            capabilitiesOptions[`${element}.${component.id}`].max = -5;
-                                        }
-                                        else if (`${element}.${component.id}` === 'target_temperature.cooler')
-                                        {
-                                            capabilitiesOptions[`${element}.${component.id}`].min = 0;
-                                            capabilitiesOptions[`${element}.${component.id}`].max = 10;
+                                            if (`${element}.${component.id}` === 'target_temperature.freezer')
+                                            {
+                                                capabilitiesOptions[`${element}.${component.id}`].min = -25;
+                                                capabilitiesOptions[`${element}.${component.id}`].max = -5;
+                                            }
+                                            else if (`${element}.${component.id}` === 'target_temperature.cooler')
+                                            {
+                                                capabilitiesOptions[`${element}.${component.id}`].min = 0;
+                                                capabilitiesOptions[`${element}.${component.id}`].max = 10;
+                                            }
                                         }
                                     }
                                 }

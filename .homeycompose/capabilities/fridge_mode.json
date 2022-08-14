@@ -1,9 +1,0 @@
-{
-  "type": "string",
-  "title": {
-    "en": "Mode"
-  },
-  "icon": "/assets/wash_status.svg",
-  "getable": true,
-  "setable": false
-}

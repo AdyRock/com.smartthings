@@ -28,8 +28,18 @@
         "type": "node",
         "request": "attach",
         "restart": true,
-        "name": "Attach to Homey Pro USB",
+        "name": "Attach to Homey USB",
         "address": "10.76.225.1",
+        "port": 9227,
+        "localRoot": "${workspaceFolder}",
+        "remoteRoot": "/"
+    },
+    {
+        "type": "node",
+        "request": "attach",
+        "restart": true,
+        "name": "Attach to Homey Pro USB",
+        "address": "10.253.51.1",
         "port": 9227,
         "localRoot": "${workspaceFolder}",
         "remoteRoot": "/"

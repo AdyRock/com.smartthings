@@ -13,6 +13,51 @@ class FridgeDevice extends Homey.Device
         this.log( 'FridgeDevice has been initializing' );
         const devData = this.getData();
 
+        if ( this.hasCapability( 'target_temperature.onedoor' ) )
+        {
+            await this.removeCapability('target_temperature.onedoor');
+        }
+
+        if ( this.hasCapability( 'target_temperature.main' ) )
+        {
+            await this.removeCapability('target_temperature.main');
+        }
+
+        if ( this.hasCapability( 'measure_temperature.main' ) )
+        {
+            await this.removeCapability('measure_temperature.main');
+        }
+
+        if ( this.hasCapability( 'measure_temperature.onedoor' ) )
+        {
+            await this.removeCapability('measure_temperature.onedoor');
+        }
+
+        if ( this.hasCapability( 'alarm_contact.cvroom' ) )
+        {
+            await this.removeCapability('alarm_contact.cvroom');
+        }
+
+        if ( this.hasCapability( 'alarm_contact.freezer' ) )
+        {
+            await this.removeCapability('alarm_contact.freezer');
+        }
+
+        if ( this.hasCapability( 'alarm_contact.cooler' ) )
+        {
+            await this.removeCapability('alarm_contact.cooler');
+        }
+
+        if ( this.hasCapability( 'alarm_contact.onedoor' ) )
+        {
+            await this.removeCapability('alarm_contact.onedoor');
+        }
+
+        if ( this.hasCapability( 'rapid_freezing.main' ) && this.hasCapability( 'rapid_cooling.main' ) )
+        {
+            await this.removeCapability('rapid_freezing.main');
+        }
+
         const capabilities = this.getCapabilities();
         for ( let c = 0; c < capabilities.length; c++ )
         {
@@ -27,13 +72,17 @@ class FridgeDevice extends Homey.Device
             {
                 this.registerCapabilityListener( dotCapability, this.onCapabilityTargetTemperature.bind( this,  components[1]) );
             }
-            else if (components[0] === 'fridge_mode')
+            else if (components[0] === 'rapid_freezing')
             {
-                this.registerCapabilityListener( dotCapability, this.onCapabilityFridgeMode.bind( this,  components[1]) );
+                this.registerCapabilityListener( dotCapability, this.onCapabilityRapidFreezing_set.bind( this,  components[1]) );
+            }
+            else if (components[0] === 'rapid_cooling')
+            {
+                this.registerCapabilityListener( dotCapability, this.onCapabilityRapidCooling_set.bind( this,  components[1]) );
             }
         }
 
-        this.getDeviceValues().catch(this.error);
+        //await this.getDeviceValues().catch(this.error);
 
         this.log( 'FridgeDevice has been initialized' );
     }
@@ -43,28 +92,6 @@ class FridgeDevice extends Homey.Device
      */
     async onAdded()
     {
-        const devData = this.getData();
-
-        if ( this.hasCapability( 'target_temperature.onedoor' ) )
-        {
-            this.removeCapability('target_temperature.onedoor');
-        }
-
-        if ( this.hasCapability( 'target_temperature.main' ) )
-        {
-            this.removeCapability('target_temperature.main');
-        }
-
-        if ( this.hasCapability( 'measure_temperature.main' ) )
-        {
-            this.removeCapability('measure_temperature.main');
-        }
-
-        if ( this.hasCapability( 'measure_temperature.onedoor' ) )
-        {
-            this.removeCapability('measure_temperature.onedoor');
-        }
-
         this.log( 'FridgeDevice has been added' );
     }
 
@@ -131,36 +158,86 @@ class FridgeDevice extends Homey.Device
         }
     }
 
-    // this method is called when the Homey device has requested a temperature set point change
-    async onCapabilityFridgeMode( component, value, opts )
+    // this method is called when the Homey device has requested a state change (turned on or off)
+    async onCapabilityRapidFreezing_set( component, value, opts )
     {
         try
         {
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // The device requires 'off' and 'on'
+            var data = 'off';
+            if ( value )
+            {
+                data = 'on';
+            }
+
             let body = {
                 "commands": [
                 {
                     "component": component,
-                    "capability": "custom.fridgeMode",
-                    "command": "setFridgeMode",
-                    "arguments": [ value ]
+                    "capability": "refrigeration",
+                    "command": "setRapidFreezing",
+                    "arguments": [ data ]
                 } ]
             };
 
-            // Get the device information stored during pairing
-            const devData = this.getData();
-
-            // Set the dim Value on the device using the unique feature ID stored during pairing
+            // Set the switch Value on the device using the unique feature ID stored during pairing
             await this.homey.app.setDeviceCapabilityValue( devData.id, body );
         }
         catch ( err )
         {
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityTargetTemperature " + this.homey.app.varToString( err.message ) );
+            this.homey.app.updateLog( this.getName() + " onCapabilityOnoff Error " + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
+        }
+    }
+
+    // this method is called when the Homey device has requested a state change (turned on or off)
+    async onCapabilityRapidCooling_set( component, value, opts )
+    {
+        try
+        {
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // The device requires 'off' and 'on'
+            var data = 'off';
+            if ( value )
+            {
+                data = 'on';
+            }
+
+            let body = {
+                "commands": [
+                {
+                    "component": component,
+                    "capability": "refrigeration",
+                    "command": "setRapidCooling",
+                    "arguments": [ data ]
+                } ]
+            };
+
+            // Set the switch Value on the device using the unique feature ID stored during pairing
+            await this.homey.app.setDeviceCapabilityValue( devData.id, body );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            this.homey.app.updateLog( this.getName() + " onCapabilityOnoff Error " + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
         }
     }
 
     async getDeviceValues()
     {
+        if (this.getingDeviceValues)
+        {
+            return;
+        }
+
+        this.getingDeviceValues = true;
         const devData = this.getData();
 
         var capabilityCache = {};
@@ -215,7 +292,15 @@ class FridgeDevice extends Homey.Device
 
                         }
 
-                        if ( mapEntry.boolCompare )
+                        if ((value === null) && (this.getCapabilityValue( dotCapability ) === null))
+                        {
+                            await this.removeCapability( dotCapability );
+                            if (dotCapability === "measure_temperature.freezer")
+                            {
+                                await this.removeCapability( "target_temperature.freezer" );
+                            }
+                        }
+                        else if ( mapEntry.boolCompare )
                         {
                             value = ( value === mapEntry.boolCompare );
                             this.homey.app.updateLog( "Set Capability: " + dotCapability + " - Value: " + value );
@@ -357,6 +442,10 @@ class FridgeDevice extends Homey.Device
                             }
                         }
                     }
+                    else
+                    {
+                        this.removeCapability( dotCapability );
+                    }
                 }
             }
             catch ( err )
@@ -365,100 +454,7 @@ class FridgeDevice extends Homey.Device
             }
         }
 
-
-
-        // try
-        // {
-        //     let value = 0;
-            
-        //     if ( this.hasCapability( 'alarm_contact' ) )
-        //     {
-        //         // Get the door open state
-        //         value = await this.homey.app.getDeviceCapabilityValue( devData.id, 'onedoor', 'contactSensor' );
-        //         if ( value )
-        //         {
-        //             this.setCapabilityValue( 'alarm_contact', value.contact.value === 'open' ).catch(this.error);
-        //         }
-        //     }
-
-        //     if ( this.hasCapability( 'target_temperature' ) )
-        //     {
-        //         // Get the Target temperature
-        //         value = await this.homey.app.getDeviceCapabilityValue( devData.id, 'freezer', 'thermostatCoolingSetpoint' );
-        //         if ( value )
-        //         {
-        //             this.setCapabilityValue( 'target_temperature', value.coolingSetpoint.value ).catch(this.error);
-        //         }
-        //     }
-
-        //     if ( this.hasCapability( 'onoff' ) )
-        //     {
-        //         // Get the rapid freeze state
-        //         value = await this.homey.app.getDeviceCapabilityValue( devData.id, 'main', 'refrigeration' );
-        //         if ( value )
-        //         {
-        //             this.setCapabilityValue( 'onoff', value.rapidFreezing.value === 'on' ).catch(this.error);
-        //         }
-        //     }
-
-        //     if ( this.hasCapability( 'fridge_deodor_filter' ) )
-        //     {
-        //         value = await this.homey.app.getDeviceCapabilityValue( devData.id, 'main', 'custom.deodorFilter' );
-        //         if ( value )
-        //         {
-        //             this.setCapabilityValue( 'fridge_deodor_filter', value ).catch(this.error);
-        //         }
-        //     }
-
-        //     if ( this.hasCapability( 'fridge_device_report_state_configuration' ) )
-        //     {
-        //         value = await this.homey.app.getDeviceCapabilityValue( devData.id, 'main', 'custom.deviceReportStateConfiguration' );
-        //         if ( value )
-        //         {
-        //             this.setCapabilityValue( 'fridge_device_report_state_configuration', value ).catch(this.error);
-        //         }
-        //     }
-
-        //     if ( this.hasCapability( 'fidge_mode' ) )
-        //     {
-        //         value = await this.homey.app.getDeviceCapabilityValue( devData.id, 'main', 'custom.fridgeMode' );
-        //         if ( value )
-        //         {
-        //             this.setCapabilityValue( 'fidge_mode', value ).catch(this.error);
-        //         }
-        //     }
-
-        //     if ( this.hasCapability( 'fridge_water_filter' ) )
-        //     {
-        //         value = await this.homey.app.getDeviceCapabilityValue( devData.id, 'main', 'custom.waterFilter' );
-        //         if ( value )
-        //         {
-        //             this.setCapabilityValue( 'fridge_water_filter', value ).catch(this.error);
-        //         }
-        //     }
-
-        //     if ( this.hasCapability( 'fridge_power_cool' ) )
-        //     {
-        //         value = await this.homey.app.getDeviceCapabilityValue( devData.id, 'main', 'samsungce.powerCool' );
-        //         if ( value )
-        //         {
-        //             this.setCapabilityValue( 'fridge_power_cool', value ).catch(this.error);
-        //         }
-        //     }
-
-        //     if ( this.hasCapability( 'fridge_power_freeze' ) )
-        //     {
-        //         value = await this.homey.app.getDeviceCapabilityValue( devData.id, 'main', 'samsungce.powerFreeze' );
-        //         if ( value )
-        //         {
-        //             this.setCapabilityValue( 'fridge_power_freeze', value ).catch(this.error);
-        //         }
-        //     }
-        // }
-        // catch ( err )
-        // {
-        //     this.log( "Get Device values Error ", err.message );
-        // }
+        this.getingDeviceValues = false;
     }
 
     /**

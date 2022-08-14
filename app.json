@@ -2480,17 +2480,8 @@
       "getable": true,
       "setable": false
     },
-    "fridge_mode": {
-      "type": "string",
-      "title": {
-        "en": "Mode"
-      },
-      "icon": "/assets/wash_status.svg",
-      "getable": true,
-      "setable": false
-    },
     "fridge_power_cool": {
-      "type": "string",
+      "type": "boolean",
       "title": {
         "en": "Power Cool"
       },
@@ -2499,7 +2490,7 @@
       "setable": false
     },
     "fridge_power_freeze": {
-      "type": "string",
+      "type": "boolean",
       "title": {
         "en": "Power Freeze"
       },
@@ -2508,7 +2499,7 @@
       "setable": false
     },
     "fridge_water_filter": {
-      "type": "string",
+      "type": "boolean",
       "title": {
         "en": "Water Filter"
       },

@@ -13,10 +13,6 @@
         "alarm_contact_onedoor": "One Door Open",
         "measure_temperature_freezer": "Freezer Current Temperature",
         "measure_temperature_cooler": "Cooler Current Temperature",
-        "measure_temperature_cvroom": "CV Room Current Temperature",
-        "fridge_mode_freezer": "Freezer Mode",
-        "fridge_mode_cooler": "Cooler Mode",
-        "fridge_mode_cvroom": "CV Room Mode",
-        "fridge_mode_onedoor": "One Door Mode"
+        "measure_temperature_cvroom": "CV Room Current Temperature"
     }
 }
