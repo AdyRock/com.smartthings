@@ -4,5 +4,8 @@
     },
     "2.0.1": {
         "en": "Updates for regridgeration."
+    },
+    "2.0.1": {
+        "en": "Fix broken stDevice data fetch."
     }
 }

@@ -292,7 +292,7 @@ class STDevice extends Homey.Device
                 // Lookup the capability in the map
                 //this.homey.app.updateLog( "Capability Processing: " + capability );
 
-                var mapEntry = this.homey.app.getStCapabilitiesForCapability[ capability ];
+                var mapEntry = this.homey.app.getStCapabilitiesForCapability( capability );
 
                 // get the entry from the table for this capability
                 if ( mapEntry )

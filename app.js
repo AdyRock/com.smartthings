@@ -505,8 +505,7 @@ const CapabilityMap1 = {
         capabilityID: 'tag.tagButton',
         divider: 0,
         boolCompare: '',
-        flowTrigger: 'tag_button_status_changed',
-        keep: true
+        flowTrigger: 'tag_button_status_changed'
     },
     "button_status":
     {
@@ -720,16 +719,16 @@ const CapabilityMap2 = {
     "battery":
     {
         class: "",
-        exclude: "",
+        exclude: ["tag.tagButton"],
         capabilities: [ "measure_battery" ],
         icon: "",
         iconPriority: 0
     },
     "tag.tagButton":
     {
-        class: "",
+        class: "button",
         exclude: "",
-        capabilities: [ "tag_button_status", "button_timestamp" ],
+        capabilities: [ "tag_button_status" ],
         icon: "tag.svg",
         iconPriority: 5
     },
