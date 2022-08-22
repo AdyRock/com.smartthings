@@ -335,7 +335,14 @@ class STDevice extends Homey.Device
 
                     if ( mapEntry.boolCompare )
                     {
-                        value = ( value === mapEntry.boolCompare );
+                        if (Array.isArray(mapEntry.boolCompare))
+                        {
+                            value = (mapEntry.boolCompare.indexOf(value) >= 0);
+                        }
+                        else
+                        {
+                            value = ( value === mapEntry.boolCompare );
+                        }
                         this.homey.app.updateLog( "Set Capability: " + capability + " - Value: " + value );
                         let lastValue = this.getCapabilityValue( capability );
                         this.setCapabilityValue( capability, value ).catch(this.error);

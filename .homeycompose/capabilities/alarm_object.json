@@ -1,0 +1,9 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Object Detection"
+  },
+  "icon": "/assets/object.svg",
+  "getable": true,
+  "setable": false
+}

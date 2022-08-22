@@ -194,15 +194,31 @@ const CapabilityMap1 = {
         capabilityID: 'presenceSensor',
         divider: 0,
         boolCompare: 'present',
-        flowTrigger: 'presenceStatus_changed'
+        flowTrigger: null
     },
     "alarm_motion":
     {
         dataEntry: [ 'motionSensor', 'motion', 'value' ],
         capabilityID: 'motionSensor',
         divider: 0,
-        boolCompare: 'motion',
-        flowTrigger: 'presenceStatus_changed'
+        boolCompare: ['motion', 'active'],
+        flowTrigger: null
+    },
+    "alarm_object":
+    {
+        dataEntry: [ 'objectDetection', 'object', 'value' ],
+        capabilityID: 'objectDetection',
+        divider: 0,
+        boolCompare: ['object', 'active'],
+        flowTrigger: null
+    },
+    "image_capture":
+    {
+        dataEntry: [ 'imageCapture', 'image', 'value' ],
+        capabilityID: 'imageCapture',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null
     },
     "aircon_mode":
     {
@@ -753,6 +769,22 @@ const CapabilityMap2 = {
         class: "sensor",
         exclude: "",
         capabilities: [ "alarm_motion" ],
+        icon: "presence.svg",
+        iconPriority: 3
+    },
+    "objectDetection":
+    {
+        class: "sensor",
+        exclude: "",
+        capabilities: [ "alarm_object" ],
+        icon: "presence.svg",
+        iconPriority: 3
+    },
+    "imageCapture":
+    {
+        class: "sensor",
+        exclude: "",
+        capabilities: [ "image_capture" ],
         icon: "presence.svg",
         iconPriority: 3
     },

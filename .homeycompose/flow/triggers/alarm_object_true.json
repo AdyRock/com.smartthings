@@ -1,0 +1,13 @@
+{
+    "title": {
+        "en": "Object detected"
+    },
+    "hint": {
+        "en": "This card starts a Flow when an object is detected."
+    },
+    "args": [{
+        "name": "device",
+        "type": "device",
+        "filter": "driver_id=stDevice&capabilities=alarm_object"
+    }]
+}

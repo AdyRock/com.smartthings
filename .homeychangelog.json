@@ -5,7 +5,10 @@
     "2.0.1": {
         "en": "Updates for regridgeration."
     },
-    "2.0.1": {
+    "2.0.2": {
         "en": "Fix broken stDevice data fetch."
+    },
+    "2.0.3": {
+        "en": "Added extra condition to motionSensor. Added objectDetection and imageCapture to get more information."
     }
 }

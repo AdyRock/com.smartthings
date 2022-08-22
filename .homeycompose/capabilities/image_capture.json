@@ -1,0 +1,9 @@
+{
+  "type": "string",
+  "title": {
+    "en": "Image Capture"
+  },
+  "icon": "/assets/image.svg",
+  "getable": true,
+  "setable": false
+}
