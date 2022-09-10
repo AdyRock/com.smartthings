@@ -72,6 +72,62 @@
                     }
                 }
             ]
+        },
+        {
+            "type": "group",
+            "label": {
+                "en": "Date",
+                "nl": "RGBW-lamp"
+            },
+            "children": [
+                {
+                    "id": "timeFormat",
+                    "type": "dropdown",
+                    "label": {
+                        "en": "Time Format",
+                        "de": "Zeitformat",
+                        "nl": "Tijd format",
+                        "it": "Formato del Tempo"
+                    },
+                    "value": "mm_dd",
+                    "hint": {
+                        "en": "The format to show the time capabilities.",
+                        "de": "Zeitformat das zur Anzeige genutzt werden soll.",
+                        "nl": "Tijd format notatie mogelijkheden",
+                        "it": "Il formato mosta capabilities del Tempo."
+                    },
+                    "values": [
+                        {
+                            "id": "raw",
+                            "label": {
+                                "en": "Direct From Camera",
+                                "de": "Direkt von der Kamera",
+                                "nl": "Live",
+                                "it": "Diretto dalla Camera"
+                            }
+                        },
+                        {
+                            "id": "system",
+                            "label": {
+                                "en": "Local",
+                                "de": "Lokal",
+                                "nl": "Intern",
+                                "it": "Locale"
+                            }
+                        },
+                        {
+                            "id": "mm_dd",
+                            "label": {
+                                "en": "Short HH:MM DD-MM",
+                                "de": "Kurz HH:MM DD-MM",
+                                "nl": "Kort HH:MM DD-MM",
+                                "it": "Corto HH:MM DD-MM"
+                            }
+                        }
+                    ]
+                }
+            ]
+
         }
     ]
 }

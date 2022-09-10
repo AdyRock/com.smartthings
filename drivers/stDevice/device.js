@@ -2,6 +2,8 @@
 'use strict';
 
 const Homey = require( 'homey' );
+const fs = require( 'fs' );
+
 class STDevice extends Homey.Device
 {
 
@@ -10,6 +12,7 @@ class STDevice extends Homey.Device
         this.log( 'STDevice is initialising' );
         this.deviceOn = true;
         this.remoteControlEnabled = false;
+        this.eventImage = null;
 
         const devData = this.getData();
         var component = 'main';
@@ -271,6 +274,64 @@ class STDevice extends Homey.Device
         }
     }
 
+    async onDeleted()
+    {
+        try
+        {
+            if (this.eventImage)
+            {
+                if (!fs.existsSync(this.imageFile))
+                {
+                    fs.unlink(this.imageFile, (err) =>
+                    {
+                        if (!err)
+                        {
+                            //console.log('successfully deleted: ', this.eventImageFilename);
+                        }
+                    });
+                }
+            }
+            console.log("Delete device");
+        }
+        catch (err)
+        {
+            console.log("Delete device error", err);
+        }
+    }
+    async onSettings({ oldSettings, newSettings, changedKeys })
+    {
+        if (changedKeys.indexOf("timeFormat") >= 0)
+        {
+            this.setCapabilityValue('image_capture', this.convertDate(this.captureTime, newSettings)).catch(this.error);
+        }
+    }
+
+    convertDate(date, settings)
+    {
+        let strDate = "";
+        if (date)
+        {
+            let d = new Date(date);
+
+            if (settings.timeFormat == "mm_dd")
+            {
+                let mins = d.getMinutes();
+                let dte = d.getDate();
+                let mnth = d.getMonth() + 1;
+                strDate = d.getHours() + ":" + (mins < 10 ? "0" : "") + mins + " " + (dte < 10 ? "0" : "") + dte + "-" + (mnth < 10 ? "0" : "") + mnth;
+            }
+            else if (settings.timeFormat == "system")
+            {
+                strDate = d.toLocaleString();
+            }
+            else
+            {
+                strDate = d.toJSON();
+            }
+        }
+
+        return strDate;
+    }
 
     async getDeviceValues()
     {
@@ -316,6 +377,27 @@ class STDevice extends Homey.Device
                     if ( !value )
                     {
                         value = await this.homey.app.getDeviceCapabilityValue( devData.id, component, mapEntry.capabilityID );
+
+                        if (mapEntry.capabilityID === 'imageCapture')
+                        {
+                            if (this.getCapabilityValue( 'alarm_motion' ) != this.lastMotion)
+                            {
+                                this.lastMotion = this.getCapabilityValue( 'alarm_motion' );
+                                if (this.lastMotion)
+                                {
+                                    this.takeImage();
+                                }
+                            }
+
+                            this.captureTime = value.captureTime.value;
+                            const dt = this.convertDate( this.captureTime, this.getSettings());
+                            if (this.getCapabilityValue( capability) != dt)
+                            {
+                                this.setCapabilityValue( capability, dt ).catch(this.error);
+                                this.updateImage(value.image.value);
+                            }
+                            continue;
+                        }
                     }
 
                     if ( mapEntry.keep )
@@ -337,7 +419,8 @@ class STDevice extends Homey.Device
                     {
                         if (Array.isArray(mapEntry.boolCompare))
                         {
-                            value = (mapEntry.boolCompare.indexOf(value) >= 0);
+                            let idx = mapEntry.boolCompare.indexOf(value);
+                            value = (idx >= 0);
                         }
                         else
                         {
@@ -1796,6 +1879,50 @@ class STDevice extends Homey.Device
             //this.setUnavailable();
             this.homey.app.updateLog( this.getName() + " onCapabilityDishwasherSpeedBooster " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
+        }
+    }
+
+    async takeImage()
+    {
+        try
+        {
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "imageCapture",
+                    "command": 'take',
+                    "arguments": []
+                } ]
+            };
+
+            // Set the switch Value on the device using the unique feature ID stored during pairing
+            await this.homey.app.setDeviceCapabilityValue( devData.id, body );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            this.homey.app.updateLog( this.getName() + " onCapabilityRobotCleaningTurboMode Error " + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
+        }
+
+    }
+
+    async updateImage(url)
+    {
+        this.imageFile = await this.homey.app.GetImage(url, this.getData());
+        if (this.eventImage)
+        {
+            this.eventImage.update();
+        }
+        else
+        {
+            this.eventImage = await this.homey.images.createImage();
+            this.eventImage.setPath(this.imageFile);
+            this.setCameraImage('Event', "Motion Event", this.eventImage).catch(this.err);
         }
     }
 }    

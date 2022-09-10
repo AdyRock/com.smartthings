@@ -1,0 +1,10 @@
+{
+    "type": "string",
+    "title":
+    {
+        "en": "Object Type"
+    },
+    "icon": "/assets/object.svg",
+    "getable": true,
+    "setable": false
+}

@@ -1,7 +1,7 @@
 {
   "type": "string",
   "title": {
-    "en": "Image Capture"
+    "en": "Image Capture Time"
   },
   "icon": "/assets/image.svg",
   "getable": true,
