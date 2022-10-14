@@ -1242,6 +1242,8 @@ class MyApp extends Homey.App
             this.homey.settings.set( 'debugMode', false );
         }
 
+        this.gettingDevices = false;
+
         this.homeyHash = await this.homey.cloud.getHomeyId();
         this.homeyHash = this.hashCode( this.homeyHash ).toString();
 
@@ -1453,6 +1455,11 @@ class MyApp extends Homey.App
         return h;
     }
 
+    async asyncDelay(period)
+    {
+        await new Promise(resolve => this.homey.setTimeout(resolve, period));
+    }
+
     async getDevices( LogOnly = false )
     {
         function isExcluded( capabilities, exclusions )
@@ -1470,6 +1477,12 @@ class MyApp extends Homey.App
             return false;
         }
 
+        this.gettingDevices = true;
+        while (this.homey.app.timerProcessing)
+        {
+            await this.asyncDelay(100);
+        }
+
         //https://api.smartthings.com/v1/devices
         const url = "devices";
         let searchResult = await this.homey.app.GetURL( url );
@@ -1479,6 +1492,7 @@ class MyApp extends Homey.App
             this.detectedDevices = JSON.stringify( searchData, null, 2 );
             if ( LogOnly )
             {
+                this.gettingDevices = false;
                 return;
             }
 
@@ -1498,13 +1512,31 @@ class MyApp extends Homey.App
                 var components = device.components;
                 var iconName = "";
                 var iconPriority = 0;
-                const disabledComponents = await this.getDeviceCapabilityValue( device.deviceId, 'main', 'custom.disabledComponents' );
+
+                // Find if 'main - custom.disabledComponents' exists
+                let disabledComponents = null;
+                for ( const component of components )
+                {
+                    if (component.id === 'main')
+                    {
+                        for ( const deviceCapability of component.capabilities )
+                        {
+                            if (deviceCapability.id === 'custom.disabledComponents')
+                            {
+                                disabledComponents = await this.getDeviceCapabilityValue( device.deviceId, 'main', 'custom.disabledComponents' );
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
 
                 for ( const component of components )
                 {
                     if ( disabledComponents && disabledComponents.disabledComponents && disabledComponents.disabledComponents.value && disabledComponents.disabledComponents.value.findIndex( ( element ) => element === component.id ) >= 0 )
                     {
                         // This component is disabled
+                        this.homey.app.updateLog( `Component: ${device.label}, ${component} is disabled` );
                         continue;
                     }
 
@@ -1547,14 +1579,25 @@ class MyApp extends Homey.App
                                     if ( capabilityStatus && capabilityStatus[ capabilityMapEntry.statusEntry ] )
                                     {
                                         const option = capabilityStatus[ capabilityMapEntry.statusEntry ];
+                                        let found = false;
                                         for ( let entry = 0; entry < capabilityMapEntry.statusValue.length; entry++ )
                                         {
                                             if ( option.value && option.value.id && ( option.value.id === capabilityMapEntry.statusValue[ entry ] ) )
                                             {
                                                 capabilities.push( capabilityMapEntry.capabilities[ entry ] );
+                                                found = true;
                                                 break;
                                             }
                                         }
+
+                                        if (!found)
+                                        {
+                                            this.homey.app.updateLog( `Capability type unknown: ${deviceCapability.id}, ${capabilityStatus}` );
+                                        }
+                                    }
+                                    else
+                                    {
+                                        this.homey.app.updateLog( `Capability type unknown: ${deviceCapability.id}, ${capabilityStatus}` );
                                     }
                                 }
                                 else
@@ -1574,6 +1617,7 @@ class MyApp extends Homey.App
                     if ( capabilities.length > 0 )
                     {
                         // Add this device to the table
+                        this.homey.app.updateLog( `Adding device ${device.label} with ${this.varToString( capabilities )}` );
                         devices.push(
                         {
                             "name": device.label + ": " + component.id,
@@ -1585,10 +1629,12 @@ class MyApp extends Homey.App
                     }
                 }
             }
+            this.gettingDevices = false;
             return devices;
         }
         else
         {
+            this.gettingDevices = false;
             this.homey.app.updateLog( "Getting API Key returned NULL" );
             throw new Error( "HTTPS Error: Nothing returned" );
         }
@@ -2197,32 +2243,35 @@ class MyApp extends Homey.App
 
     async onPoll()
     {
-        this.homey.app.timerProcessing = true;
-        this.homey.app.updateLog( "!!!!!! Polling started" );
-        const promises = [];
-        try
+        if (!this.gettingDevices)
         {
-            // Fetch the list of drivers for this app
-            const drivers = this.homey.drivers.getDrivers();
-            for ( const driver in drivers )
+            this.homey.app.timerProcessing = true;
+            this.homey.app.updateLog( "!!!!!! Polling started" );
+            const promises = [];
+            try
             {
-                let devices = this.homey.drivers.getDriver( driver ).getDevices();
-                for ( var i = 0; i < devices.length; i++ )
+                // Fetch the list of drivers for this app
+                const drivers = this.homey.drivers.getDrivers();
+                for ( const driver in drivers )
                 {
-                    let device = devices[ i ];
-                    if ( device.getDeviceValues )
+                    let devices = this.homey.drivers.getDriver( driver ).getDevices();
+                    for ( var i = 0; i < devices.length; i++ )
                     {
-                        promises.push( device.getDeviceValues() );
+                        let device = devices[ i ];
+                        if ( device.getDeviceValues )
+                        {
+                            promises.push( device.getDeviceValues() );
+                        }
                     }
                 }
-            }
 
-            await Promise.all( promises );
-            this.homey.app.updateLog( "!!!!!! Polling finished" );
-        }
-        catch ( err )
-        {
-            this.homey.app.updateLog( "Polling Error: " + this.varToString( err.message ) );
+                await Promise.all( promises );
+                this.homey.app.updateLog( "!!!!!! Polling finished" );
+            }
+            catch ( err )
+            {
+                this.homey.app.updateLog( "Polling Error: " + this.varToString( err.message ) );
+            }
         }
 
         var nextInterval = Number( this.homey.settings.get( 'pollInterval' ) ) * 1000;
