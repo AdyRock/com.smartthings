@@ -78,7 +78,7 @@ const CapabilityMap1 = {
         capabilityID: 'contactSensor',
         divider: 0,
         boolCompare: 'open',
-        flowTrigger: ''
+        flowTrigger: 'alarm_contact'
     },
     "measure_battery":
     {
@@ -260,7 +260,7 @@ const CapabilityMap1 = {
         capabilityID: 'temperatureMeasurement',
         divider: 0,
         boolCompare: '',
-        flowTrigger: null
+        flowTrigger: "measure_temperature"
     },
     "target_temperature":
     {
@@ -668,11 +668,11 @@ const CapabilityMap1 = {
     // },
     "fridge_water_filter":
     {
-        dataEntry: [ 'custom.waterFilter', 'waterFilter', 'value' ],
+        dataEntry: [ 'custom.waterFilter', 'waterFilterUsage', 'value' ],
         capabilityID: 'custom.waterFilter',
         divider: 0,
         boolCompare: '',
-        flowTrigger: null,
+        flowTrigger: 'fridge_water_filter_changed',
     },
     "fridge_power_cool":
     {
@@ -1536,7 +1536,7 @@ class MyApp extends Homey.App
                     if ( disabledComponents && disabledComponents.disabledComponents && disabledComponents.disabledComponents.value && disabledComponents.disabledComponents.value.findIndex( ( element ) => element === component.id ) >= 0 )
                     {
                         // This component is disabled
-                        this.homey.app.updateLog( `Component: ${device.label}, ${component} is disabled` );
+                        this.homey.app.updateLog( `Component: ${device.label}, ${this.varToString( component )} is disabled` );
                         continue;
                     }
 
@@ -1861,7 +1861,7 @@ class MyApp extends Homey.App
     {
         if ( ( process.env.DEBUG === '1' ) )
         {
-            let simData = this.homey.settings.get( 'simData' );
+            let simData = this.homey.settings.get( 'simDataData' );
             if ( simData )
             {
                 simData = JSON.parse( simData );
@@ -1880,6 +1880,36 @@ class MyApp extends Homey.App
                 {
                     const component = simData.components[ ComponentID ];
                     return component[ CapabilityID ];
+                }
+
+                if (simData.items)
+                {
+                    for ( const device of simData.items )
+                    {
+                        if (device.deviceId === DeviceID )
+                        {
+                            var components = device.components;
+                            for ( const component of components )
+                            {
+                                if (component.id === ComponentID)
+                                {
+                                    var deviceCapabilities = component.capabilities;
+                                    for ( const deviceCapability of deviceCapabilities )
+                                    {
+                                        if (deviceCapability.id === CapabilityID)
+                                        {
+                                            if (deviceCapability.value)
+                                            {
+                                                return deviceCapability.value;
+                                            }
+
+                                            return 1;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

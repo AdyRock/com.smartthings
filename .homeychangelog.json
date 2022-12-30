@@ -16,5 +16,8 @@
     },
     "2.0.5": {
         "en": "More logging of device discovery. Only request hidden compoants of the capability exists."
+    },
+    "2.0.6": {
+        "en": "Added extra Flow trigers for fridge / freezer."
     }
 }

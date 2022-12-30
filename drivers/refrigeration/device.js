@@ -38,15 +38,15 @@ class FridgeDevice extends Homey.Device
             await this.removeCapability('alarm_contact.cvroom');
         }
 
-        if ( this.hasCapability( 'alarm_contact.freezer' ) )
-        {
-            await this.removeCapability('alarm_contact.freezer');
-        }
+        // if ( this.hasCapability( 'alarm_contact.freezer' ) )
+        // {
+        //     await this.removeCapability('alarm_contact.freezer');
+        // }
 
-        if ( this.hasCapability( 'alarm_contact.cooler' ) )
-        {
-            await this.removeCapability('alarm_contact.cooler');
-        }
+        // if ( this.hasCapability( 'alarm_contact.cooler' ) )
+        // {
+        //     await this.removeCapability('alarm_contact.cooler');
+        // }
 
         if ( this.hasCapability( 'alarm_contact.onedoor' ) )
         {
@@ -313,20 +313,36 @@ class FridgeDevice extends Homey.Device
 
                             if ( mapEntry.flowTrigger )
                             {
-                                this.homey.app.updateLog( "Trigger Check: " + dotCapability + " = " + value + " was " + lastValue );
-                                if ( lastValue != value )
+                                let flowTrigger = `${mapEntry.flowTrigger}_${combinedCapability[1]}_changed`;
+                                if (this.driver.flowTriggers[ flowTrigger ])
                                 {
-                                    this.homey.app.updateLog( "Trigger change: " + dotCapability, " = " + value );
+                                    this.homey.app.updateLog( "Trigger Check: " + dotCapability + " = " + value + " was " + lastValue );
+                                    if ( lastValue != value )
+                                    {
+                                        this.homey.app.updateLog( "Trigger change: " + dotCapability, " = " + value );
 
-                                    let tokens = {
-                                        'value': value
-                                    };
+                                        let tokens = {
+                                            'value': value
+                                        };
 
-                                    this.driver.flowTriggers[ mapEntry.flowTrigger ]
-                                        .trigger( this, tokens )
-                                        .catch( this.error );
+                                        this.driver.flowTriggers[ flowTrigger ]
+                                            .trigger( this, tokens )
+                                            .catch( this.error );
+
+                                        if (value)
+                                        {
+                                            this.driver.flowTriggers[ `${flowTrigger}_true` ]
+                                                .trigger( this )
+                                                .catch( this.error );
+                                        }
+                                        else
+                                        {
+                                            this.driver.flowTriggers[ `${flowTrigger}_false` ]
+                                                .trigger( this )
+                                                .catch( this.error );
+                                        }
+                                    }
                                 }
-
                             }
                         }
                         else
@@ -411,40 +427,43 @@ class FridgeDevice extends Homey.Device
 
                             if ( mapEntry.flowTrigger )
                             {
-                                this.homey.app.updateLog( "Trigger Check: " + combinedCapability + " = ", value + " was " + lastValue );
-                                if ( lastValue != value )
+                                let flowTrigger = `${mapEntry.flowTrigger}_${combinedCapability[1]}_changed`;
+                                if (this.driver.flowTriggers[ flowTrigger ])
                                 {
-                                    this.homey.app.updateLog( "Trigger change: " + combinedCapability + " = " + value );
-
-                                    let state = {
-                                        'value': value
-                                    };
-
-                                    let tokens;
-                                    if (mapEntry.flowTag)
+                                    this.homey.app.updateLog( "Trigger Check: " + combinedCapability + " = ", value + " was " + lastValue );
+                                    if ( lastValue != value )
                                     {
-                                        tokens = {
-                                            'value': this.getCapabilityValue(mapEntry.flowTag)
-                                        };
-                                    }
-                                    else
-                                    {
-                                        tokens = {
+                                        this.homey.app.updateLog( "Trigger change: " + combinedCapability + " = " + value );
+
+                                        let state = {
                                             'value': value
                                         };
+
+                                        let tokens;
+                                        if (mapEntry.flowTag)
+                                        {
+                                            tokens = {
+                                                'value': this.getCapabilityValue(mapEntry.flowTag)
+                                            };
+                                        }
+                                        else
+                                        {
+                                            tokens = {
+                                                'value': value
+                                            };
+                                        }
+
+                                        this.driver.flowTriggers[ flowTrigger ]
+                                            .trigger( this, tokens, state )
+                                            .catch( this.error );
                                     }
-
-                                    this.driver.flowTriggers[ mapEntry.flowTrigger ]
-                                        .trigger( this, tokens, state )
-                                        .catch( this.error );
                                 }
-
                             }
                         }
                     }
-                    else
+                    else if (value === null)
                     {
-                        this.removeCapability( dotCapability );
+                        // this.removeCapability( dotCapability );
                     }
                 }
             }

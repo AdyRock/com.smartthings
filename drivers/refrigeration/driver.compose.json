@@ -4,7 +4,10 @@
         "en": "Refrigeration"
     },
     "class": "sensor",
-    "capabilities": [],
+    "capabilities": [
+        "measure_temperature.freezer",
+        "measure_temperature.cooler"
+    ],
     "pair": [
         {
             "id": "list_devices",

@@ -434,7 +434,7 @@ class STDevice extends Homey.Device
                             this.remoteControlEnabled = value;
                         }
 
-                        if ( mapEntry.flowTrigger )
+                        if ( mapEntry.flowTrigger && this.driver.flowTriggers[ mapEntry.flowTrigger ] )
                         {
                             this.homey.app.updateLog( "Trigger Check: " + capability + " = " + value + " was " + lastValue );
                             if ( lastValue != value )
@@ -532,7 +532,7 @@ class STDevice extends Homey.Device
                             this.log( err);
                         }
 
-                        if ( mapEntry.flowTrigger )
+                        if ( mapEntry.flowTrigger && this.driver.flowTriggers[ mapEntry.flowTrigger ] )
                         {
                             this.homey.app.updateLog( "Trigger Check: " + capability + " = ", value + " was " + lastValue );
                             if ( lastValue != value )

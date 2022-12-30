@@ -1,0 +1,119 @@
+{
+    "triggers": [
+        {
+            "id": "alarm_contact_main_true",
+            "title": {
+                "en": "A Door Open alarm turned on"
+            },
+            "args": []
+        },
+        {
+            "id": "alarm_contact_main_false",
+            "title": {
+                "en": "A Door Open alarm turned off"
+            },
+            "args": []
+        },
+        {
+            "id": "alarm_contact_main_changed",
+            "title": {
+                "en": "A Door Open alarm changed"
+            },
+            "tokens": [{
+                "name": "value",
+                "type": "boolean",
+                "title": {"en": "New state"}
+            }],
+            "args": []
+        },
+        {
+            "id": "alarm_contact_freezer_true",
+            "title": {
+                "en": "Freezer Door Open alarm turned on"
+            },
+            "args": []
+        },
+        {
+            "id": "alarm_contact_freezer_false",
+            "title": {
+                "en": "Freezer Door Open alarm turned off"
+            },
+            "args": []
+        },
+        {
+            "id": "alarm_contact_freezer_changed",
+            "title": {
+                "en": "Freezer Door Open Alarm changed"
+            },
+            "tokens": [{
+                "name": "value",
+                "type": "boolean",
+                "title": {"en": "New state"}
+            }],
+            "args": []
+        },
+        {
+            "id": "alarm_contact_cooler_true",
+            "title": {
+                "en": "Cooler Door Open Alarm turned on"
+            },
+            "args": []
+        },
+        {
+            "id": "alarm_contact_cooler_false",
+            "title": {
+                "en": "Cooler Door Open Alarm turned off"
+            },
+            "args": []
+        },
+        {
+            "id": "alarm_contact_cooler_changed",
+            "title": {
+                "en": "Cooler Door Open Alarm changed"
+            },
+            "tokens": [{
+                "name": "value",
+                "type": "boolean",
+                "title": {"en": "New state"}
+            }],
+            "args": []
+        },
+        {
+            "id": "fridge_water_filter_main_changed",
+            "title": {
+                "en": "Water filter usage changed"
+            },
+            "tokens": [{
+                "name": "value",
+                "type": "number",
+                "title": {"en": "New state"},
+                "units": "%"
+            }],
+            "args": []
+        },
+        {
+            "id": "measure_temperature_freezer_changed",
+            "title": {
+                "en": "Freezer Current Temperature changed"
+            },
+            "tokens": [{
+                "name": "value",
+                "type": "number",
+                "title": {"en": "New temperature"}
+            }],
+            "args": []
+        },
+        {
+            "id": "measure_temperature_cooler_changed",
+            "title": {
+                "en": "Cooler Current Temperature changed"
+            },
+            "tokens": [{
+                "name": "value",
+                "type": "number",
+                "title": {"en": "New temperature"}
+            }],
+            "args": []
+        }
+    ]
+}

@@ -1,7 +1,10 @@
 {
-  "type": "boolean",
+  "type": "number",
   "title": {
-    "en": "Water Filter"
+    "en": "Water Filter Used"
+  },
+  "units": {
+    "en": "%"
   },
   "icon": "/assets/water_filter.svg",
   "getable": true,
