@@ -302,7 +302,10 @@ class STDevice extends Homey.Device
     {
         if (changedKeys.indexOf("timeFormat") >= 0)
         {
-            this.setCapabilityValue('image_capture', this.convertDate(this.captureTime, newSettings)).catch(this.error);
+            if (this.hasCapability('image_capture'))
+            {
+                this.setCapabilityValue('image_capture', this.convertDate(this.captureTime, newSettings)).catch(this.error);
+            }
         }
     }
 
@@ -313,14 +316,14 @@ class STDevice extends Homey.Device
         {
             let d = new Date(date);
 
-            if (settings.timeFormat == "mm_dd")
+            if (settings.timeFormat === "mm_dd")
             {
                 let mins = d.getMinutes();
                 let dte = d.getDate();
                 let mnth = d.getMonth() + 1;
                 strDate = d.getHours() + ":" + (mins < 10 ? "0" : "") + mins + " " + (dte < 10 ? "0" : "") + dte + "-" + (mnth < 10 ? "0" : "") + mnth;
             }
-            else if (settings.timeFormat == "system")
+            else if (settings.timeFormat === "system")
             {
                 strDate = d.toLocaleString();
             }
@@ -415,9 +418,14 @@ class STDevice extends Homey.Device
 
                     }
 
-                    if(mapEntry.compareSelf) {
-                        const  lastValue = this.getCapabilityValue( capability );
-                        value = (value - lastValue) 
+                    if(mapEntry.diffBetween) {
+                        let  lastValue = this.getCapabilityValue( mapEntry.diffBetween );
+                        var mapEntry2 = this.homey.app.getStCapabilitiesForCapability( mapEntry.diffBetween );
+                        if (mapEntry2.divider > 0)
+                        {
+                            lastValue *= mapEntry2.divider;
+                        }
+                        value = (value - lastValue);
                     }
 
                     if ( mapEntry.boolCompare )
@@ -512,8 +520,9 @@ class STDevice extends Homey.Device
                             // Format date and time to fit
                             if ( value.length > 5 )
                             {
-                                var d = new Date( value );
-                                value = d.getHours() + ":" + ( d.getMinutes() < 10 ? "0" : "" ) + d.getMinutes() + " " + ( d.getDate() < 10 ? "0" : "" ) + d.getDate() + "-" + ( d.getMonth() < 10 ? "0" : "" ) + d.getMonth();
+                                value = this.convertDate( value, this.getSettings() );
+                                // var d = new Date( value );
+                                // value = d.getHours() + ":" + ( d.getMinutes() < 10 ? "0" : "" ) + d.getMinutes() + " " + ( d.getDate() < 10 ? "0" : "" ) + d.getDate() + "-" + ( d.getMonth() < 10 ? "0" : "" ) + d.getMonth() + 1;
                             }
                         }
 

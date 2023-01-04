@@ -100,10 +100,10 @@
                         {
                             "id": "raw",
                             "label": {
-                                "en": "Direct From Camera",
-                                "de": "Direkt von der Kamera",
+                                "en": "Direct From device",
+                                "de": "Direkt von der Gerät",
                                 "nl": "Live",
-                                "it": "Diretto dalla Camera"
+                                "it": "Diretto dalla dispositivo"
                             }
                         },
                         {
