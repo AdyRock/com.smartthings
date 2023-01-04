@@ -415,6 +415,11 @@ class STDevice extends Homey.Device
 
                     }
 
+                    if(mapEntry.compareSelf) {
+                        const  lastValue = this.getCapabilityValue( capability );
+                        value = (value - lastValue) 
+                    }
+
                     if ( mapEntry.boolCompare )
                     {
                         if (Array.isArray(mapEntry.boolCompare))

@@ -90,9 +90,10 @@ const CapabilityMap1 = {
     },
     "measure_power":
     {
-        dataEntry: [ 'powerConsumptionReport', 'powerConsumption', 'value', 'power' ],
+        dataEntry: [ 'powerConsumptionReport', 'powerConsumption', 'value', 'energy' ],
         capabilityID: 'powerConsumptionReport',
-        divider: 0,
+        compareSelf: true,
+        divider: 1000000,
         boolCompare: '',
         flowTrigger: null,
         keep: true
