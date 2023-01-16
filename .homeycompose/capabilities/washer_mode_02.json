@@ -1,7 +1,8 @@
 {
   "type": "enum",
   "title": {
-    "en": "Washer Mode"
+    "en": "Washer Mode",
+    "nl": "Programma"
   },
   "getable": true,
   "setable": true,
@@ -23,7 +24,7 @@
       "id": "Table_02_Course_21",
       "title": {
         "en": "Coloured",
-        "nl": "Geleurde was"
+        "nl": "Gekleurde was"
       }
     },
     {

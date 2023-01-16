@@ -1,7 +1,8 @@
 {
   "type": "string",
   "title": {
-    "en": "Detergent Type"
+    "en": "Detergent Type",
+    "nl": "Type Wasmiddel"
   },
   "icon": "/assets/laundry-detergent.svg",
   "getable": true,

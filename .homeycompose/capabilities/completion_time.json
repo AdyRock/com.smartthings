@@ -1,7 +1,8 @@
 {
   "type": "string",
   "title": {
-    "en": "Completion Time"
+    "en": "Completion Time",
+    "nl": "Tijd Tot Einde"
   },
   "icon": "/assets/finish_time.svg",
   "getable": true,

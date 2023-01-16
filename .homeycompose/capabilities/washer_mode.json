@@ -1,7 +1,8 @@
 {
   "type": "enum",
   "title": {
-    "en": "Washer Mode"
+    "en": "Washer Mode",
+    "nl": "Programma"
   },
   "getable": true,
   "setable": true,
@@ -21,19 +22,22 @@
     {
       "id": "Table_00_Course_D0",
       "title": {
-        "en": "Cotton"
+        "en": "Cotton",
+        "nl": "Katoen"
       }
     },
     {
       "id": "Table_00_Course_D2",
       "title": {
-        "en": "Synthetics"
+        "en": "Synthetics",
+        "nl": "Synthetisch"
       }
     },
     {
       "id": "Table_00_Course_D3",
       "title": {
-        "en": "Delicates"
+        "en": "Delicates",
+        "nl": "Fijne Was"
       }
     },
     {
@@ -45,19 +49,22 @@
     {
       "id": "Table_00_Course_D4",
       "title": {
-        "en": "Rinse + Spin"
+        "en": "Rinse + Spin",
+        "nl": "Spoelen + centrifugeren"
       }
     },
     {
       "id": "Table_00_Course_D8",
       "title": {
-        "en": "Wool"
+        "en": "Wool",
+        "nl": "Wol"
       }
     },
     {
       "id": "Table_00_Course_C7",
       "title": {
-        "en": "Eco Drum Clean"
+        "en": "Eco Drum Clean",
+        "nl": "Trommelreiniging"
       }
     },
     {

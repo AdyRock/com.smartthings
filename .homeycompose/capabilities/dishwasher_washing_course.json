@@ -1,7 +1,8 @@
 {
     "type": "enum",
     "title": {
-      "en": "Washing Mode"
+      "en": "Washing Mode",
+      "nl": "Programma"
     },
     "getable": true,
     "setable": true,
@@ -39,7 +40,7 @@
       {
         "id": "preWash",
         "title": {
-          "en": "PreWash"
+          "en": "Pre-Wash"
         }
       },
       {

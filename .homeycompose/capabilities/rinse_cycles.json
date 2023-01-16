@@ -1,7 +1,8 @@
 {
     "type": "enum",
     "title": {
-        "en": "Rinse Cycles"
+        "en": "Rinse Cycles",
+        "nl": "Spoelbeurten"
     },
     "getable": true,
     "setable": true,

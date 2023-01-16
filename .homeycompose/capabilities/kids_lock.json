@@ -1,7 +1,8 @@
 {
   "type": "string",
   "title": {
-    "en": "Child Lock"
+    "en": "Child Lock",
+    "nl": "Kinderslot"
   },
   "icon": "/assets/kids_lock.svg",
   "getable": true,
