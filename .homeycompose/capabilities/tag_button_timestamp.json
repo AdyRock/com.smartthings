@@ -1,9 +1,9 @@
 {
   "type": "string",
   "title": {
-    "en": "Status"
+    "en": "Pressed at"
   },
-  "icon": "/assets/button.svg",
+  "icon": "/assets/time.svg",
   "getable": true,
   "setable": false
 }

@@ -3,7 +3,7 @@
 
 const Homey = require( 'homey' );
 const fs = require( 'fs' );
-
+const _ = require("lodash");
 class STDevice extends Homey.Device
 {
 
@@ -41,6 +41,11 @@ class STDevice extends Homey.Device
         if (this.hasCapability('locked') && this.getClass() !== 'lock')
         {
             this.setClass('lock');
+        }
+
+        if (this.hasCapability('tag_button_status') && !this.hasCapability('tag_button_timestamp'))
+        {
+            this.addCapability('tag_button_timestamp');
         }
 
         // register a capability listeners
@@ -167,6 +172,11 @@ class STDevice extends Homey.Device
         if ( this.hasCapability( 'aircon_fan_oscillation_mode' ) )
         {
             this.registerCapabilityListener( 'aircon_fan_oscillation_mode', this.onCapabilityAirCon_fan_oscillation_mode.bind( this ) );
+        }
+        
+        if ( this.hasCapability( 'aircon_fan_mode' ) )
+        {
+            this.registerCapabilityListener( 'aircon_fan_mode', this.onCapabilityAirCon_fan_mode.bind( this ) );
         }
 
         if ( this.hasCapability( 'silent_mode' ) )
@@ -367,19 +377,22 @@ class STDevice extends Homey.Device
                         continue;
                     }
 
+                    let stValue = null;
                     var value = null;
                     if ( mapEntry.keep )
                     {
                         // Check the cache first
                         if ( capabilityCache[ mapEntry.capabilityID ] )
                         {
-                            value = capabilityCache[ mapEntry.capabilityID ];
+                            stValue = capabilityCache[ mapEntry.capabilityID ];
+                            value = stValue;
                         }
                     }
 
                     if ( !value )
                     {
-                        value = await this.homey.app.getDeviceCapabilityValue( devData.id, component, mapEntry.capabilityID );
+                        stValue = await this.homey.app.getDeviceCapabilityValue( devData.id, component, mapEntry.capabilityID );
+                        value = stValue;
 
                         if (mapEntry.capabilityID === 'imageCapture')
                         {
@@ -562,6 +575,12 @@ class STDevice extends Homey.Device
                                 {
                                     tokens = {
                                         'value': this.getCapabilityValue(mapEntry.flowTag)
+                                    };
+                                }
+                                else if (mapEntry.flowTagST)
+                                {
+                                    tokens = {
+                                        'value': _.get(stValue, mapEntry.flowTagST),
                                     };
                                 }
                                 else
@@ -1363,6 +1382,35 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             this.homey.app.updateLog( this.getName() + " onCapabilityAirCon_fan_oscillation_mode " + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
+        }
+    }
+
+    // this method is called when the Homey device has requested a temperature set point change
+    async onCapabilityAirCon_fan_mode( value, opts )
+    {
+        try
+        {
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "fanMode",
+                    "command": "setFanMode",
+                    "arguments": [ value ]
+                } ]
+            };
+
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // Set the dim Value on the device using the unique feature ID stored during pairing
+            await this.homey.app.setDeviceCapabilityValue( devData.id, body );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            this.homey.app.updateLog( this.getName() + " onCapabilityAirCon_fan_mode " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }

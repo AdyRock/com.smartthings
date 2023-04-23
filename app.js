@@ -528,11 +528,21 @@ const CapabilityMap1 = {
     },
     "tag_button_status":
     {
+        dataEntry: [ 'tag.tagButton', 'tagButton', 'value' ],
+        capabilityID: 'tag.tagButton',
+        divider: 0,
+        boolCompare: '',
+        keep: true
+    },
+    "tag_button_timestamp":
+    {
         dataEntry: [ 'tag.tagButton', 'tagButton', 'timestamp' ],
         capabilityID: 'tag.tagButton',
         divider: 0,
         boolCompare: '',
-        flowTrigger: 'tag_button_status_changed'
+        keep: true,
+        flowTrigger: 'tag_button_status_changed',
+        flowTagST: 'tagButton.value'
     },
     "button_status":
     {
@@ -549,6 +559,7 @@ const CapabilityMap1 = {
         capabilityID: 'button',
         divider: 0,
         boolCompare: '',
+        keep: true,
         flowTrigger: 'button_status_changed',
         flowTag: 'button_status'
     },

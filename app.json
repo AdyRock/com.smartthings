@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "ady.smartthings",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#FF7D4B",
@@ -2222,7 +2222,8 @@
     "completion_time": {
       "type": "string",
       "title": {
-        "en": "Completion Time"
+        "en": "Completion Time",
+        "nl": "Tijd Tot Einde"
       },
       "icon": "/assets/finish_time.svg",
       "getable": true,
@@ -2249,7 +2250,8 @@
     "dishwasher_dertergent": {
       "type": "string",
       "title": {
-        "en": "Detergent Type"
+        "en": "Detergent Type",
+        "nl": "Type Wasmiddel"
       },
       "icon": "/assets/laundry-detergent.svg",
       "getable": true,
@@ -2315,7 +2317,7 @@
     "dishwasher_speed_booster": {
       "type": "boolean",
       "title": {
-        "en": "Speed Booter"
+        "en": "Speed Booster"
       },
       "getable": true,
       "setable": true,
@@ -2336,7 +2338,8 @@
     "dishwasher_washing_course": {
       "type": "enum",
       "title": {
-        "en": "Washing Mode"
+        "en": "Washing Mode",
+        "nl": "Programma"
       },
       "getable": true,
       "setable": true,
@@ -2375,7 +2378,7 @@
         {
           "id": "preWash",
           "title": {
-            "en": "PreWash"
+            "en": "Pre-Wash"
           }
         },
         {
@@ -2841,7 +2844,8 @@
     "kids_lock": {
       "type": "string",
       "title": {
-        "en": "Child Lock"
+        "en": "Child Lock",
+        "nl": "Kinderslot"
       },
       "icon": "/assets/kids_lock.svg",
       "getable": true,
@@ -2948,7 +2952,8 @@
     "rinse_cycles": {
       "type": "enum",
       "title": {
-        "en": "Rinse Cycles"
+        "en": "Rinse Cycles",
+        "nl": "Spoelbeurten"
       },
       "getable": true,
       "setable": true,
@@ -3151,7 +3156,8 @@
     "spin_level": {
       "type": "enum",
       "title": {
-        "en": "Spin Level"
+        "en": "Spin Level",
+        "nl": "Centrifugesnelheid"
       },
       "getable": true,
       "setable": true,
@@ -3160,13 +3166,14 @@
         {
           "id": "rinseHold",
           "title": {
-            "en": "Rinse Hold"
+            "en": "Stop Spoelen"
           }
         },
         {
           "id": "noSpin",
           "title": {
-            "en": "No Spin"
+            "en": "No Spin",
+            "nl": "Niet Centrifugeren"
           }
         },
         {
@@ -3204,9 +3211,18 @@
     "tag_button_status": {
       "type": "string",
       "title": {
-        "en": "Pressed at"
+        "en": "Status"
       },
       "icon": "/assets/button.svg",
+      "getable": true,
+      "setable": false
+    },
+    "tag_button_timestamp": {
+      "type": "string",
+      "title": {
+        "en": "Pressed at"
+      },
+      "icon": "/assets/time.svg",
       "getable": true,
       "setable": false
     },
@@ -3222,7 +3238,8 @@
     "washer_mode": {
       "type": "enum",
       "title": {
-        "en": "Washer Mode"
+        "en": "Washer Mode",
+        "nl": "Programma"
       },
       "getable": true,
       "setable": true,
@@ -3243,19 +3260,22 @@
         {
           "id": "Table_00_Course_D0",
           "title": {
-            "en": "Cotton"
+            "en": "Cotton",
+            "nl": "Katoen"
           }
         },
         {
           "id": "Table_00_Course_D2",
           "title": {
-            "en": "Synthetics"
+            "en": "Synthetics",
+            "nl": "Synthetisch"
           }
         },
         {
           "id": "Table_00_Course_D3",
           "title": {
-            "en": "Delicates"
+            "en": "Delicates",
+            "nl": "Fijne Was"
           }
         },
         {
@@ -3267,19 +3287,22 @@
         {
           "id": "Table_00_Course_D4",
           "title": {
-            "en": "Rinse + Spin"
+            "en": "Rinse + Spin",
+            "nl": "Spoelen + centrifugeren"
           }
         },
         {
           "id": "Table_00_Course_D8",
           "title": {
-            "en": "Wool"
+            "en": "Wool",
+            "nl": "Wol"
           }
         },
         {
           "id": "Table_00_Course_C7",
           "title": {
-            "en": "Eco Drum Clean"
+            "en": "Eco Drum Clean",
+            "nl": "Trommelreiniging"
           }
         },
         {
@@ -3317,7 +3340,8 @@
     "washer_mode_02": {
       "type": "enum",
       "title": {
-        "en": "Washer Mode"
+        "en": "Washer Mode",
+        "nl": "Programma"
       },
       "getable": true,
       "setable": true,
@@ -3340,7 +3364,7 @@
           "id": "Table_02_Course_21",
           "title": {
             "en": "Coloured",
-            "nl": "Geleurde was"
+            "nl": "Gekleurde was"
           }
         },
         {
@@ -3474,7 +3498,8 @@
     "washer_status": {
       "type": "enum",
       "title": {
-        "en": "Washer Status"
+        "en": "Washer Status",
+        "nl": "Wasmachine Status"
       },
       "getable": true,
       "setable": true,
@@ -3483,19 +3508,22 @@
         {
           "id": "pause",
           "title": {
-            "en": "Pause"
+            "en": "Pause",
+            "nl": "Pauze"
           }
         },
         {
           "id": "run",
           "title": {
-            "en": "Run"
+            "en": "Run",
+            "nl": "Draaien"
           }
         },
         {
           "id": "stop",
           "title": {
-            "en": "Stop"
+            "en": "Stop",
+            "nl": "Stop"
           }
         }
       ]
@@ -3503,7 +3531,8 @@
     "water_temperature": {
       "type": "enum",
       "title": {
-        "en": "Water Temperature"
+        "en": "Water Temperature",
+        "nl": "Water Temperatuur"
       },
       "getable": true,
       "setable": true,
@@ -3512,13 +3541,15 @@
         {
           "id": "none",
           "title": {
-            "en": "None"
+            "en": "None",
+            "nl": "Geen"
           }
         },
         {
           "id": "cold",
           "title": {
-            "en": "Cold"
+            "en": "Cold",
+            "nl": "Koud"
           }
         },
         {

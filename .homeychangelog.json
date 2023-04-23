@@ -19,5 +19,8 @@
     },
     "2.0.6": {
         "en": "Added extra Flow trigers for fridge / freezer."
+    },
+    "2.0.7": {
+        "en": "Fix 'error Missing Capability Listener: aircon_fan_mode'. Added button status to tag to determine if Pushed or Held."
     }
 }
