@@ -37,10 +37,17 @@
         }
     },
     {
-        "id": "turbo",
+        "id": "sleep",
         "title":
         {
-            "en": "Turbo"
+            "en": "sleep"
+        }
+    },
+    {
+        "id": "windFree",
+        "title":
+        {
+            "en": "windFree"
         }
     } ]
 }

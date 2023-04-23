@@ -25,5 +25,8 @@
     },
     "2.0.8": {
         "en": "Fix 'HTTP error' when setting the AC Fan Mode."
+    },
+    "2.0.9": {
+        "en": "Added Sleep and Windfree and removed Turbo to / from AC Fan Mode."
     }
 }
