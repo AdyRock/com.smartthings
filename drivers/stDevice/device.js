@@ -1395,7 +1395,7 @@ class STDevice extends Homey.Device
                 "commands": [
                 {
                     "component": "main",
-                    "capability": "fanMode",
+                    "capability": "airConditionerFanMode",
                     "command": "setFanMode",
                     "arguments": [ value ]
                 } ]

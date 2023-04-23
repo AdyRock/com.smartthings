@@ -1,6 +1,6 @@
 {
     "id": "ady.smartthings",
-    "version": "2.0.7",
+    "version": "2.0.8",
     "compatibility": ">=5.0.0",
     "sdk": 3,
     "brandColor": "#FF7D4B",
