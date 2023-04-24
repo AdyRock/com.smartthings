@@ -900,11 +900,11 @@ const CapabilityMap2 = {
     },
     "airConditionerFanMode":
     {
-        class: "",
+        class: "fan",
         exclude: "",
         capabilities: [ 'aircon_fan_mode' ],
-        icon: "",
-        iconPriority: 0
+        icon: "air-purifier.svg",
+        iconPriority: 4
     },
     "fanOscillationMode":
     {

@@ -11,7 +11,7 @@
     {
         "type": "device",
         "name": "device",
-        "filter": "driver_id=stDevice&class=fan"
+        "filter": "driver_id=stDevice&capabilities=aircon_option"
     },
     {
         "type": "dropdown",

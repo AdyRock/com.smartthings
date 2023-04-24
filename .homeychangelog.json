@@ -28,5 +28,8 @@
     },
     "2.0.9": {
         "en": "Added Sleep and Windfree and removed Turbo to / from AC Fan Mode."
+    },
+    "2.0.10": {
+        "en": "Fix Action capability for aircon_fan_mode. New icon for air purifier when just aircon_fan_mode detected."
     }
 }

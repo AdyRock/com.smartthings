@@ -11,7 +11,7 @@
     {
         "type": "device",
         "name": "device",
-        "filter": "driver_id=stDevice&class=fan"
+        "filter": "driver_id=stDevice&capabilities=aircon_fan_mode"
     },
     {
         "type": "dropdown",
@@ -46,10 +46,17 @@
             }
         },
         {
-            "id": "turbo",
+            "id": "sleep",
             "title":
             {
-                "en": "Turbo"
+                "en": "Sleep"
+            }
+        },
+        {
+            "id": "windFree",
+            "title":
+            {
+                "en": "Wind Free"
             }
         } ]
     } ]
