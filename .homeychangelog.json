@@ -31,5 +31,8 @@
     },
     "2.0.10": {
         "en": "Fix Action capability for aircon_fan_mode. New icon for air purifier when just aircon_fan_mode detected."
+    },
+    "2.0.11": {
+        "en": "Fix date and time not using Homey time zone."
     }
 }

@@ -2425,7 +2425,7 @@ class MyApp extends Homey.App
             }
             catch ( err )
             {
-                this.logInformation( 'Send log error', err );
+                this.updateLog( 'Send log error', err );
                 return {
                     error: err,
                     message: null,
