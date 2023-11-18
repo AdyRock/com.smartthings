@@ -20,7 +20,17 @@
         "restart": true,
         "name": "Attach to Homey",
         "address": "192.168.1.47",
-        "port": 9222,
+        "port": 9227,
+        "localRoot": "${workspaceFolder}",
+        "remoteRoot": "/"
+    },
+    {
+        "type": "node",
+        "request": "attach",
+        "restart": true,
+        "name": "Attach to Homey Pro",
+        "address": "192.168.1.65",
+        "port": 9227,
         "localRoot": "${workspaceFolder}",
         "remoteRoot": "/"
     },
@@ -38,10 +48,20 @@
         "type": "node",
         "request": "attach",
         "restart": true,
-        "name": "Attach to Homey Pro USB",
+        "name": "Attach to Homey Dev USB",
         "address": "10.253.51.1",
         "port": 9227,
         "localRoot": "${workspaceFolder}",
         "remoteRoot": "/"
+    },
+    {
+        "type": "node",
+        "request": "attach",
+        "restart": true,
+        "name": "Attach to Homey 2023",
+        "address": "192.168.1.81",
+        "port": 9227,
+        "localRoot": "${workspaceFolder}",
+        "remoteRoot": "/app/"
     }]
 }

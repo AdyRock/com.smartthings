@@ -325,6 +325,8 @@ class STDevice extends Homey.Device
         if (date)
         {
             let d = new Date(date);
+            const tzString = this.homey.clock.getTimezone();
+            d = new Date(d.toLocaleString('en-US', { timeZone: tzString }));
 
             if (settings.timeFormat === "mm_dd")
             {

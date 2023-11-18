@@ -401,6 +401,9 @@ class FridgeDevice extends Homey.Device
                                 if ( value.length > 5 )
                                 {
                                     var d = new Date( value );
+                                    const tzString = this.homey.clock.getTimezone();
+                                    d = new Date(d.toLocaleString('en-US', { timeZone: tzString }));
+
                                     value = d.getHours() + ":" + ( d.getMinutes() < 10 ? "0" : "" ) + d.getMinutes() + " " + ( d.getDate() < 10 ? "0" : "" ) + d.getDate() + "-" + ( d.getMonth() < 10 ? "0" : "" ) + d.getMonth();
                                 }
                             }
