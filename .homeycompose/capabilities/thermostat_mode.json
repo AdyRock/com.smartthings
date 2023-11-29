@@ -1,0 +1,47 @@
+{
+    "type": "enum",
+    "title": {
+        "en": "Mode"
+    },
+    "getable": true,
+    "setable": true,
+    "uiComponent": "picker",
+    "values": [
+        {
+            "id": "auto",
+            "title": {
+                "en": "Auto"
+            }
+        },
+        {
+            "id": "away",
+            "title": {
+                "en": "Away"
+            }
+        },
+        {
+            "id": "manual",
+            "title": {
+                "en": "Manual"
+            }
+        },
+        {
+            "id": "schedule",
+            "title": {
+                "en": "Schedule"
+            }
+        },
+        {
+            "id": "frostguard",
+            "title": {
+                "en": "Frostguard"
+            }
+        },
+        {
+            "id": "heat",
+            "title": {
+                "en": "Heat"
+            }
+        }
+    ]
+}

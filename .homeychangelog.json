@@ -34,5 +34,8 @@
     },
     "2.0.11": {
         "en": "Fix date and time not using Homey time zone."
+    },
+    "2.0.12": {
+        "en": "Added support for thermostats."
     }
 }

@@ -271,6 +271,22 @@ const CapabilityMap1 = {
         boolCompare: '',
         flowTrigger: null
     },
+    "target_temperature.heating":
+    {
+        dataEntry: [ 'thermostatHeatingSetpoint', 'heatingSetpoint', 'value' ],
+        capabilityID: 'thermostatHeatingSetpoint',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null
+    },
+    "thermostat_mode":
+    {
+        dataEntry: [ 'thermostatMode', 'thermostatMode', 'value' ],
+        capabilityID: 'thermostatMode',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null
+    },
     "measure_humidity":
     {
         dataEntry: [ 'relativeHumidityMeasurement', 'humidity', 'value' ],
@@ -930,6 +946,22 @@ const CapabilityMap2 = {
         icon: "",
         iconPriority: 0
     },
+    "thermostatHeatingSetpoint":
+    {
+        class: "thermostat",
+        exclude: "",
+        capabilities: [ 'target_temperature.heating' ],
+        icon: "thermostat.svg",
+        iconPriority: 2
+    },
+    "thermostatMode":
+    {
+        class: "",
+        exclude: "",
+        capabilities: [ 'thermostat_mode' ],
+        icon: "thermostat.svg",
+        iconPriority: 2
+    },
     "relativeHumidityMeasurement":
     {
         class: "",
@@ -1118,11 +1150,11 @@ const CapabilityMap2 = {
     },
     "mediaInputSource":
     {
-        class: "",
+        class: "speaker",
         exclude: "",
         capabilities: [ 'media_input_source' ],
-        icon: "",
-        iconPriority: 0
+        icon: "media.svg",
+        iconPriority: 2
     },
     "samsungce.dishwasherJobState":
     {
@@ -1434,7 +1466,6 @@ class MyApp extends Homey.App
                 return await args.device.triggerCapabilityListener( 'dryer_status', args.dryer_status ); // Promise<void>
             } );
 
-
         let media_input_source_action = this.homey.flow.getActionCard( 'media_input_source_action' );
         media_input_source_action
             .registerRunListener( async ( args, state ) =>
@@ -1443,6 +1474,22 @@ class MyApp extends Homey.App
                 return await args.device.triggerCapabilityListener( 'media_input_source', args.media_input_source ); // Promise<void>
             } );
 
+        let target_temperature_heating_action = this.homey.flow.getActionCard( 'target_temperature_heating_set' );
+        target_temperature_heating_action
+            .registerRunListener( async ( args, state ) =>
+            {
+                this.homey.app.updateLog( "target_temperature_heating_action: arg = " + args.target_temperature + " - state = " + state );
+                return await args.device.triggerCapabilityListener( 'target_temperature.heating', args.target_temperature ); // Promise<void>
+            } );
+
+        let thermostat_mode_action = this.homey.flow.getActionCard( 'thermostat_mode_action' );
+        thermostat_mode_action
+            .registerRunListener( async ( args, state ) =>
+            {
+                this.homey.app.updateLog( "thermostat_mode_action: arg = " + args.mode + " - state = " + state );
+                return await args.device.triggerCapabilityListener( 'thermostat_mode', args.mode ); // Promise<void>
+            } );
+        
         this.onPoll = this.onPoll.bind( this );
 
         if ( this.BearerToken )

@@ -1,0 +1,28 @@
+{
+    "highlight": true,
+    "title": {
+        "en": "Set the heating temperature"
+    },
+    "titleFormatted": {
+        "en": "Set the heating temperature to [[target_temperature]] °C"
+    },
+    "args": [
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=stDevice&capabilities=target_temperature.heating"
+        },
+        {
+            "name": "target_temperature",
+            "title": {
+                "en": "Target temperature"
+            },
+            "type": "range",
+            "min": 5,
+            "max": 40,
+            "step": 0.5,
+            "label": "°C",
+            "labelDecimals": 1
+        }
+    ]
+}

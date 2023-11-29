@@ -1,0 +1,57 @@
+{
+    "title": {
+        "en": "Thermmostat Mode"
+    },
+    "titleFormatted": {
+        "en": "Set the Thermmostat Mode to [[mode]]"
+    },
+    "args": [
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=stDevice&capabilities=thermostat_mode"
+        },
+        {
+            "type": "dropdown",
+            "name": "mode",
+            "values": [
+                {
+                    "id": "auto",
+                    "title": {
+                        "en": "Auto"
+                    }
+                },
+                {
+                    "id": "away",
+                    "title": {
+                        "en": "Away"
+                    }
+                },
+                {
+                    "id": "manual",
+                    "title": {
+                        "en": "Manual"
+                    }
+                },
+                {
+                    "id": "schedule",
+                    "title": {
+                        "en": "Schedule"
+                    }
+                },
+                {
+                    "id": "frostguard",
+                    "title": {
+                        "en": "Frostguard"
+                    }
+                },
+                {
+                    "id": "heat",
+                    "title": {
+                        "en": "Heat"
+                    }
+                }
+            ]
+        }
+    ]
+}

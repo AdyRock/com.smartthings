@@ -154,6 +154,16 @@ class STDevice extends Homey.Device
             this.registerCapabilityListener( 'target_temperature', this.onCapabilityTargetTemperature.bind( this ) );
         }
 
+        if ( this.hasCapability( 'target_temperature.heating' ) )
+        {
+            this.registerCapabilityListener( 'target_temperature.heating', this.onCapabilityTargetTemperatureHeating.bind( this ) );
+        }
+
+        if ( this.hasCapability( 'thermostat_mode' ) )
+        {
+            this.registerCapabilityListener( 'thermostat_mode', this.onCapabilityThermostatMode.bind( this ) );
+        }
+
         if ( this.hasCapability( 'aircon_mode' ) )
         {
             this.registerCapabilityListener( 'aircon_mode', this.onCapabilityAirConMode.bind( this ) );
@@ -1297,6 +1307,64 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             this.homey.app.updateLog( this.getName() + " onCapabilityTargetTemperature " + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
+        }
+    }
+
+    // this method is called when the Homey device has requested a temperature set point change
+    async onCapabilityTargetTemperatureHeating( value, opts )
+    {
+        try
+        {
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "thermostatHeatingSetpoint",
+                    "command": "setHeatingSetpoint",
+                    "arguments": [ value ]
+                } ]
+            };
+
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // Set the dim Value on the device using the unique feature ID stored during pairing
+            await this.homey.app.setDeviceCapabilityValue( devData.id, body );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            this.homey.app.updateLog( this.getName() + " onCapabilityTargetTemperatureHeating " + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
+        }
+    }
+
+    // this method is called when the Homey device has requested a thermostat mode change
+    async onCapabilityThermostatMode( value, opts )
+    {
+        try
+        {
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "thermostatMode",
+                    "command": "setThermostatMode",
+                    "arguments": [ value ]
+                } ]
+            };
+
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // Set the dim Value on the device using the unique feature ID stored during pairing
+            await this.homey.app.setDeviceCapabilityValue( devData.id, body );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            this.homey.app.updateLog( this.getName() + " onCapabilityAirConOption " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }
