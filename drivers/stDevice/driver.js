@@ -23,6 +23,7 @@ class STDriver extends Homey.Driver
             'acceleration_z_changed': this.homey.flow.getDeviceTriggerCard( 'acceleration_z_changed' ),
             'tag_button_status_changed': this.homey.flow.getDeviceTriggerCard( 'tag_button_status_changed' ),
             'button_status_changed': this.homey.flow.getDeviceTriggerCard( 'button_status_changed' ),
+            'measure_pm10_changed': this.homey.flow.getDeviceTriggerCard( 'measure_pm10_changed' ),
         };
 
         this.flowTriggers.washer_status_changed

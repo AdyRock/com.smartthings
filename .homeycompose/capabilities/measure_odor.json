@@ -6,5 +6,6 @@
         "en": "Odor"
     },
     "getable": true,
-    "setable": false
+    "setable": false,
+    "icon": "/assets/odor.svg"
 }

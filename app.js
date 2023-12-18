@@ -726,7 +726,62 @@ const CapabilityMap1 = {
         boolCompare: '',
         flowTrigger: null,
     },
-
+    "measure_pm25":
+    {
+        dataEntry: [ 'dustSensor', 'fineDustLevel', 'value' ],
+        capabilityID: 'dustSensor',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: null,
+    },
+    "measure_pm10":
+    {
+        dataEntry: [ 'dustSensor', 'dustLevel', 'value' ],
+        capabilityID: 'dustSensor',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: 'measure_pm10_changed',
+    },
+    "measure_pm1":
+    {
+        dataEntry: [ 'veryFineDustLevel', 'veryFineDustLevel', 'value' ],
+        capabilityID: 'veryFineDustLevel',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: 'measure_pm1_changed',
+    },
+    "measure_odor":
+    {
+        dataEntry: [ 'odorSensor', 'odorLevel', 'value' ],
+        capabilityID: 'odorSensor',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: 'measure_odor_changed',
+    },
+    "pm10_status":
+    {
+        dataEntry: [ 'dustHealthConcern', 'dustHealthConcern', 'value' ],
+        capabilityID: 'dustHealthConcern',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: '',
+    },
+    "pm25_status":
+    {
+        dataEntry: [ 'fineDustHealthConcern', 'fineDustHealthConcern', 'value' ],
+        capabilityID: 'fineDustHealthConcern',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: '',
+    },
+    "pm1_status":
+    {
+        dataEntry: [ 'veryFineDustHealthConcern', 'veryFineDustHealthConcern', 'value' ],
+        capabilityID: 'veryFineDustHealthConcern',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: '',
+    },
 };
 
 const CapabilityMap2 = {
@@ -1267,6 +1322,54 @@ const CapabilityMap2 = {
         capabilities: [ 'kids_lock' ],
         icon: "washingmachine.svg",
         iconPriority: 5
+    },
+    "dustSensor":
+    {
+        class: "sensor",
+        exclude: "",
+        capabilities: [ 'measure_pm25', 'measure_pm10' ],
+        icon: "air-purifier.svg",
+        iconPriority: 5
+    },
+    "veryFineDustLevel":
+    {
+        class: "sensor",
+        exclude: "",
+        capabilities: [ 'measure_pm1' ],
+        icon: "air-purifier.svg",
+        iconPriority: 5
+    },
+    "odorSensor":
+    {
+        class: "sensor",
+        exclude: "",
+        capabilities: [ 'measure_odor' ],
+        icon: "",
+        iconPriority: 0
+    },
+    "dustHealthConcern":
+    {
+        class: "sensor",
+        exclude: "",
+        capabilities: [ 'pm10_status' ],
+        icon: "",
+        iconPriority: 0
+    },
+    "fineDustHealthConcern":
+    {
+        class: "sensor",
+        exclude: "",
+        capabilities: [ 'pm25_status' ],
+        icon: "",
+        iconPriority: 0
+    },
+    "veryFineDustHealthConcern":
+    {
+        class: "sensor",
+        exclude: "",
+        capabilities: [ 'pm1_status' ],
+        icon: "",
+        iconPriority: 0
     },
 };
 

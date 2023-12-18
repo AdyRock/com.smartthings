@@ -1,7 +1,7 @@
 {
   "type": "string",
   "title": {
-    "en": "Dust Filter Status"
+    "en": "PM2.5 Status"
   },
   "icon": "/assets/partical.svg",
   "getable": true,

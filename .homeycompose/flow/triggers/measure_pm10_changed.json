@@ -1,0 +1,22 @@
+{
+    "title": {
+        "en": "The PM10 value has changed"
+    },
+    "hint": {
+        "en": "This card starts a Flow when the PM10 value changes."
+    },
+    "tokens": [{
+        "name": "measure_pm10",
+        "type": "number",
+        "title": {"en": "PM10"},
+        "units": {
+          "en": "μg/m³",
+          "ru": "мкг/м³"
+        }
+    }],
+    "args": [{
+        "name": "device",
+        "type": "device",
+        "filter": "driver_id=stDevice&capabilities=measure_pm10"
+    }]
+}

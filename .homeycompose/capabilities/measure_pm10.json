@@ -1,0 +1,15 @@
+{
+    "type": "number",
+    "min": 0,
+    "title":
+    {
+        "en": "PM10"
+    },
+    "units": {
+      "en": "μg/m³",
+      "ru": "мкг/м³"
+    },
+    "getable": true,
+    "setable": false,
+    "icon": "/assets/partical.svg"
+}
