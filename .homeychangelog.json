@@ -37,5 +37,8 @@
     },
     "2.0.12": {
         "en": "Added support for thermostats."
+    },
+    "2.0.13": {
+        "en": "Added support for PM10, PM2.5, PM1 and Odor sensors."
     }
 }
