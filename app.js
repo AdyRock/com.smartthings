@@ -744,8 +744,8 @@ const CapabilityMap1 = {
     },
     "measure_pm1":
     {
-        dataEntry: [ 'veryFineDustLevel', 'veryFineDustLevel', 'value' ],
-        capabilityID: 'veryFineDustLevel',
+        dataEntry: [ 'veryFineDustSensor', 'veryFineDustLevel', 'value' ],
+        capabilityID: 'veryFineDustSensor',
         divider: 0,
         boolCompare: '',
         flowTrigger: 'measure_pm1_changed',
@@ -757,6 +757,7 @@ const CapabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: 'measure_odor_changed',
+        keep: true
     },
     "pm10_status":
     {
@@ -789,6 +790,8 @@ const CapabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: '',
+        makeString: true,
+        keep: true
     },
 };
 

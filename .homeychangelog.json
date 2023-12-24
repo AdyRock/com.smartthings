@@ -43,5 +43,8 @@
     },
     "2.0.14": {
         "en": "Added Odor Status and fixed missing PM1 value."
+    },
+    "2.0.15": {
+        "en": "Added Odor Status and fixed missing PM1 value (take 2)."
     }
 }

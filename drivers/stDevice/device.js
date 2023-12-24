@@ -564,6 +564,11 @@ class STDevice extends Homey.Device
                             {
                                 value = value.toString();
                             }
+
+                            if (mapEntry.makeString)
+                            {
+                                value = `${value}`;
+                            }
                             await this.setCapabilityValue( capability, value );
                         }
                         catch( err )
