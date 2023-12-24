@@ -40,5 +40,8 @@
     },
     "2.0.13": {
         "en": "Added support for PM10, PM2.5, PM1 and Odor sensors."
+    },
+    "2.0.14": {
+        "en": "Added Odor Status and fixed missing PM1 value."
     }
 }
