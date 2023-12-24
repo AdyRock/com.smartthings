@@ -3133,6 +3133,42 @@
         }
       ]
     },
+    "odor_status": {
+      "type": "enum",
+      "title": {
+        "en": "Odor Status"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "values": [
+        {
+          "id": "1",
+          "title": {
+            "en": "Good"
+          }
+        },
+        {
+          "id": "2",
+          "title": {
+            "en": "Moderate"
+          }
+        },
+        {
+          "id": "3",
+          "title": {
+            "en": "Poor"
+          }
+        },
+        {
+          "id": "4",
+          "title": {
+            "en": "Very Poor"
+          }
+        }
+      ],
+      "icon": "/assets/odor.svg"
+    },
     "pm1_status": {
       "type": "string",
       "title": {

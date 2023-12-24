@@ -782,6 +782,14 @@ const CapabilityMap1 = {
         boolCompare: '',
         flowTrigger: '',
     },
+    "odor_status":
+    {
+        dataEntry: [ 'odorSensor', 'odorLevel', 'value' ],
+        capabilityID: 'odorSensor',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: '',
+    },
 };
 
 const CapabilityMap2 = {
@@ -1331,7 +1339,7 @@ const CapabilityMap2 = {
         icon: "air-purifier.svg",
         iconPriority: 5
     },
-    "veryFineDustLevel":
+    "veryFineDustSensor":
     {
         class: "sensor",
         exclude: "",
@@ -1343,7 +1351,7 @@ const CapabilityMap2 = {
     {
         class: "sensor",
         exclude: "",
-        capabilities: [ 'measure_odor' ],
+        capabilities: [ 'measure_odor', 'odor_status' ],
         icon: "",
         iconPriority: 0
     },
