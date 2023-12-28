@@ -47,86 +47,88 @@
 
         <p data-i18n="settings.subtitle"></p>
 
-        <fieldset>
+        <fieldset class="homey-form-fieldset">
             <legend>Account Details</legend>
-
-            <fieldset>
-                <div class="field row">
-                    <label for="BearerToken">Bearer Token</label>
-                    <input id="BearerToken" type="text" value="" />
-                </div>
-            </fieldset>
-        </fieldset>
-        <p>Polling</p>
-        <fieldset>
             <div class="field row">
-                <label for="pollInterval">Polling Interval (seconds)</label>
-                <input id="pollInterval" type="text" value="" />
+                <label class="homey-form-label" for="BearerToken">Bearer Token</label>
+                <input class="homey-form-input" id="BearerToken" type="text" value="" />
             </div>
-
-            <p><button id="save" class="right">Save changes</button></p>
+        </fieldset>
+        <fieldset class="homey-form-fieldset">
+            <legend>Polling</legend>
+            <div class="field row">
+                <label class="homey-form-label" for="pollInterval">Polling Interval (seconds)</label>
+                <input class="homey-form-input" id="pollInterval" type="text" value="" />
+            </div>
+            <div class="field row">
+                <p></p>
+                <p><button id="save" class="homey-button-primary-full">Save changes</button></p>
+            </div>
         </fieldset>
     </div>
 
     <!-- detected-->
     <div id="detected" class="tabcontent">
         <fieldset>
-            <button id="getDeviceLog" style="background-color:#0f9e16;color:white;margin:10px 20px 5px 5px;">Get Log</button>
-            <button id="sendDeviceLog" style="background-color:#0f9e16;color:white;margin:10px 20px 5px 5px;">Send Log</button>
+            <p><button id="getDeviceLog"  class="homey-button-small">Get Devices</button> <button id="sendDeviceLog"  class="homey-button-small">Send Log</button></p>
             <div class="field row">
-                <textarea id="detectedDevices"></textarea>
+                <textarea id="detectedDevices" class="homey-form-textarea"></textarea>
             </div>
         </fieldset>
     </div>
 
     <!-- LOG PAGE -->
     <div id="log" class="tabcontent">
-        <fieldset>
-            <p> Diagnostics Log
-            </p>
+        <fieldset class="homey-form-fieldset">
+            <legend>Diagnostics Log</legend>
             <div class="field row">
-                <label for="logEnabled">Log Enabled</label>
-                <input id="logEnabled" type="checkbox" value="logEnabled" />
+                <label class="homey-form-checkbox">
+                    <input class="homey-form-checkbox-input" id="logEnabled" type="checkbox" value="logEnabled" />
+                    <span class="homey-form-checkbox-checkmark"></span>
+                    <span class="homey-form-checkbox-text">Log Enabled</span>
+                </label>
             </div>
-        </fieldset>
-        <fieldset>
-            <button id="clearLog">Clear Log</button>
-            <button id="sendInfoLog" style="background-color:#0f9e16;color:white;margin:5px 20px 5px 5px;">Send Log</button>
+            <p><button id="clearLog" class="homey-button-small">Clear Log</button> <button id="sendInfoLog" class="homey-button-small">Send Log</button></p>
             <div class="field row">
-                <textarea id="diagLog"></textarea>
+                <textarea id="diagLog" class="homey-form-textarea"></textarea>
             </div>
         </fieldset>
     </div>
 
     <!--SEND COMMAND PAGE -->
     <div id="send" class="tabcontent">
-        <fieldset>
+        <fieldset class="homey-form-fieldset">
             <h1>For debug use only</h1>
-            <p><input id="commandData" type="text" value="" /><button id="sendCmd" style="background-color:#0f9e16;color:white;margin:5px 20px 5px 5px;">Send</button><button id="clearSend" style="background-color:#a5510d;color:white;margin:5px 20px 5px 5px;">Clear Log</button></p>
+            <label class="homey-form-label" for="commandData">Command</label>
+            <input class="homey-form-input" id="commandData" type="text" value="" />
+            <p><button id="sendCmd"  class="homey-button-small">Send</button>
+        </fieldset>
+        <fieldset class="homey-form-fieldset">
+            <button id="clearSend" class="homey-button-small">Clear Log</button></p>
             <div class="field row">
-                <textarea id="sendResponse"></textarea>
+                <textarea id="sendResponse" class="homey-form-textarea"></textarea>
             </div>
         </fieldset>
     </div>
 
     <!--SIMULATION PAGE -->
     <div id="simulator" class="tabcontent">
-        <fieldset>
+        <fieldset class="homey-form-fieldset">
             <h1>For debug use only</h1>
-            <p><button id="useSim" style="background-color:#0f9e16;color:white;margin:5px 20px 5px 5px;">Activate</button><button id="clearSim" style="background-color:#a5510d;color:white;margin:5px 20px 5px 5px;">Clear Sim</button></p>
+            <p><button id="useSim"  class="homey-button-small">Activate</button> <button id="clearSim"  class="homey-button-small">Clear Sim</button></p>
             <div class="field row">
-                <textarea id="simData"></textarea>
+                <textarea id="simData" class="homey-form-textarea"></textarea>
             </div>
         </fieldset>
     </div>
 
     <!--SIMULATION DATA PAGE -->
     <div id="simulatorData" class="tabcontent">
-        <fieldset>
+        <fieldset class="homey-form-fieldset">
             <h1>For debug use only</h1>
-            <p><button id="useSimData" style="background-color:#0f9e16;color:white;margin:5px 20px 5px 5px;">Activate</button><button id="clearSimData" style="background-color:#a5510d;color:white;margin:5px 20px 5px 5px;">Clear Sim</button></p>
+            <p><button id="useSimData"  class="homey-button-small">Activate</button> <button id="clearSimData"  class="homey-button-small"">Clear Sim</button></p>
             <div class="field row">
-                <textarea id="simDataData"></textarea>
+                <textarea id="simDataData" class="homey-form-textarea"></textarea>
             </div>
         </fieldset>
     </div>

@@ -437,10 +437,28 @@ class STDevice extends Homey.Device
                         } );
                     }
 
+                    let units = value;
                     for ( var i = 1; i < mapEntry.dataEntry.length; i++ )
                     {
                         value = value[ mapEntry.dataEntry[ i ] ];
+                    }
 
+                    if (mapEntry.checkTUnits)
+                    {
+                        // Get the Units form the captured data to see if they are in F
+                        for ( var i = 1; i < mapEntry.dataEntry.length - 1; i++ )
+                        {
+                            units = units[ mapEntry.dataEntry[ i ] ];
+                        }                            
+
+                        if (units.units)
+                        {
+                            if (units.units === 'F')
+                            {
+                                // Convert to C
+                                value = (value - 32) / 1.8;
+                            }
+                        }
                     }
 
                     if(mapEntry.diffBetween) {

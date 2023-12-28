@@ -166,7 +166,8 @@ const CapabilityMap1 = {
         capabilityID: 'custom.washerWaterTemperature',
         divider: 0,
         boolCompare: '',
-        flowTrigger: null
+        flowTrigger: null,
+        checkTUnits: true
     },
     "remote_status":
     {
@@ -261,7 +262,8 @@ const CapabilityMap1 = {
         capabilityID: 'temperatureMeasurement',
         divider: 0,
         boolCompare: '',
-        flowTrigger: "measure_temperature"
+        flowTrigger: "measure_temperature",
+        checkTUnits: true
     },
     "target_temperature":
     {
@@ -269,7 +271,8 @@ const CapabilityMap1 = {
         capabilityID: 'thermostatCoolingSetpoint',
         divider: 0,
         boolCompare: '',
-        flowTrigger: null
+        flowTrigger: null,
+        checkTUnits: true
     },
     "target_temperature.heating":
     {
@@ -277,7 +280,8 @@ const CapabilityMap1 = {
         capabilityID: 'thermostatHeatingSetpoint',
         divider: 0,
         boolCompare: '',
-        flowTrigger: null
+        flowTrigger: null,
+        checkTUnits: true
     },
     "thermostat_mode":
     {
@@ -500,7 +504,8 @@ const CapabilityMap1 = {
         capabilityID: 'samsungce.dryerDryingTemperature',
         divider: 0,
         boolCompare: '',
-        flowTrigger: null
+        flowTrigger: null,
+        checkTUnits: true
     },
     "dryer_cycle":
     {

@@ -46,5 +46,8 @@
     },
     "2.0.15": {
         "en": "Added Odor Status and fixed missing PM1 value (take 2)."
+    },
+    "2.0.16": {
+        "en": "Check if temperature is in Fahrenheit and convert to Celsius."
     }
 }
