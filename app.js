@@ -147,7 +147,7 @@ const CapabilityMap1 = {
         capabilityID: 'washerOperatingState',
         divider: 0,
         boolCompare: '',
-        flowTrigger: null,
+        flowTrigger: 'job_status_changed',
         keep: true
     },
     "completion_time":
@@ -485,7 +485,7 @@ const CapabilityMap1 = {
         capabilityID: 'dryerOperatingState',
         divider: 0,
         boolCompare: '',
-        flowTrigger: null,
+        flowTrigger: 'job_status_changed',
         keep: true
     },
     "dryer_completion_time":
@@ -590,7 +590,7 @@ const CapabilityMap1 = {
         capabilityID: 'samsungce.dishwasherJobState',
         divider: 0,
         boolCompare: '',
-        flowTrigger: null,
+        flowTrigger: 'job_status_changed',
     },
     "dishwasher_auto_door_release":
     {

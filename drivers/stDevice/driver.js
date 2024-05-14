@@ -24,6 +24,7 @@ class STDriver extends Homey.Driver
             'tag_button_status_changed': this.homey.flow.getDeviceTriggerCard( 'tag_button_status_changed' ),
             'button_status_changed': this.homey.flow.getDeviceTriggerCard( 'button_status_changed' ),
             'measure_pm10_changed': this.homey.flow.getDeviceTriggerCard( 'measure_pm10_changed' ),
+			'job_status_changed': this.homey.flow.getDeviceTriggerCard( 'job_status_changed' ),
         };
 
         this.flowTriggers.washer_status_changed

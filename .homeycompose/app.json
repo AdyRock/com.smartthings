@@ -13,6 +13,13 @@
     "category": [
         "appliances"
     ],
+	"contributing": {
+		"donate": {
+			"paypal": {
+				"username": "adyrock"
+			}
+		}
+	},
     "permissions": [],
     "bugs": {
         "url": "https://github.com/AdyRock/com.smartthings/issues"
