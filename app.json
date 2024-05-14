@@ -4,12 +4,12 @@
   "version": "2.0.17",
   "compatibility": ">=5.0.0",
   "sdk": 3,
-  "brandColor": "#FF7D4B",
+  "brandColor": "#2ACAEA",
   "name": {
-    "en": "SmartThings 2"
+    "en": "SmartThings Community"
   },
   "description": {
-    "en": "Add devices from SmartThings to Homey"
+    "en": "Bring your SmartThings capabilities into Homey"
   },
   "category": [
     "appliances"
@@ -25,7 +25,7 @@
   },
   "author": {
     "name": "Adrian Rockall",
-    "email": "ady@rockall.plus.com"
+    "email": "ady@rockalls.com"
   },
   "api": {
     "getLog": {
