@@ -52,5 +52,8 @@
     },
     "2.0.17": {
         "en": "Check if temperature is in Fahrenheit and convert to Celsius for refrigeration device."
-    }
+    },
+	"2.0.18": {
+		"en": "Added Job Status Changed Flow trigger."
+	}
 }
