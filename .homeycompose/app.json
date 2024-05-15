@@ -3,6 +3,9 @@
     "version": "2.0.18",
     "compatibility": ">=5.0.0",
     "sdk": 3,
+	"platforms": [
+		"local"
+	],
     "brandColor": "#2ACAEA",
     "name": {
         "en": "SmartThings Community"
@@ -21,10 +24,6 @@
 		}
 	},
     "permissions": [],
-    "bugs": {
-        "url": "https://github.com/AdyRock/com.smartthings/issues"
-    },
-    "source": "https://github.com/AdyRock/com.smartthings",
     "images": {
         "large": "/assets/images/large.png",
         "small": "/assets/images/small.png"
@@ -33,6 +32,12 @@
         "name": "Adrian Rockall",
         "email": "ady@rockalls.com"
     },
+    "bugs": {
+        "url": "https://github.com/AdyRock/com.smartthings/issues"
+    },
+    "source": "https://github.com/AdyRock/com.smartthings",
+	"support": "https://github.com/AdyRock/com.smartthings/issues",
+	"homeyCommunityTopicId": 61418,
     "api": {
         "getLog": {
             "method": "get",
