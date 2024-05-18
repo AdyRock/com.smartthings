@@ -1,9 +1,9 @@
 {
     "title": {
-        "en": "Vector Z changed"
+        "en": "Accelerometer Vector Z changed"
     },
     "hint": {
-        "en": "This card starts a Flow when the Z Vector changes."
+        "en": "This card starts a Flow when the Accelerometer Z Vector changes."
     },
     "tokens": [{
         "name": "value",

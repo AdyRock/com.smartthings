@@ -4,7 +4,7 @@
         "en": "Set the heating temperature"
     },
     "titleFormatted": {
-        "en": "Set the heating temperature to [[target_temperature]] °C"
+        "en": "Set the heating temperature to [[target_temperature]]"
     },
     "args": [
         {

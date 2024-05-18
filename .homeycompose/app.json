@@ -26,7 +26,8 @@
     "permissions": [],
     "images": {
         "large": "/assets/images/large.png",
-        "small": "/assets/images/small.png"
+        "small": "/assets/images/small.png",
+		"xlarge": "/assets/images/xlarge.png"
     },
     "author": {
         "name": "Adrian Rockall",

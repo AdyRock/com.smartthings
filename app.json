@@ -27,7 +27,8 @@
   "permissions": [],
   "images": {
     "large": "/assets/images/large.png",
-    "small": "/assets/images/small.png"
+    "small": "/assets/images/small.png",
+    "xlarge": "/assets/images/xlarge.png"
   },
   "author": {
     "name": "Adrian Rockall",
@@ -70,10 +71,10 @@
     "triggers": [
       {
         "title": {
-          "en": "Vector X changed"
+          "en": "Accelerometer Vector X changed"
         },
         "hint": {
-          "en": "This card starts a Flow when the X Vector changes."
+          "en": "This card starts a Flow when the Accelerometer X Vector changes."
         },
         "tokens": [
           {
@@ -96,10 +97,10 @@
       },
       {
         "title": {
-          "en": "Vector Y changed"
+          "en": "Accelerometer Vector Y changed"
         },
         "hint": {
-          "en": "This card starts a Flow when the Y Vector changes."
+          "en": "This card starts a Flow when the Accelerometer Y Vector changes."
         },
         "tokens": [
           {
@@ -122,10 +123,10 @@
       },
       {
         "title": {
-          "en": "Vector Z changed"
+          "en": "Accelerometer Vector Z changed"
         },
         "hint": {
-          "en": "This card starts a Flow when the Z Vector changes."
+          "en": "This card starts a Flow when the Accelerometer Z Vector changes."
         },
         "tokens": [
           {
@@ -589,7 +590,7 @@
       {
         "id": "alarm_contact_main_changed",
         "title": {
-          "en": "A Door Open alarm changed"
+          "en": "Any Door Open alarm changed"
         },
         "tokens": [
           {
@@ -730,7 +731,7 @@
       {
         "id": "measure_temperature_freezer_changed",
         "title": {
-          "en": "Freezer Current Temperature changed"
+          "en": "The current temperature of the Freezer has changed"
         },
         "tokens": [
           {
@@ -752,7 +753,7 @@
       {
         "id": "measure_temperature_cooler_changed",
         "title": {
-          "en": "Cooler Current Temperature changed"
+          "en": "The current temperature of the Cooler has changed"
         },
         "tokens": [
           {
@@ -1382,7 +1383,7 @@
           "en": "Set the heating temperature"
         },
         "titleFormatted": {
-          "en": "Set the heating temperature to [[target_temperature]] °C"
+          "en": "Set the heating temperature to [[target_temperature]]"
         },
         "args": [
           {

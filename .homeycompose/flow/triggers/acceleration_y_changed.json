@@ -1,9 +1,9 @@
 {
     "title": {
-        "en": "Vector Y changed"
+        "en": "Accelerometer Vector Y changed"
     },
     "hint": {
-        "en": "This card starts a Flow when the Y Vector changes."
+        "en": "This card starts a Flow when the Accelerometer Y Vector changes."
     },
     "tokens": [{
         "name": "value",

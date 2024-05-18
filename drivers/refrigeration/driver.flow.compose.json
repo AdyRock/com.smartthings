@@ -17,7 +17,7 @@
         {
             "id": "alarm_contact_main_changed",
             "title": {
-                "en": "A Door Open alarm changed"
+                "en": "Any Door Open alarm changed"
             },
             "tokens": [{
                 "name": "value",
@@ -94,7 +94,7 @@
         {
             "id": "measure_temperature_freezer_changed",
             "title": {
-                "en": "Freezer Current Temperature changed"
+                "en": "The current temperature of the Freezer has changed"
             },
             "tokens": [{
                 "name": "value",
@@ -106,7 +106,7 @@
         {
             "id": "measure_temperature_cooler_changed",
             "title": {
-                "en": "Cooler Current Temperature changed"
+                "en": "The current temperature of the Cooler has changed"
             },
             "tokens": [{
                 "name": "value",
