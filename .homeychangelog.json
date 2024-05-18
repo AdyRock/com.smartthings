@@ -55,5 +55,8 @@
     },
 	"2.0.18": {
 		"en": "Added Job Status Changed Flow trigger."
+	},
+	"2.0.19": {
+		"en": "Changes for store submission."
 	}
 }
