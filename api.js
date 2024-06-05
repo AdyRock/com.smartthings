@@ -28,10 +28,10 @@ module.exports = {
     },
     async SendDeviceLog({ homey, body })
     {
-        return homey.app.sendLog('deviceLog');
+        return homey.app.sendLog('deviceLog', body.email, body.description);
     },
     async SendInfoLog({ homey, body })
     {
-        return homey.app.sendLog('infoLog');
+        return homey.app.sendLog('infoLog', body.email, body.description);
     },
 };

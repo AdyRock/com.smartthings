@@ -1,37 +1,66 @@
 /* Style the tab */
 .tab {
-    overflow: hidden;
-    border: 1px solid #ccc;
-    background-color: #d1ddeb;
-  }
-  
-  /* Style the buttons that are used to open the tab content */
-  .tab button {
-    float: left;
-    border: none;
-    outline: none;
-    cursor: pointer;
-    padding: 14px 16px;
-    transition: 0.3s;
-    color: #c8cfd9;
-  }
-  
-  /* Change background color of buttons on hover */
-  .tab button:hover {
-    background-color: #73859c !important;
-    color: white !important;
-  }
-  
-  /* Create an active/current tablink class */
-  .active {
-    background-color: #4a6e9b !important;
-    color: white !important;
-  }
-  
-  /* Style the tab content */
-  .tabcontent {
-    display: none;
-    padding: 6px 12px;
-    border: 1px solid #ccc;
-    border-top: none;
-  }
+	overflow: hidden;
+	border: 1px solid #ccc;
+	background-color: #d1ddeb;
+}
+
+/* Style the buttons that are used to open the tab content */
+.tab button {
+	float: left;
+	border: none;
+	outline: none;
+	cursor: pointer;
+	padding: 14px 16px;
+	transition: 0.3s;
+	color: #c8cfd9;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+	background-color: #73859c !important;
+	color: white !important;
+}
+
+/* Create an active/current tablink class */
+.active {
+	background-color: #4a6e9b !important;
+	color: white !important;
+}
+
+/* Style the tab content */
+.tabcontent {
+	display: none;
+	padding: 6px 12px;
+	border: 1px solid #ccc;
+	border-top: none;
+}
+
+
+/* Tooltip container */
+.tooltip {
+	position: relative;
+	display: inline-block;
+	color: #2f4fef;
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+	display: none;
+	width: 75vw;
+	background-color: rgb(249, 248, 236);
+	color: #121010;
+	text-align: left;
+	padding: 5px 5px;
+	border-radius: 10px;
+	box-shadow: 10px 10px 5px lightblue;
+	position: absolute;
+	top: 100%;
+	left: -100%;
+	z-index: 1;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+	display: inherit;
+}

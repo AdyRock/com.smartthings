@@ -1,4 +1,10 @@
 {
+	"settings": {
+		"email": "Email Address or Forum id",
+        "emailExplanation": "If you want me to respond to your log, please enter your email address or forum id here so I know how to contact you.",
+        "description": "Description",
+        "descriptionExplanation": "Please enter a brief description of the problem or name of the device if you are going to send the log."
+	},
     "Refrigerator": {
         "target_temperature_freezer": "Freezer Temperature",
         "target_temperature_cooler": "Cooler Temperature",

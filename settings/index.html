@@ -3,6 +3,7 @@
 
 <head>
     <link rel="stylesheet" type="text/css" href="lwsa.css">
+	<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css'>
     <link rel="stylesheet" type="text/css" href="busy_indicator.css" />
     <style type="text/css">
         .fog_div {
@@ -38,8 +39,8 @@
         <button class="tablinks" onclick="setPage(event, 'detected')">Detected</button>
         <button class="tablinks" onclick="setPage(event, 'log')">Log</button>
         <button class="tablinks" onclick="setPage(event, 'send')">Send Command</button>
-        <button class="tablinks" onclick="setPage(event, 'simulator')" id="simLogTab" style="visibility:hidden">Simulation Devices</button>
-        <button class="tablinks" onclick="setPage(event, 'simulatorData')" id="simDataLogTab" style="visibility:hidden">Simulation Data</button>
+        <button class="tablinks" onclick="setPage(event, 'simulator')" id="simLogTab" style="display:none">Simulation Devices</button>
+        <button class="tablinks" onclick="setPage(event, 'simulatorData')" id="simDataLogTab" style="display:none">Simulation Data</button>
     </div>
 
     <!-- SETTINGS PAGE -->
@@ -70,7 +71,22 @@
     <!-- detected-->
     <div id="detected" class="tabcontent">
         <fieldset>
-            <p><button id="getDeviceLog"  class="homey-button-small">Get Devices</button> <button id="sendDeviceLog"  class="homey-button-small">Send Log</button></p>
+			<div class="field row">
+				<label class="homey-form-label" for="email"><span data-i18n="settings.email"></span>
+					<div class="tooltip"><i class="fi fi-rr-info"></i>
+						<span class="tooltiptext" data-i18n="settings.emailExplanation"></span>
+					</div>
+				</label>
+				<input class="homey-form-input" id="email" type="text" value />
+				<label class="homey-form-label" for="description"><span data-i18n="settings.description"></span>
+					<div class="tooltip"><i class="fi fi-rr-info"></i>
+						<span class="tooltiptext" data-i18n="settings.descriptionExplanation"></span>
+					</div>
+				</label>
+				<input class="homey-form-input" id="description" type="text" value />
+				<p></p>
+			</div>
+			<p><button id="getDeviceLog"  class="homey-button-small">Get Devices</button> <button id="sendDeviceLog"  class="homey-button-small">Send Log</button></p>
             <div class="field row">
                 <textarea id="detectedDevices" class="homey-form-textarea"></textarea>
             </div>
@@ -88,6 +104,21 @@
                     <span class="homey-form-checkbox-text">Log Enabled</span>
                 </label>
             </div>
+			<div class="field row">
+				<label class="homey-form-label" for="email2"><span data-i18n="settings.email"></span>
+					<div class="tooltip"><i class="fi fi-rr-info"></i>
+						<span class="tooltiptext" data-i18n="settings.emailExplanation"></span>
+					</div>
+				</label>
+				<input class="homey-form-input" id="email2" type="text" value />
+				<label class="homey-form-label" for="description2"><span data-i18n="settings.description"></span>
+					<div class="tooltip"><i class="fi fi-rr-info"></i>
+						<span class="tooltiptext" data-i18n="settings.descriptionExplanation"></span>
+					</div>
+				</label>
+				<input class="homey-form-input" id="description2" type="text" value />
+				<p></p>
+			</div>
             <p><button id="clearLog" class="homey-button-small">Clear Log</button> <button id="sendInfoLog" class="homey-button-small">Send Log</button></p>
             <div class="field row">
                 <textarea id="diagLog" class="homey-form-textarea"></textarea>
@@ -146,10 +177,14 @@
         var detectedDevicesElement = document.getElementById( 'detectedDevices' );
         var getDeviceLogElement = document.getElementById('getDeviceLog');
         var sendDeviceLogElement = document.getElementById('sendDeviceLog');
+		var emailElement = document.getElementById('email');
+		var descriptionElement = document.getElementById('description');
 
         var saveElement = document.getElementById( 'save' );
         var clearLogElement = document.getElementById( 'clearLog' );
         var sendInfoLogElement = document.getElementById('sendInfoLog');
+		var email2Element = document.getElementById('email2');
+		var description2Element = document.getElementById('description2');
 
         // Send data tab
         var commandDataElement = document.getElementById( 'commandData' );
@@ -175,8 +210,8 @@
                 if ( err ) return Homey.alert( err );
                 if ( debugMode )
                 {
-                    document.getElementById( "simLogTab" ).style.visibility = 'visible';
-                    document.getElementById( "simDataLogTab" ).style.visibility = 'visible';
+                    document.getElementById( "simLogTab" ).style.display = 'block';
+                    document.getElementById( "simDataLogTab" ).style.display = 'block';
                 }
             } );
 
@@ -322,7 +357,9 @@
                         waitCursor(true);
                         Homey.api('POST', '/sendInfoLog/',
                         {
-                            notify: true
+                            notify: true,
+							email: email2Element.value,
+							description: description2Element.value,
                         }, function(err, result)
                         {
                             if (err)
@@ -352,7 +389,9 @@
                         waitCursor(true);
                         Homey.api('POST', '/SendDeviceLog/',
                         {
-                            notify: true
+                            notify: true,
+							email: emailElement.value,
+							description: descriptionElement.value,
                         }, function(err, result)
                         {
                             if (err)
@@ -476,6 +515,13 @@
                     }
                 } );
             } );
+			
+			var tooltips = document.querySelectorAll(".tooltip");
+			tooltips.forEach(function(tooltip, index)
+			{
+				// Set a mouse over function for each tooltop element
+				tooltip.addEventListener("mouseover", position_tooltip); // On hover, launch the function below
+			})
 
             // Tell Homey we're ready to be displayed
             Homey.ready();
@@ -554,6 +600,7 @@
                 simDataDataElement.setAttribute( 'cols', simDataDataElement.parentElement.clientWidth / 8 );
                 simDataDataElement.style.height = ( window.innerHeight - simDataDataElement.offsetTop - 40 ) + 'px';
             }
+
         }
 
         function waitCursor(On)
@@ -567,6 +614,34 @@
                 busyi.hide();
             }
         }
+
+		function position_tooltip()
+		{
+			// Get .tooltiptext sibling
+			var tooltip = this.parentNode.querySelector(".tooltiptext");
+
+			// Get tooltip coordinates and size
+			var tooltip_rect = tooltip.getBoundingClientRect();
+
+			// Corrections if out of window
+			var maxRight = window.innerWidth - 50;
+			var tipRight = tooltip_rect.x + tooltip_rect.width;
+
+			if (tipRight > maxRight)
+			{
+				tipX = maxRight - tipRight;
+
+				// Apply corrected position
+				if (tooltip.style.left === "")
+				{
+					tooltip.style.left = tipX + 'px';
+				}
+				else
+				{
+					tooltip.style.left -= tipX + 'px';
+				}
+			}
+		}
     </script>
 
 </body>

@@ -2533,7 +2533,7 @@ class MyApp extends Homey.App
         }
     }
 
-    async sendLog( logType )
+    async sendLog( logType, email, description )
     {
         let tries = 5;
         this.log( 'Send Log' );
@@ -2542,16 +2542,16 @@ class MyApp extends Homey.App
             try
             {
                 let subject = '';
-                let text = '';
+                let text = `${email}\n${description}\n\n-------------------------------------------------------\n\n`;
                 if ( logType === 'infoLog' )
                 {
                     subject = `SmartThings Information log`;
-                    text = this.varToString( this.diagLog );
+                    text += this.varToString( this.diagLog );
                 }
                 else if ( logType === 'deviceLog' )
                 {
                     subject = 'SmartThings device log';
-                    text = this.varToString( this.detectedDevices );
+                    text += this.varToString( this.detectedDevices );
                 }
 
                 subject += `(${this.homeyHash} : ${Homey.manifest.version})`;
