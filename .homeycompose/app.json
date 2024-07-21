@@ -1,6 +1,6 @@
 {
     "id": "ady.smartthings",
-    "version": "2.0.20",
+    "version": "2.0.21",
     "compatibility": ">=5.0.0",
     "sdk": 3,
 	"platforms": [
