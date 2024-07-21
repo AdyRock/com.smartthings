@@ -61,5 +61,8 @@
 	},
 	"2.0.20": {
 		"en": "Fixed Log send functions."
+	},
+	"2.0.21": {
+		"en": "Fix issue where value was a string when a number was required. Fixed image path on Homey 2023."
 	}
 }

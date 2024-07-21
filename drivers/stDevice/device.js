@@ -310,6 +310,8 @@ class STDevice extends Homey.Device
                         }
                     });
                 }
+
+				this.eventImage = null;
             }
             console.log("Delete device");
         }
@@ -404,6 +406,11 @@ class STDevice extends Homey.Device
                     if ( !value )
                     {
                         stValue = await this.homey.app.getDeviceCapabilityValue( devData.id, component, mapEntry.capabilityID );
+						if (stValue === 'digitalTv')
+						{
+							stValue = 'digital';
+						}
+
                         value = stValue;
 
                         if (mapEntry.capabilityID === 'imageCapture')
@@ -620,6 +627,22 @@ class STDevice extends Homey.Device
                                 }
                                 else
                                 {
+									if (mapEntry.flowTokenType)
+									{
+										if (mapEntry.flowTokenType === 'number')
+										{
+											value = parseFloat(value);
+										}
+										else if (mapEntry.flowTokenType === 'boolean')
+										{
+											value = (value === 'true');
+										}
+										else if (mapEntry.flowTokenType === 'string')
+										{
+											value = `${value}`;
+										}
+									}
+
                                     tokens = {
                                         'value': value
                                     };
@@ -2068,13 +2091,13 @@ class STDevice extends Homey.Device
 
     async updateImage(url)
     {
-        this.imageFile = await this.homey.app.GetImage(url, this.getData());
         if (this.eventImage)
         {
             this.eventImage.update();
         }
         else
         {
+			this.imageFile = await this.homey.app.GetImage(url, this.getData());
             this.eventImage = await this.homey.images.createImage();
             this.eventImage.setPath(this.imageFile);
             this.setCameraImage('Event', "Motion Event", this.eventImage).catch(this.err);

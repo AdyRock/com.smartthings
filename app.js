@@ -78,7 +78,8 @@ const CapabilityMap1 = {
         capabilityID: 'contactSensor',
         divider: 0,
         boolCompare: 'open',
-        flowTrigger: 'alarm_contact'
+        flowTrigger: 'alarm_contact',
+		flowTokenType: 'boolean'
     },
     "measure_battery":
     {
@@ -139,6 +140,8 @@ const CapabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: 'washer_status_changed',
+		flowTokenType: 'string',
+
         keep: true
     },
     "washer_job_status":
@@ -148,6 +151,7 @@ const CapabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: 'job_status_changed',
+		flowTokenType: 'string',
         keep: true
     },
     "completion_time":
@@ -321,7 +325,8 @@ const CapabilityMap1 = {
         capabilityID: 'custom.dustFilter',
         divider: 0,
         boolCompare: '',
-        flowTrigger: 'dustStatus_changed'
+        flowTrigger: 'dustStatus_changed',
+		flowTokenType: 'boolean'
     },
     "aircon_auto_cleaning_mode":
     {
@@ -396,7 +401,8 @@ const CapabilityMap1 = {
         capabilityID: 'doorControl',
         divider: 0,
         boolCompare: 'open',
-        flowTrigger: 'doorStatus_changed'
+        flowTrigger: 'doorStatus_changed',
+		flowTokenType: 'boolean'
     },
     "locked":
     {
@@ -412,7 +418,8 @@ const CapabilityMap1 = {
         capabilityID: 'waterSensor',
         divider: 0,
         boolCompare: 'wet',
-        flowTrigger: 'alarm_water_changed'
+        flowTrigger: 'alarm_water_changed',
+		flowTokenType: 'boolean'
     },
     "alarm_acceleration":
     {
@@ -420,7 +427,8 @@ const CapabilityMap1 = {
         capabilityID: 'accelerationSensor',
         divider: 0,
         boolCompare: 'active',
-        flowTrigger: 'alarm_acceleration_changed'
+        flowTrigger: 'alarm_acceleration_changed',
+		flowTokenType: 'boolean'
     },
     "acceleration_x":
     {
@@ -428,6 +436,7 @@ const CapabilityMap1 = {
         capabilityID: 'threeAxis',
         divider: 0,
         flowTrigger: 'acceleration_x_changed',
+		flowTokenType: 'number',
         keep: true,
         arrayIdx: 0
     },
@@ -437,6 +446,7 @@ const CapabilityMap1 = {
         capabilityID: 'threeAxis',
         divider: 0,
         flowTrigger: 'acceleration_y_changed',
+		flowTokenType: 'number',
         keep: true,
         arrayIdx: 1
     },
@@ -446,6 +456,7 @@ const CapabilityMap1 = {
         capabilityID: 'threeAxis',
         divider: 0,
         flowTrigger: 'acceleration_z_changed',
+		flowTokenType: 'number',
         keep: true,
         arrayIdx: 2
     },
@@ -477,6 +488,7 @@ const CapabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: 'dryer_status_changed',
+		flowTokenType: 'string',
         keep: true
     },
     "dryer_job_status":
@@ -486,6 +498,7 @@ const CapabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: 'job_status_changed',
+		flowTokenType: 'string',
         keep: true
     },
     "dryer_completion_time":
@@ -563,6 +576,7 @@ const CapabilityMap1 = {
         boolCompare: '',
         keep: true,
         flowTrigger: 'tag_button_status_changed',
+		flowTokenType: 'string',
         flowTagST: 'tagButton.value'
     },
     "button_status":
@@ -582,6 +596,7 @@ const CapabilityMap1 = {
         boolCompare: '',
         keep: true,
         flowTrigger: 'button_status_changed',
+		flowTokenType: 'string',
         flowTag: 'button_status'
     },
     "dishwasher_job_status":
@@ -590,6 +605,7 @@ const CapabilityMap1 = {
         capabilityID: 'samsungce.dishwasherJobState',
         divider: 0,
         boolCompare: '',
+		flowTokenType: 'string',
         flowTrigger: 'job_status_changed',
     },
     "dishwasher_auto_door_release":
@@ -746,6 +762,8 @@ const CapabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: 'measure_pm10_changed',
+		flowTokenType: 'number',
+
     },
     "measure_pm1":
     {
@@ -754,6 +772,7 @@ const CapabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: 'measure_pm1_changed',
+		flowTokenType: 'number',
     },
     "measure_odor":
     {
@@ -762,6 +781,7 @@ const CapabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: 'measure_odor_changed',
+		flowTokenType: 'number',
         keep: true
     },
     "pm10_status":
@@ -797,6 +817,14 @@ const CapabilityMap1 = {
         flowTrigger: '',
         makeString: true,
         keep: true
+    },
+    "alarm_smoke":
+    {
+        dataEntry: [ 'smokeDetector', 'smokeDetector', 'value' ],
+        capabilityID: 'smokeDetector',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: '',
     },
 };
 
@@ -1386,6 +1414,14 @@ const CapabilityMap2 = {
         capabilities: [ 'pm1_status' ],
         icon: "",
         iconPriority: 0
+    },
+    "smokeDetector":
+    {
+        class: "sensor",
+        exclude: "",
+        capabilities: [ 'alarm_smoke' ],
+        icon: "smoke-detector",
+        iconPriority: 5
     },
 };
 
@@ -2352,7 +2388,7 @@ class MyApp extends Homey.App
 
     getUserDataPath(filename)
     {
-        return path.join(__dirname, 'userdata', filename);
+        return path.join('/userdata', filename);
     }
 
     async GetImage( url, devData )
