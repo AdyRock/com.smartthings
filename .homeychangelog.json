@@ -64,5 +64,8 @@
 	},
 	"2.0.21": {
 		"en": "Fix issue where value was a string when a number was required. Fixed image path on Homey 2023."
+	},
+	"2.0.22": {
+		"en": "Added 'DisplayPort' to media input source list. Remove bad capabilities from the device to prevent repetitive errors."
 	}
 }

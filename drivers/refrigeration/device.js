@@ -275,7 +275,7 @@ class FridgeDevice extends Homey.Device
                         value = await this.homey.app.getDeviceCapabilityValue( devData.id, combinedCapability[1], mapEntry.capabilityID );
                     }
 
-                    if (value)
+                    if (value !== null)
                     {
                         if ( mapEntry.keep )
                         {
@@ -491,6 +491,11 @@ class FridgeDevice extends Homey.Device
             }
             catch ( err )
             {
+				if (err.statusCode && (err.statusCode === 422))
+				{
+					this.removeCapability( combinedCapability );
+				}
+
                 this.homey.app.updateLog( "getDeviceValues error: " + this.homey.app.varToString( err.message ) + " for capability: " + this.homey.app.varToString( combinedCapability ) );
             }
         }

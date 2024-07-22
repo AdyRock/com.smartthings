@@ -21,22 +21,29 @@ class STDevice extends Homey.Device
             component = devData.component;
         }
 
-        const value = await this.homey.app.getDeviceCapabilityValue( devData.id, component, 'custom.disabledCapabilities' );
-        if ( value && value.disabledCapabilities && value.disabledCapabilities.value )
-        {
-            value.disabledCapabilities.value.forEach(element => {
-                const capabilities = this.homey.app.getCapabilitiesForSTCapability(element);
-                if (capabilities)
-                {
-                    capabilities.forEach(capability => {
-                        if ( this.hasCapability( capability ) )
-                        {
-                            this.removeCapability(capability);
-                        }
-                    });
-                }
-            });
-        }
+        try
+		{
+			const value = await this.homey.app.getDeviceCapabilityValue( devData.id, component, 'custom.disabledCapabilities' );
+			if ( value && value.disabledCapabilities && value.disabledCapabilities.value )
+			{
+				value.disabledCapabilities.value.forEach(element => {
+					const capabilities = this.homey.app.getCapabilitiesForSTCapability(element);
+					if (capabilities)
+					{
+						capabilities.forEach(capability => {
+							if ( this.hasCapability( capability ) )
+							{
+								this.removeCapability(capability);
+							}
+						});
+					}
+				});
+			}
+		}
+		catch (err)
+		{
+			console.log("Error getting disabled capabilities", err);
+		}
 
         if (this.hasCapability('locked') && this.getClass() !== 'lock')
         {
@@ -406,254 +413,255 @@ class STDevice extends Homey.Device
                     if ( !value )
                     {
                         stValue = await this.homey.app.getDeviceCapabilityValue( devData.id, component, mapEntry.capabilityID );
-						if (stValue === 'digitalTv')
+						if (stValue)
 						{
-							stValue = 'digital';
+							value = stValue;
+
+							if (mapEntry.capabilityID === 'imageCapture')
+							{
+								if (this.getCapabilityValue( 'alarm_motion' ) != this.lastMotion)
+								{
+									this.lastMotion = this.getCapabilityValue( 'alarm_motion' );
+									if (this.lastMotion)
+									{
+										this.takeImage();
+									}
+								}
+
+								this.captureTime = value.captureTime.value;
+								const dt = this.convertDate( this.captureTime, this.getSettings());
+								if (this.getCapabilityValue( capability) != dt)
+								{
+									this.setCapabilityValue( capability, dt ).catch(this.error);
+									this.updateImage(value.image.value);
+								}
+								continue;
+							}
+						}
+					}
+
+					if (value)
+					{
+						if ( mapEntry.keep )
+						{
+							// cache the data
+							capabilityCache = Object.assign( capabilityCache,
+							{
+								[ mapEntry.capabilityID ]: value
+							} );
 						}
 
-                        value = stValue;
+						let units = value;
+						for ( var i = 1; i < mapEntry.dataEntry.length; i++ )
+						{
+							value = value[ mapEntry.dataEntry[ i ] ];
+						}
 
-                        if (mapEntry.capabilityID === 'imageCapture')
-                        {
-                            if (this.getCapabilityValue( 'alarm_motion' ) != this.lastMotion)
-                            {
-                                this.lastMotion = this.getCapabilityValue( 'alarm_motion' );
-                                if (this.lastMotion)
-                                {
-                                    this.takeImage();
-                                }
-                            }
+						if (mapEntry.checkTUnits)
+						{
+							// Get the Units form the captured data to see if they are in F
+							for ( var i = 1; i < mapEntry.dataEntry.length - 1; i++ )
+							{
+								units = units[ mapEntry.dataEntry[ i ] ];
+							}                            
 
-                            this.captureTime = value.captureTime.value;
-                            const dt = this.convertDate( this.captureTime, this.getSettings());
-                            if (this.getCapabilityValue( capability) != dt)
-                            {
-                                this.setCapabilityValue( capability, dt ).catch(this.error);
-                                this.updateImage(value.image.value);
-                            }
-                            continue;
-                        }
-                    }
+							if (units.units)
+							{
+								if (units.units === 'F')
+								{
+									// Convert to C
+									value = (value - 32) / 1.8;
+								}
+							}
+						}
 
-                    if ( mapEntry.keep )
-                    {
-                        // cache the data
-                        capabilityCache = Object.assign( capabilityCache,
-                        {
-                            [ mapEntry.capabilityID ]: value
-                        } );
-                    }
+						if(mapEntry.diffBetween) {
+							let  lastValue = this.getCapabilityValue( mapEntry.diffBetween );
+							var mapEntry2 = this.homey.app.getStCapabilitiesForCapability( mapEntry.diffBetween );
+							if (mapEntry2.divider > 0)
+							{
+								lastValue *= mapEntry2.divider;
+							}
+							value = (value - lastValue);
+						}
 
-                    let units = value;
-                    for ( var i = 1; i < mapEntry.dataEntry.length; i++ )
-                    {
-                        value = value[ mapEntry.dataEntry[ i ] ];
-                    }
+						if ( mapEntry.boolCompare )
+						{
+							if (Array.isArray(mapEntry.boolCompare))
+							{
+								let idx = mapEntry.boolCompare.indexOf(value);
+								value = (idx >= 0);
+							}
+							else
+							{
+								value = ( value === mapEntry.boolCompare );
+							}
+							this.homey.app.updateLog( "Set Capability: " + capability + " - Value: " + value );
+							let lastValue = this.getCapabilityValue( capability );
+							this.setCapabilityValue( capability, value ).catch(this.error);
+							if ( capability === 'remote_status' )
+							{
+								this.remoteControlEnabled = value;
+							}
 
-                    if (mapEntry.checkTUnits)
-                    {
-                        // Get the Units form the captured data to see if they are in F
-                        for ( var i = 1; i < mapEntry.dataEntry.length - 1; i++ )
-                        {
-                            units = units[ mapEntry.dataEntry[ i ] ];
-                        }                            
+							if ( mapEntry.flowTrigger && this.driver.flowTriggers[ mapEntry.flowTrigger ] )
+							{
+								this.homey.app.updateLog( "Trigger Check: " + capability + " = " + value + " was " + lastValue );
+								if ( lastValue != value )
+								{
+									this.homey.app.updateLog( "Trigger change: " + capability, " = " + value );
 
-                        if (units.units)
-                        {
-                            if (units.units === 'F')
-                            {
-                                // Convert to C
-                                value = (value - 32) / 1.8;
-                            }
-                        }
-                    }
+									let tokens = {
+										'value': value
+									};
 
-                    if(mapEntry.diffBetween) {
-                        let  lastValue = this.getCapabilityValue( mapEntry.diffBetween );
-                        var mapEntry2 = this.homey.app.getStCapabilitiesForCapability( mapEntry.diffBetween );
-                        if (mapEntry2.divider > 0)
-                        {
-                            lastValue *= mapEntry2.divider;
-                        }
-                        value = (value - lastValue);
-                    }
+									this.driver.flowTriggers[ mapEntry.flowTrigger ]
+										.trigger( this, tokens )
+										.catch( this.error );
+								}
 
-                    if ( mapEntry.boolCompare )
-                    {
-                        if (Array.isArray(mapEntry.boolCompare))
-                        {
-                            let idx = mapEntry.boolCompare.indexOf(value);
-                            value = (idx >= 0);
-                        }
-                        else
-                        {
-                            value = ( value === mapEntry.boolCompare );
-                        }
-                        this.homey.app.updateLog( "Set Capability: " + capability + " - Value: " + value );
-                        let lastValue = this.getCapabilityValue( capability );
-                        this.setCapabilityValue( capability, value ).catch(this.error);
-                        if ( capability === 'remote_status' )
-                        {
-                            this.remoteControlEnabled = value;
-                        }
+							}
+						}
+						else
+						{
+							if ( mapEntry.arrayIdx )
+							{
+								// Value contains an array of values so extract the required one 
+								value = value[ mapEntry.arrayIdx ];
+							}
 
-                        if ( mapEntry.flowTrigger && this.driver.flowTriggers[ mapEntry.flowTrigger ] )
-                        {
-                            this.homey.app.updateLog( "Trigger Check: " + capability + " = " + value + " was " + lastValue );
-                            if ( lastValue != value )
-                            {
-                                this.homey.app.updateLog( "Trigger change: " + capability, " = " + value );
+							if ( mapEntry.lowValue )
+							{
+								let lowValue;
+								if (typeof mapEntry.lowValue === 'string')
+								{
+									// Fetch the setting
+									lowValue = this.getSetting(mapEntry.lowValue);
+								}
+								else
+								{
+									lowValue = mapEntry.lowValue;
+								}
 
-                                let tokens = {
-                                    'value': value
-                                };
+								if (value < lowValue)
+								{
+									continue;
+								}
+								
+								value -= lowValue;
 
-                                this.driver.flowTriggers[ mapEntry.flowTrigger ]
-                                    .trigger( this, tokens )
-                                    .catch( this.error );
-                            }
-
-                        }
-                    }
-                    else
-                    {
-                        if ( mapEntry.arrayIdx )
-                        {
-                            // Value contains an array of values so extract the required one 
-                            value = value[ mapEntry.arrayIdx ];
-                        }
-
-                        if ( mapEntry.lowValue )
-                        {
-                            let lowValue;
-                            if (typeof mapEntry.lowValue === 'string')
-                            {
-                                // Fetch the setting
-                                lowValue = this.getSetting(mapEntry.lowValue);
-                            }
-                            else
-                            {
-                                lowValue = mapEntry.lowValue;
-                            }
-
-                            if (value < lowValue)
-                            {
-                                continue;
-                            }
-                            
-                            value -= lowValue;
-
-                            if ( mapEntry.hiValue )
-                            {
-                                let hiValue;
-                                if (typeof mapEntry.hiValue === 'string')
-                                {
-                                    // Fetch the setting
-                                    hiValue = this.getSetting(mapEntry.hiValue);
-                                }
-                                else
-                                {
-                                    hiValue = mapEntry.hiValue;
-                                }
-
-                                const divider = hiValue - lowValue;
-                                value /= divider;
-                            }
-                        }
-
-                        if ( mapEntry.divider > 0 )
-                        {
-                            value /= mapEntry.divider;
-                        }
-                        else if ( mapEntry.dateTime )
-                        {
-                            // Format date and time to fit
-                            if ( value.length > 5 )
-                            {
-                                value = this.convertDate( value, this.getSettings() );
-                                // var d = new Date( value );
-                                // value = d.getHours() + ":" + ( d.getMinutes() < 10 ? "0" : "" ) + d.getMinutes() + " " + ( d.getDate() < 10 ? "0" : "" ) + d.getDate() + "-" + ( d.getMonth() < 10 ? "0" : "" ) + d.getMonth() + 1;
-                            }
-                        }
-
-                        if ( mapEntry.invert )
-                        {
-                            value = 1 - value;
-                        }
-
-                        this.homey.app.updateLog( "Set Capability: " + capability + " - Value: " + value );
-                        let lastValue = this.getCapabilityValue( capability );
-                        try
-                        {
-                            if (Array.isArray(value))
-                            {
-                                value = value.toString();
-                            }
-
-                            if (mapEntry.makeString)
-                            {
-                                value = `${value}`;
-                            }
-                            await this.setCapabilityValue( capability, value );
-                        }
-                        catch( err )
-                        {
-                            this.log( err);
-                        }
-
-                        if ( mapEntry.flowTrigger && this.driver.flowTriggers[ mapEntry.flowTrigger ] )
-                        {
-                            this.homey.app.updateLog( "Trigger Check: " + capability + " = ", value + " was " + lastValue );
-                            if ( lastValue != value )
-                            {
-                                this.homey.app.updateLog( "Trigger change: " + capability + " = " + value );
-
-                                let state = {
-                                    'value': value
-                                };
-
-                                let tokens;
-                                if (mapEntry.flowTag)
-                                {
-                                    tokens = {
-                                        'value': this.getCapabilityValue(mapEntry.flowTag)
-                                    };
-                                }
-                                else if (mapEntry.flowTagST)
-                                {
-                                    tokens = {
-                                        'value': _.get(stValue, mapEntry.flowTagST),
-                                    };
-                                }
-                                else
-                                {
-									if (mapEntry.flowTokenType)
+								if ( mapEntry.hiValue )
+								{
+									let hiValue;
+									if (typeof mapEntry.hiValue === 'string')
 									{
-										if (mapEntry.flowTokenType === 'number')
-										{
-											value = parseFloat(value);
-										}
-										else if (mapEntry.flowTokenType === 'boolean')
-										{
-											value = (value === 'true');
-										}
-										else if (mapEntry.flowTokenType === 'string')
-										{
-											value = `${value}`;
-										}
+										// Fetch the setting
+										hiValue = this.getSetting(mapEntry.hiValue);
+									}
+									else
+									{
+										hiValue = mapEntry.hiValue;
 									}
 
-                                    tokens = {
-                                        'value': value
-                                    };
-                                }
+									const divider = hiValue - lowValue;
+									value /= divider;
+								}
+							}
 
-                                this.driver.flowTriggers[ mapEntry.flowTrigger ]
-                                    .trigger( this, tokens, state )
-                                    .catch( this.error );
-                            }
+							if ( mapEntry.divider > 0 )
+							{
+								value /= mapEntry.divider;
+							}
+							else if ( mapEntry.dateTime )
+							{
+								// Format date and time to fit
+								if ( value.length > 5 )
+								{
+									value = this.convertDate( value, this.getSettings() );
+									// var d = new Date( value );
+									// value = d.getHours() + ":" + ( d.getMinutes() < 10 ? "0" : "" ) + d.getMinutes() + " " + ( d.getDate() < 10 ? "0" : "" ) + d.getDate() + "-" + ( d.getMonth() < 10 ? "0" : "" ) + d.getMonth() + 1;
+								}
+							}
 
-                        }
+							if ( mapEntry.invert )
+							{
+								value = 1 - value;
+							}
+
+							this.homey.app.updateLog( "Set Capability: " + capability + " - Value: " + value );
+							let lastValue = this.getCapabilityValue( capability );
+							try
+							{
+								if (Array.isArray(value))
+								{
+									value = value.toString();
+								}
+
+								if (mapEntry.makeString)
+								{
+									value = `${value}`;
+								}
+								await this.setCapabilityValue( capability, value );
+							}
+							catch( err )
+							{
+								this.log( err);
+							}
+
+							if ( mapEntry.flowTrigger && this.driver.flowTriggers[ mapEntry.flowTrigger ] )
+							{
+								this.homey.app.updateLog( "Trigger Check: " + capability + " = ", value + " was " + lastValue );
+								if ( lastValue != value )
+								{
+									this.homey.app.updateLog( "Trigger change: " + capability + " = " + value );
+
+									let state = {
+										'value': value
+									};
+
+									let tokens;
+									if (mapEntry.flowTag)
+									{
+										tokens = {
+											'value': this.getCapabilityValue(mapEntry.flowTag)
+										};
+									}
+									else if (mapEntry.flowTagST)
+									{
+										tokens = {
+											'value': _.get(stValue, mapEntry.flowTagST),
+										};
+									}
+									else
+									{
+										if (mapEntry.flowTokenType)
+										{
+											if (mapEntry.flowTokenType === 'number')
+											{
+												value = parseFloat(value);
+											}
+											else if (mapEntry.flowTokenType === 'boolean')
+											{
+												value = (value === 'true');
+											}
+											else if (mapEntry.flowTokenType === 'string')
+											{
+												value = `${value}`;
+											}
+										}
+
+										tokens = {
+											'value': value
+										};
+									}
+
+									this.driver.flowTriggers[ mapEntry.flowTrigger ]
+										.trigger( this, tokens, state )
+										.catch( this.error );
+								}
+
+							}
+						}
                     }
                 }
                 else
@@ -663,7 +671,12 @@ class STDevice extends Homey.Device
             }
             catch ( err )
             {
-                this.homey.app.updateLog( "getDeviceValues error: " + this.homey.app.varToString( err.message ) + " for capability: " + this.homey.app.varToString( capability ) );
+				if (err.statusCode && (err.statusCode === 422))
+				{
+					this.removeCapability( capability );
+				}
+				
+				this.homey.app.updateLog( "getDeviceValues error: " + this.homey.app.varToString( err.message ) + " for capability: " + this.homey.app.varToString( capability ) );
             }
         }
     }

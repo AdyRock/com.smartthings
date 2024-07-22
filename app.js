@@ -2143,6 +2143,10 @@ class MyApp extends Homey.App
         catch ( err )
         {
             this.homey.app.updateLog( "Get device error: " + url + "\nError: " + JSON.stringify( err, null, 2 ) );
+			if (err.statusCode === 422)
+			{
+				throw err;
+			}
         }
         return null;
     }
