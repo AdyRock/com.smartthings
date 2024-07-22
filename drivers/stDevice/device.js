@@ -597,10 +597,22 @@ class STDevice extends Homey.Device
 									value = value.toString();
 								}
 
-								if (mapEntry.makeString)
+								if (mapEntry.valueType)
 								{
-									value = `${value}`;
+									if (mapEntry.valueType === 'number')
+									{
+										value = parseFloat(value);
+									}
+									else if (mapEntry.valueType === 'boolean')
+									{
+										value = (value === 'true');
+									}
+									else if (mapEntry.valueType === 'string')
+									{
+										value = `${value}`;
+									}
 								}
+
 								await this.setCapabilityValue( capability, value );
 							}
 							catch( err )
@@ -634,22 +646,6 @@ class STDevice extends Homey.Device
 									}
 									else
 									{
-										if (mapEntry.flowTokenType)
-										{
-											if (mapEntry.flowTokenType === 'number')
-											{
-												value = parseFloat(value);
-											}
-											else if (mapEntry.flowTokenType === 'boolean')
-											{
-												value = (value === 'true');
-											}
-											else if (mapEntry.flowTokenType === 'string')
-											{
-												value = `${value}`;
-											}
-										}
-
 										tokens = {
 											'value': value
 										};

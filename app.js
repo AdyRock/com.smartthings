@@ -79,7 +79,7 @@ const CapabilityMap1 = {
         divider: 0,
         boolCompare: 'open',
         flowTrigger: 'alarm_contact',
-		flowTokenType: 'boolean'
+		valueType: 'boolean'
     },
     "measure_battery":
     {
@@ -140,7 +140,7 @@ const CapabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: 'washer_status_changed',
-		flowTokenType: 'string',
+		valueType: 'string',
 
         keep: true
     },
@@ -151,7 +151,7 @@ const CapabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: 'job_status_changed',
-		flowTokenType: 'string',
+		valueType: 'string',
         keep: true
     },
     "completion_time":
@@ -326,7 +326,7 @@ const CapabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: 'dustStatus_changed',
-		flowTokenType: 'boolean'
+		valueType: 'boolean'
     },
     "aircon_auto_cleaning_mode":
     {
@@ -402,7 +402,7 @@ const CapabilityMap1 = {
         divider: 0,
         boolCompare: 'open',
         flowTrigger: 'doorStatus_changed',
-		flowTokenType: 'boolean'
+		valueType: 'boolean'
     },
     "locked":
     {
@@ -419,7 +419,7 @@ const CapabilityMap1 = {
         divider: 0,
         boolCompare: 'wet',
         flowTrigger: 'alarm_water_changed',
-		flowTokenType: 'boolean'
+		valueType: 'boolean'
     },
     "alarm_acceleration":
     {
@@ -428,7 +428,7 @@ const CapabilityMap1 = {
         divider: 0,
         boolCompare: 'active',
         flowTrigger: 'alarm_acceleration_changed',
-		flowTokenType: 'boolean'
+		valueType: 'boolean'
     },
     "acceleration_x":
     {
@@ -436,7 +436,7 @@ const CapabilityMap1 = {
         capabilityID: 'threeAxis',
         divider: 0,
         flowTrigger: 'acceleration_x_changed',
-		flowTokenType: 'number',
+		valueType: 'number',
         keep: true,
         arrayIdx: 0
     },
@@ -446,7 +446,7 @@ const CapabilityMap1 = {
         capabilityID: 'threeAxis',
         divider: 0,
         flowTrigger: 'acceleration_y_changed',
-		flowTokenType: 'number',
+		valueType: 'number',
         keep: true,
         arrayIdx: 1
     },
@@ -456,7 +456,7 @@ const CapabilityMap1 = {
         capabilityID: 'threeAxis',
         divider: 0,
         flowTrigger: 'acceleration_z_changed',
-		flowTokenType: 'number',
+		valueType: 'number',
         keep: true,
         arrayIdx: 2
     },
@@ -488,7 +488,7 @@ const CapabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: 'dryer_status_changed',
-		flowTokenType: 'string',
+		valueType: 'string',
         keep: true
     },
     "dryer_job_status":
@@ -498,7 +498,7 @@ const CapabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: 'job_status_changed',
-		flowTokenType: 'string',
+		valueType: 'string',
         keep: true
     },
     "dryer_completion_time":
@@ -576,7 +576,7 @@ const CapabilityMap1 = {
         boolCompare: '',
         keep: true,
         flowTrigger: 'tag_button_status_changed',
-		flowTokenType: 'string',
+		valueType: 'string',
         flowTagST: 'tagButton.value'
     },
     "button_status":
@@ -596,7 +596,7 @@ const CapabilityMap1 = {
         boolCompare: '',
         keep: true,
         flowTrigger: 'button_status_changed',
-		flowTokenType: 'string',
+		valueType: 'string',
         flowTag: 'button_status'
     },
     "dishwasher_job_status":
@@ -605,7 +605,7 @@ const CapabilityMap1 = {
         capabilityID: 'samsungce.dishwasherJobState',
         divider: 0,
         boolCompare: '',
-		flowTokenType: 'string',
+		valueType: 'string',
         flowTrigger: 'job_status_changed',
     },
     "dishwasher_auto_door_release":
@@ -762,7 +762,7 @@ const CapabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: 'measure_pm10_changed',
-		flowTokenType: 'number',
+		valueType: 'number',
 
     },
     "measure_pm1":
@@ -772,7 +772,7 @@ const CapabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: 'measure_pm1_changed',
-		flowTokenType: 'number',
+		valueType: 'number',
     },
     "measure_odor":
     {
@@ -781,7 +781,7 @@ const CapabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: 'measure_odor_changed',
-		flowTokenType: 'number',
+		valueType: 'number',
         keep: true
     },
     "pm10_status":
@@ -815,7 +815,7 @@ const CapabilityMap1 = {
         divider: 0,
         boolCompare: '',
         flowTrigger: '',
-        makeString: true,
+        valueType: 'string',
         keep: true
     },
     "alarm_smoke":
