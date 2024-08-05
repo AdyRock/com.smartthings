@@ -271,6 +271,21 @@ class STDevice extends Homey.Device
             this.registerCapabilityListener( 'dishwasher_zone', this.onCapabilityDishwasherZone.bind( this ) );
         }
 
+        if ( this.hasCapability( 'windowcoverings_set.real' ) )
+		{
+			this.registerCapabilityListener( 'windowcoverings_set.real', this.onCapabilityWindowCoveringsSetReal.bind( this ) );
+		}
+
+        if ( this.hasCapability( 'windowcoverings_state' ) )
+		{
+			this.registerCapabilityListener( 'windowcoverings_state', this.onCapabilityWindowCoveringsState.bind( this ) );
+		}
+
+        if ( this.hasCapability( 'my_position' ) )
+		{
+			this.registerCapabilityListener( 'my_position', this.onCapabilityWindowCoveringsMy.bind( this ) );
+		}
+			
         this.getDeviceValues();
     }
 
@@ -2065,6 +2080,97 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             this.homey.app.updateLog( this.getName() + " onCapabilityDishwasherSpeedBooster " + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
+        }
+    }
+
+    // this method is called when the Homey device has requested a position change ( 0 to 1)
+    async onCapabilityWindowCoveringsSetReal( value, opts )
+    {
+        try
+        {
+            // Homey return a value of 0 to 1 but the real device requires a value of 0 to 100
+            value *= 100;
+
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "windowShadeLevel",
+                    "command": "setShadeLevel",
+                    "arguments": [
+                        Math.round( value )
+                    ]
+                } ]
+            };
+
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // Set the position Value on the device using the unique feature ID stored during pairing
+            await this.homey.app.setDeviceCapabilityValue( devData.id, body );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            this.homey.app.updateLog( this.getName() + " onCapabilityWindowCoveringsSetV2 " + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
+        }
+    }
+
+    async onCapabilityWindowCoveringsState( value, opts )
+    {
+        try
+        {
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "windowShade",
+                    "command": value == 'up' ? "open" : value == 'down' ? "close" : "pause",
+                    "arguments": []
+                } ]
+            };
+
+            // Set the cover position Value on the device using the unique feature ID stored during pairing
+            await this.homey.app.setDeviceCapabilityValue( devData.id, body );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            this.homey.app.updateLog( this.getName() + " onCapabilityMediaInputSource Error " + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
+        }
+    }
+
+    async onCapabilityWindowCoveringsMy( value, opts )
+    {
+        try
+        {
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "windowShadePreset",
+                    "command": "presetPosition",
+                    "arguments": []
+                } ]
+            };
+
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // Set the My position on the device using the unique feature ID stored during pairing
+            let res = await this.homey.app.setDeviceCapabilityValue( devData.id, body );
+            console.log( res );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            this.homey.app.updateLog( this.getName() + " onCapabilityWindowCoveringsMy " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }

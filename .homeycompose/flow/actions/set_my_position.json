@@ -1,0 +1,16 @@
+{
+	"id": "set_my_position",
+	"title": {
+		"en": "Move to MY position",
+		"fr": "Déplacer vers MA position",
+		"de": "Zurück zu meiner Position",
+		"nl": "Zet de positie naar MY"
+	},
+	"args": [
+		{
+			"name": "device",
+			"type": "device",
+			"filter": "driver_id=stDevice&capabilities=my_position"
+		}
+	]
+}

@@ -1,0 +1,35 @@
+{
+	"type": "boolean",
+	"getable": false,
+	"setable": true,
+	"uiComponent": "button",
+	"title": {
+		"en": "MY Position",
+		"nl": "MY Positie",
+		"fr": "MA Position",
+		"de": "MEINE Position"
+	},
+	"translations": {
+		"fr": {
+			"type": "booléen",
+			"getable": false,
+			"setable": true,
+			"uiComponent": "bouton",
+			"title": "MA Position"
+		},
+		"de": {
+			"type": "Boolean",
+			"getable": false,
+			"setable": true,
+			"uiComponent": "schaltfläche",
+			"title": "MEINE Position"
+		},
+		"nl": {
+			"type": "Booleaan",
+			"getable": false,
+			"setable": true,
+			"uiComponent": "knop",
+			"title": "MIJN Positie"
+		}
+	}
+}

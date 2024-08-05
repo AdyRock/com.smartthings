@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "ady.smartthings",
-  "version": "2.0.23",
+  "version": "2.0.24",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "platforms": [
@@ -1378,6 +1378,22 @@
         "id": "robot_vacuum_start_action"
       },
       {
+        "id": "set_my_position",
+        "title": {
+          "en": "Move to MY position",
+          "fr": "Déplacer vers MA position",
+          "de": "Zurück zu meiner Position",
+          "nl": "Zet de positie naar MY"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=stDevice&capabilities=my_position"
+          }
+        ]
+      },
+      {
         "highlight": true,
         "title": {
           "en": "Set the heating temperature"
@@ -1963,6 +1979,50 @@
           }
         ],
         "id": "washing_machine_temperature_action"
+      },
+      {
+        "highlight": true,
+        "title": {
+          "en": "Set the position to",
+          "nl": "Zet de positie naar",
+          "de": "Setze die Position auf",
+          "fr": "Mettre la position sur",
+          "it": "Imposta la posizione su",
+          "sv": "Ställ in positionen till",
+          "no": "Innstill posisjonen til",
+          "es": "Configurar la posición como",
+          "da": "Indstil positionen til",
+          "ru": "Установите позицию на",
+          "pl": "Ustaw pozycję na",
+          "ko": "위치를 다음으로 설정"
+        },
+        "hint": {
+          "en": "Change the position to open (100%), closed (0%), or a value in between.",
+          "nl": "Verander de positie naar open (100%), gesloten (0%), of een een waarde daartussen.",
+          "ru": "Измените позицию на открытую (100%), закрытую (0%) или между этими значениями.",
+          "pl": "Zmień pozycję na rozchylone (100%), zasunięte (0%) lub wartość pomiędzy.",
+          "ko": "위치를 열림(100%), 닫힘(0%) 또는 그 사이의 값으로 변경합니다.",
+          "no": "Endre posisjonen til åpen (100 %), lukket (0 %) eller en verdi mellom disse."
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=stDevice&capabilities=windowcoverings_set.real"
+          },
+          {
+            "name": "windowcoverings_set",
+            "type": "range",
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "value": 0.5,
+            "label": "%",
+            "labelMultiplier": 100,
+            "labelDecimals": 0
+          }
+        ],
+        "id": "windowcoverings_set_real"
       }
     ]
   },
@@ -3182,6 +3242,41 @@
           }
         }
       ]
+    },
+    "my_position": {
+      "type": "boolean",
+      "getable": false,
+      "setable": true,
+      "uiComponent": "button",
+      "title": {
+        "en": "MY Position",
+        "nl": "MY Positie",
+        "fr": "MA Position",
+        "de": "MEINE Position"
+      },
+      "translations": {
+        "fr": {
+          "type": "booléen",
+          "getable": false,
+          "setable": true,
+          "uiComponent": "bouton",
+          "title": "MA Position"
+        },
+        "de": {
+          "type": "Boolean",
+          "getable": false,
+          "setable": true,
+          "uiComponent": "schaltfläche",
+          "title": "MEINE Position"
+        },
+        "nl": {
+          "type": "Booleaan",
+          "getable": false,
+          "setable": true,
+          "uiComponent": "knop",
+          "title": "MIJN Positie"
+        }
+      }
     },
     "odor_status": {
       "type": "enum",

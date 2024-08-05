@@ -826,6 +826,32 @@ const CapabilityMap1 = {
         boolCompare: '',
         flowTrigger: '',
     },
+    "windowcoverings_state":
+    {
+        dataEntry: [ 'windowShade', 'windowShade', 'value' ],
+        capabilityID: 'windowShade',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: '',
+        valueType: 'string',
+    },
+    "windowcoverings_set.real":
+    {
+        dataEntry: [ 'windowShadeLevel', 'windowShadeLevel', 'value' ],
+        capabilityID: 'windowShadeLevel',
+        divider: 100,
+        boolCompare: '',
+        flowTrigger: '',
+        valueType: 'number',
+    },
+    "my_position":
+    {
+        dataEntry: [ 'windowShadePreset', 'windowShadePreset', 'value' ],
+        capabilityID: 'windowShadePreset',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: '',
+    },
 };
 
 const CapabilityMap2 = {
@@ -1127,14 +1153,14 @@ const CapabilityMap2 = {
         statusEntry: 'referenceTable', // lookup this entry in the device status to find out which capability to add
         statusValue: [ 'Table_00', 'Table_02' ] // The value that matches here determines the index of the capability to add from the capabilities list
     },
-    "windowShade":
-    {
-        class: "windowcoverings",
-        exclude: "",
-        capabilities: [ 'windowcoverings_set' ],
-        icon: "rollerblind.svg",
-        iconPriority: 5
-    },
+    // "windowShade":
+    // {
+    //     class: "windowcoverings",
+    //     exclude: "",
+    //     capabilities: [ 'windowcoverings_set' ],
+    //     icon: "rollerblind.svg",
+    //     iconPriority: 5
+    // },
     "doorControl":
     {
         class: "garagedoor",
@@ -1420,7 +1446,31 @@ const CapabilityMap2 = {
         class: "sensor",
         exclude: "",
         capabilities: [ 'alarm_smoke' ],
-        icon: "smoke-detector",
+        icon: "smoke-detector.svg",
+        iconPriority: 5
+    },
+    "windowShade":
+    {
+        class: "windowcoverings",
+        exclude: "",
+        capabilities: [ 'windowcoverings_state' ],
+        icon: "rollerblind.svg",
+        iconPriority: 5
+    },
+    "windowShadeLevel":
+    {
+        class: "windowcoverings",
+        exclude: "",
+        capabilities: [ 'windowcoverings_set.real' ],
+        icon: "rollerblind.svg",
+        iconPriority: 5
+    },
+    "windowShadePreset":
+    {
+        class: "windowcoverings",
+        exclude: "",
+        capabilities: [ 'my_position' ],
+        icon: "rollerblind.svg",
         iconPriority: 5
     },
 };
@@ -1644,7 +1694,23 @@ class MyApp extends Homey.App
                 this.homey.app.updateLog( "thermostat_mode_action: arg = " + args.mode + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'thermostat_mode', args.mode ); // Promise<void>
             } );
-        
+
+		let windowcoverings_set_v2 = this.homey.flow.getActionCard( 'windowcoverings_set_real' );
+		windowcoverings_set_v2
+			.registerRunListener( async ( args, state ) =>
+			{
+				this.homey.app.updateLog( "windowcoverings_set.real: arg = " + args.windowcoverings_set + " - state = " + state );
+				return await args.device.triggerCapabilityListener( 'windowcoverings_set.real', args.windowcoverings_set ); // Promise<void>
+			} );
+
+		this.homey.flow.getActionCard('set_my_position')
+			.registerRunListener(async (args, state) =>
+			{
+				this.log('set_my_position');
+				return args.device.triggerCapabilityListener( 'my_position', true );
+			});
+
+		
         this.onPoll = this.onPoll.bind( this );
 
         if ( this.BearerToken )
