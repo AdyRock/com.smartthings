@@ -285,6 +285,11 @@ class STDevice extends Homey.Device
 		{
 			this.registerCapabilityListener( 'my_position', this.onCapabilityWindowCoveringsMy.bind( this ) );
 		}
+
+		if ( this.hasCapability( 'siren' ) )
+		{
+			this.registerCapabilityListener( 'siren', this.onCapabilitySiren.bind( this ) );
+		}
 			
         this.getDeviceValues();
     }
@@ -2171,6 +2176,35 @@ class STDevice extends Homey.Device
         {
             //this.setUnavailable();
             this.homey.app.updateLog( this.getName() + " onCapabilityWindowCoveringsMy " + this.homey.app.varToString( err.message ) );
+            throw new Error( err.message );
+        }
+    }
+
+    async onCapabilitySiren( value, opts )
+    {
+        try
+        {
+            let body = {
+                "commands": [
+                {
+                    "component": "main",
+                    "capability": "alarm",
+                    "command": value,
+                    "arguments": []
+                } ]
+            };
+
+            // Get the device information stored during pairing
+            const devData = this.getData();
+
+            // Set the My position on the device using the unique feature ID stored during pairing
+            let res = await this.homey.app.setDeviceCapabilityValue( devData.id, body );
+            console.log( res );
+        }
+        catch ( err )
+        {
+            //this.setUnavailable();
+            this.homey.app.updateLog( this.getName() + " onCapabilitySiren " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
     }

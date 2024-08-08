@@ -852,6 +852,14 @@ const CapabilityMap1 = {
         boolCompare: '',
         flowTrigger: '',
     },
+    "siren":
+    {
+        dataEntry: [ 'alarm', 'alarm', 'value' ],
+        capabilityID: 'alarm',
+        divider: 0,
+        boolCompare: '',
+        flowTrigger: '',
+    },
 };
 
 const CapabilityMap2 = {
@@ -1471,6 +1479,14 @@ const CapabilityMap2 = {
         exclude: "",
         capabilities: [ 'my_position' ],
         icon: "rollerblind.svg",
+        iconPriority: 5
+    },
+    "alarm":
+    {
+        class: "other",
+        exclude: "",
+        capabilities: [ 'siren' ],
+        icon: "siren.svg",
         iconPriority: 5
     },
 };
