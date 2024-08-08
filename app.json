@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "ady.smartthings",
-  "version": "2.0.24",
+  "version": "2.0.25",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "platforms": [
@@ -1992,14 +1992,31 @@
           "no": "Innstill posisjonen til",
           "es": "Configurar la posición como",
           "da": "Indstil positionen til",
-          "ru": "Установите позицию на",
           "pl": "Ustaw pozycję na",
           "ko": "위치를 다음으로 설정"
+        },
+        "titleFormatted": {
+          "en": "Set the position to [[windowcoverings_set]]",
+          "nl": "Zet de positie naar [[windowcoverings_set]]",
+          "de": "Setze die Position auf [[windowcoverings_set]]",
+          "fr": "Mettre la position sur [[windowcoverings_set]]",
+          "it": "Imposta la posizione su [[windowcoverings_set]]",
+          "sv": "Ställ in positionen till [[windowcoverings_set]]",
+          "no": "Innstill posisjonen til [[windowcoverings_set]]",
+          "es": "Configurar la posición como [[windowcoverings_set]]",
+          "da": "Indstil positionen til [[windowcoverings_set]]",
+          "pl": "Ustaw pozycję na [[windowcoverings_set]]",
+          "ko": "위치를 [[windowcoverings_set]](으)로 설정"
         },
         "hint": {
           "en": "Change the position to open (100%), closed (0%), or a value in between.",
           "nl": "Verander de positie naar open (100%), gesloten (0%), of een een waarde daartussen.",
-          "ru": "Измените позицию на открытую (100%), закрытую (0%) или между этими значениями.",
+          "de": "Ändere die Position auf geöffnet (100 %), geschlossen (0 %) oder einen Wert dazwischen.",
+          "fr": "Changez la position en ouvert (100 %), fermé (0 %) ou une valeur intermédiaire.",
+          "it": "Cambia la posizione in aperto (100%), chiuso (0%) o un valore intermedio.",
+          "sv": "Ändra positionen till öppen (100 %), stängd (0 %) eller ett värde däremellan.",
+          "es": "Cambiar la posición a abierta (100 %), cerrada (0 %) o un valor intermedio.",
+          "da": "Skift positionen til åben (100 %), lukket (0 %) eller en værdi derimellem.",
           "pl": "Zmień pozycję na rozchylone (100%), zasunięte (0%) lub wartość pomiędzy.",
           "ko": "위치를 열림(100%), 닫힘(0%) 또는 그 사이의 값으로 변경합니다.",
           "no": "Endre posisjonen til åpen (100 %), lukket (0 %) eller en verdi mellom disse."
@@ -3571,6 +3588,41 @@
       "getable": true,
       "setable": true,
       "uiComponent": "toggle"
+    },
+    "siren": {
+      "type": "enum",
+      "title": {
+        "en": "Siren"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "off",
+          "title": {
+            "en": "Off"
+          }
+        },
+        {
+          "id": "both",
+          "title": {
+            "en": "Siren & Strobe"
+          }
+        },
+        {
+          "id": "siren",
+          "title": {
+            "en": "Siren"
+          }
+        },
+        {
+          "id": "strobe",
+          "title": {
+            "en": "Strobe"
+          }
+        }
+      ]
     },
     "spin_level": {
       "type": "enum",
