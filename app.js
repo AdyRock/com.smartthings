@@ -1727,6 +1727,14 @@ class MyApp extends Homey.App
 			});
 
 		
+		let siren_mode_action = this.homey.flow.getActionCard( 'siren_mode_action' );
+		siren_mode_action
+			.registerRunListener( async ( args, state ) =>
+			{
+				this.homey.app.updateLog( "siren_mode_action: arg = " + args.siren_mode + " - state = " + state );
+				return await args.device.triggerCapabilityListener( 'siren', args.siren_mode ); // Promise<void>
+			} );
+	
         this.onPoll = this.onPoll.bind( this );
 
         if ( this.BearerToken )

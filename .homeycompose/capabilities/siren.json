@@ -1,34 +1,35 @@
 {
-  "type": "enum",
-  "title": {
-    "en": "Siren"
-  },
-  "getable": true,
-  "setable": true,
-  "uiComponent": "picker",
-  "values": [{
-      "id": "off",
-      "title": {
-        "en": "Off"
-      }
-    },
-    {
-      "id": "both",
-      "title": {
-        "en": "Siren & Strobe"
-      }
-    },
-    {
-      "id": "siren",
-      "title": {
-        "en": "Siren"
-      }
-    },
-    {
-      "id": "strobe",
-      "title": {
-        "en": "Strobe"
-      }
-    }
-  ]
+	"type": "enum",
+	"title": {
+		"en": "Siren"
+	},
+	"getable": true,
+	"setable": true,
+	"uiComponent": "picker",
+	"values": [
+		{
+			"id": "off",
+			"title": {
+				"en": "Off"
+			}
+		},
+		{
+			"id": "both",
+			"title": {
+				"en": "Siren & Strobe"
+			}
+		},
+		{
+			"id": "siren",
+			"title": {
+				"en": "Siren"
+			}
+		},
+		{
+			"id": "strobe",
+			"title": {
+				"en": "Strobe"
+			}
+		}
+	]
 }

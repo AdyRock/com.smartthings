@@ -1,0 +1,45 @@
+{
+	"title": {
+		"en": "Siren Mode"
+	},
+	"titleFormatted": {
+		"en": "Set the Siren mode to [[siren_mode]]"
+	},
+	"args": [
+		{
+			"type": "device",
+			"name": "device",
+			"filter": "driver_id=stDevice&capabilities=siren"
+		},
+		{
+			"type": "dropdown",
+			"name": "siren_mode",
+			"values": [
+				{
+					"id": "off",
+					"title": {
+						"en": "Off"
+					}
+				},
+				{
+					"id": "both",
+					"title": {
+						"en": "Siren & Strobe"
+					}
+				},
+				{
+					"id": "siren",
+					"title": {
+						"en": "Siren"
+					}
+				},
+				{
+					"id": "strobe",
+					"title": {
+						"en": "Strobe"
+					}
+				}
+			]
+		}
+	]
+}

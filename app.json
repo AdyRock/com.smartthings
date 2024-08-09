@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "ady.smartthings",
-  "version": "2.0.25",
+  "version": "2.0.26",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "platforms": [
@@ -1392,6 +1392,52 @@
             "filter": "driver_id=stDevice&capabilities=my_position"
           }
         ]
+      },
+      {
+        "title": {
+          "en": "Siren Mode"
+        },
+        "titleFormatted": {
+          "en": "Set the Siren mode to [[siren_mode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=stDevice&capabilities=siren"
+          },
+          {
+            "type": "dropdown",
+            "name": "siren_mode",
+            "values": [
+              {
+                "id": "off",
+                "title": {
+                  "en": "Off"
+                }
+              },
+              {
+                "id": "both",
+                "title": {
+                  "en": "Siren & Strobe"
+                }
+              },
+              {
+                "id": "siren",
+                "title": {
+                  "en": "Siren"
+                }
+              },
+              {
+                "id": "strobe",
+                "title": {
+                  "en": "Strobe"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "siren_mode_action"
       },
       {
         "highlight": true,
