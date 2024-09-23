@@ -1,0 +1,132 @@
+{
+	"title": {
+		"en": "Thermostat mode has changed",
+		"nl": "Thermostaat modus is veranderd",
+		"de": "Thermostat-Modus hat sich geändert",
+		"fr": "Mode thermostat a été modifié",
+		"it": "La modalità del termostato è cambiata",
+		"sv": "Termostatläge ändrades",
+		"no": "Termostatmodus ble endret",
+		"es": "El modo del termostato ha cambiado",
+		"da": "Termostattilstand er blevet ændret",
+		"pl": "Zmiana trybu termostatu",
+		"ko": "온도조절기 모드 변경됨"
+	},
+	"titleFormatted": {
+		"en": "Thermostat mode has changed to [[thermostat_mode]]",
+		"nl": "Thermostaatmodus is veranderd naar [[thermostat_mode]]",
+		"de": "Thermostat-Modus hat sich auf [[thermostat_mode]] geändert",
+		"fr": "Le mode thermostat a été modifié en [[thermostat_mode]]",
+		"it": "La modalità del termostato è stata cambiata in [[thermostat_mode]]",
+		"sv": "Termostatläget har ändrats till [[thermostat_mode]]",
+		"no": "Termostatmodus ble endret til [[thermostat_mode]]",
+		"es": "El modo del termostato ha cambiado a [[thermostat_mode]]",
+		"da": "Termostattilstand er blevet ændret til [[thermostat_mode]]",
+		"pl": "Tryb termostatu został zmieniony na [[thermostat_mode]]",
+		"ko": "온도조절기 모드가 [[thermostat_mode]](으)로 변경되었습니다"
+	},
+	"args": [
+		{
+			"name": "thermostat_mode",
+			"type": "dropdown",
+			"values": [
+				{
+					"id": "auto",
+					"title": {
+						"en": "Auto",
+						"nl": "Automatisch",
+						"de": "Automatisch",
+						"fr": "Automatique",
+						"it": "Automatica",
+						"sv": "Automatiskt",
+						"no": "Automatisk",
+						"es": "Automático",
+						"da": "Automatisk",
+						"pl": "Automatyczny",
+						"ko": "자동"
+					}
+				},
+				{
+					"id": "away",
+					"title": {
+						"en": "Away",
+						"nl": "Weg",
+						"de": "Weg",
+						"fr": "Absent",
+						"it": "Assente",
+						"sv": "Borta",
+						"no": "Borte",
+						"es": "Fuera",
+						"da": "Væk",
+						"pl": "Z dala",
+						"ko": "부재"
+					}
+				},
+				{
+					"id": "manual",
+					"title": {
+						"en": "Manual",
+						"nl": "Handmatig",
+						"de": "Manuell",
+						"fr": "Manuel",
+						"it": "Manuale",
+						"sv": "Manuell",
+						"no": "Manuell",
+						"es": "Manual",
+						"da": "Manuel",
+						"pl": "Ręczny",
+						"ko": "수동"
+					}
+				},
+				{
+					"id": "schedule",
+					"title": {
+						"en": "Schedule",
+						"nl": "Schema",
+						"de": "Zeitplan",
+						"fr": "Programme",
+						"it": "Programma",
+						"sv": "Schema",
+						"no": "Timeplan",
+						"es": "Programa",
+						"da": "Tidsplan",
+						"pl": "Harmonogram",
+						"ko": "일정"
+					}
+				},
+				{
+					"id": "frostguard",
+					"title": {
+						"en": "Frostguard",
+						"nl": "Vorstbeveiliging",
+						"de": "Frostwächter",
+						"fr": "Garde au givre",
+						"it": "Guardia del gelo",
+						"sv": "Frostvakt",
+						"no": "Frostvakt",
+						"es": "Protección contra heladas",
+						"da": "Frostvagt",
+						"pl": "Ochrona przed mrozem",
+						"ko": "서리 보호"
+					}
+				},
+				{
+					"id": "heat",
+					"title": {
+						"en": "Heat",
+						"nl": "Verwarmen",
+						"de": "Heizen",
+						"fr": "Chauffer",
+						"it": "Calore",
+						"sv": "Värme",
+						"no": "Varme",
+						"es": "Calor",
+						"da": "Varme",
+						"pl": "Gorąco",
+						"ko": "열"
+					}
+				}
+			]
+		}
+	]
+}

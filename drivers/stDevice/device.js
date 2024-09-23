@@ -166,9 +166,23 @@ class STDevice extends Homey.Device
             this.registerCapabilityListener( 'target_temperature.heating', this.onCapabilityTargetTemperatureHeating.bind( this ) );
         }
 
-        if ( this.hasCapability( 'thermostat_mode' ) )
+		// transfer thermostat_mode to thermostat_mode2
+		if ( this.hasCapability( 'thermostat_mode' ))
+		{
+			try
+			{
+				await this.addCapability('thermostat_mode2');
+				await this.setCapabilityValue('thermostat_mode2', this.getCapabilityValue('thermostat_mode'));
+			}
+			catch (err)
+			{
+				this.error(err);
+			}
+		}
+
+        if ( this.hasCapability( 'thermostat_mode2' ) )
         {
-            this.registerCapabilityListener( 'thermostat_mode', this.onCapabilityThermostatMode.bind( this ) );
+            this.registerCapabilityListener( 'thermostat_mode2', this.onCapabilityThermostatMode.bind( this ) );
         }
 
         if ( this.hasCapability( 'aircon_mode' ) )
@@ -495,7 +509,8 @@ class STDevice extends Homey.Device
 							}
 						}
 
-						if(mapEntry.diffBetween) {
+						if ( mapEntry.diffBetween )
+						{
 							let  lastValue = this.getCapabilityValue( mapEntry.diffBetween );
 							var mapEntry2 = this.homey.app.getStCapabilitiesForCapability( mapEntry.diffBetween );
 							if (mapEntry2.divider > 0)
@@ -2242,14 +2257,28 @@ class STDevice extends Homey.Device
     {
         if (this.eventImage)
         {
-            this.eventImage.update();
+            try
+			{
+				this.eventImage.update();
+			}
+			catch (err)
+			{
+				this.homey.app.updateLog(this.getName() + " updateImage Error " + this.homey.app.varToString(err.message));
+			}
         }
         else
         {
-			this.imageFile = await this.homey.app.GetImage(url, this.getData());
-            this.eventImage = await this.homey.images.createImage();
-            this.eventImage.setPath(this.imageFile);
-            this.setCameraImage('Event', "Motion Event", this.eventImage).catch(this.err);
+			try
+			{
+				this.imageFile = await this.homey.app.GetImage(url, this.getData());
+				this.eventImage = await this.homey.images.createImage();
+				this.eventImage.setPath(this.imageFile);
+				this.setCameraImage('Event', "Motion Event", this.eventImage).catch(this.err);
+			}
+			catch (err)
+			{
+				this.homey.app.updateLog(this.getName() + " updateImage Error " + this.homey.app.varToString(err.message));
+			}
         }
     }
 }    

@@ -79,5 +79,8 @@
 	},
 	"2.0.26": {
 		"en": "Added support for Siren mode action card."
+	},
+	"2.0.27": {
+		"en": "changed thermostat to a custom capability to allow trigger on mode change with correct options."
 	}
 }

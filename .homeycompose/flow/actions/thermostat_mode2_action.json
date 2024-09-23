@@ -1,0 +1,127 @@
+{
+    "title": {
+        "en": "Thermmostat Mode"
+    },
+    "titleFormatted": {
+        "en": "Set the Thermmostat Mode to [[mode]]",
+		"nl": "Zet de thermostaatmodus op [[mode]]",
+		"de": "Stellen Sie den Thermostatmodus auf [[mode]]",
+		"fr": "Définir le mode de thermostat sur [[mode]]",
+		"it": "Imposta la modalità termostato su [[mode]]",
+		"sv": "Ställ in termostatläget på [[mode]]",
+		"no": "Sett termostatmodus til [[mode]]",
+		"es": "Establecer el modo del termostato en [[mode]]",
+		"da": "Indstil termostattilstand til [[mode]]",
+		"pl": "Ustaw tryb termostatu na [[mode]]",
+		"ko": "온도조절기 모드를 [[mode]](으)로 설정"
+    },
+    "args": [
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=stDevice&capabilities=thermostat_mode2"
+        },
+        {
+            "type": "dropdown",
+            "name": "mode",
+			"values": [
+				{
+					"id": "auto",
+					"title": {
+						"en": "Auto",
+						"nl": "Automatisch",
+						"de": "Automatisch",
+						"fr": "Automatique",
+						"it": "Automatica",
+						"sv": "Automatiskt",
+						"no": "Automatisk",
+						"es": "Automático",
+						"da": "Automatisk",
+						"pl": "Automatyczny",
+						"ko": "자동"
+					}
+				},
+				{
+					"id": "away",
+					"title": {
+						"en": "Away",
+						"nl": "Weg",
+						"de": "Weg",
+						"fr": "Absent",
+						"it": "Assente",
+						"sv": "Borta",
+						"no": "Borte",
+						"es": "Fuera",
+						"da": "Væk",
+						"pl": "Z dala",
+						"ko": "부재"
+					}
+				},
+				{
+					"id": "manual",
+					"title": {
+						"en": "Manual",
+						"nl": "Handmatig",
+						"de": "Manuell",
+						"fr": "Manuel",
+						"it": "Manuale",
+						"sv": "Manuell",
+						"no": "Manuell",
+						"es": "Manual",
+						"da": "Manuel",
+						"pl": "Ręczny",
+						"ko": "수동"
+					}
+				},
+				{
+					"id": "schedule",
+					"title": {
+						"en": "Schedule",
+						"nl": "Schema",
+						"de": "Zeitplan",
+						"fr": "Programme",
+						"it": "Programma",
+						"sv": "Schema",
+						"no": "Timeplan",
+						"es": "Programa",
+						"da": "Tidsplan",
+						"pl": "Harmonogram",
+						"ko": "일정"
+					}
+				},
+				{
+					"id": "frostguard",
+					"title": {
+						"en": "Frostguard",
+						"nl": "Vorstbeveiliging",
+						"de": "Frostwächter",
+						"fr": "Garde au givre",
+						"it": "Guardia del gelo",
+						"sv": "Frostvakt",
+						"no": "Frostvakt",
+						"es": "Protección contra heladas",
+						"da": "Frostvagt",
+						"pl": "Ochrona przed mrozem",
+						"ko": "서리 보호"
+					}
+				},
+				{
+					"id": "heat",
+					"title": {
+						"en": "Heat",
+						"nl": "Verwarmen",
+						"de": "Heizen",
+						"fr": "Chauffer",
+						"it": "Calore",
+						"sv": "Värme",
+						"no": "Varme",
+						"es": "Calor",
+						"da": "Varme",
+						"pl": "Gorąco",
+						"ko": "열"
+					}
+				}
+			]
+		}
+    ]
+}

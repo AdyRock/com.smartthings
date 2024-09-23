@@ -94,7 +94,7 @@ const CapabilityMap1 = {
         dataEntry: [ 'powerConsumptionReport', 'powerConsumption', 'value', 'energy' ],
         capabilityID: 'powerConsumptionReport',
         diffBetween: 'meter_power',
-        divider: 1000000,
+        divider: 0,
         boolCompare: '',
         flowTrigger: null,
         keep: true
@@ -103,7 +103,7 @@ const CapabilityMap1 = {
     {
         dataEntry: [ 'powerConsumptionReport', 'powerConsumption', 'value', 'deltaEnergy' ],
         capabilityID: 'powerConsumptionReport',
-        divider: 1000,
+        divider: 0,
         boolCompare: '',
         flowTrigger: null,
         keep: true
@@ -287,13 +287,13 @@ const CapabilityMap1 = {
         flowTrigger: null,
         checkTUnits: true
     },
-    "thermostat_mode":
+    "thermostat_mode2":
     {
         dataEntry: [ 'thermostatMode', 'thermostatMode', 'value' ],
         capabilityID: 'thermostatMode',
         divider: 0,
         boolCompare: '',
-        flowTrigger: null
+        flowTrigger: 'thermostat_mode2_changed',
     },
     "measure_humidity":
     {
@@ -1091,7 +1091,7 @@ const CapabilityMap2 = {
     {
         class: "",
         exclude: "",
-        capabilities: [ 'thermostat_mode' ],
+        capabilities: [ 'thermostat_mode2' ],
         icon: "thermostat.svg",
         iconPriority: 2
     },
@@ -1703,12 +1703,12 @@ class MyApp extends Homey.App
                 return await args.device.triggerCapabilityListener( 'target_temperature.heating', args.target_temperature ); // Promise<void>
             } );
 
-        let thermostat_mode_action = this.homey.flow.getActionCard( 'thermostat_mode_action' );
-        thermostat_mode_action
+        let thermostat_mode2_action = this.homey.flow.getActionCard( 'thermostat_mode2_action' );
+        thermostat_mode2_action
             .registerRunListener( async ( args, state ) =>
             {
-                this.homey.app.updateLog( "thermostat_mode_action: arg = " + args.mode + " - state = " + state );
-                return await args.device.triggerCapabilityListener( 'thermostat_mode', args.mode ); // Promise<void>
+                this.homey.app.updateLog( "thermostat_mode2_action: arg = " + args.mode + " - state = " + state );
+                return await args.device.triggerCapabilityListener( 'thermostat_mode2', args.mode ); // Promise<void>
             } );
 
 		let windowcoverings_set_v2 = this.homey.flow.getActionCard( 'windowcoverings_set_real' );

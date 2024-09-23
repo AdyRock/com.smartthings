@@ -1,53 +1,53 @@
 {
-    "type": "enum",
-    "title":
-    {
-        "en": "Wind Strength"
-    },
-    "getable": true,
-    "setable": true,
-    "uiComponent": "picker",
-    "values": [
-    {
-        "id": "auto",
-        "title":
-        {
-            "en": "Auto"
-        }
-    },
-    {
-        "id": "low",
-        "title":
-        {
-            "en": "Low"
-        }
-    },
-    {
-        "id": "medium",
-        "title":
-        {
-            "en": "Medium"
-        }
-    },
-    {
-        "id": "high",
-        "title":
-        {
-            "en": "High"
-        }
-    },
-    {
-        "id": "sleep",
-        "title":
-        {
-            "en": "sleep"
-        }
-    },
-    {
-        "id": "windFree",
-        "title":
-        {
-            "en": "wind Free"
-        }
-    } ]
+	"type": "enum",
+	"title": {
+		"en": "Wind Strength"
+	},
+	"getable": true,
+	"setable": true,
+	"uiComponent": "picker",
+	"values": [
+		{
+			"id": "auto",
+			"title": {
+				"en": "Auto"
+			}
+		},
+		{
+			"id": "low",
+			"title": {
+				"en": "Low"
+			}
+		},
+		{
+			"id": "medium",
+			"title": {
+				"en": "Medium"
+			}
+		},
+		{
+			"id": "high",
+			"title": {
+				"en": "High"
+			}
+		},
+		{
+			"id": "sleep",
+			"title": {
+				"en": "sleep"
+			}
+		},
+		{
+			"id": "windFree",
+			"title": {
+				"en": "wind Free"
+			}
+		},
+		{
+			"id": "turbo",
+			"title": {
+				"en": "Turbo"
+			}
+		}
+	]
 }
