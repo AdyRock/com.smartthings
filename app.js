@@ -117,6 +117,15 @@ const CapabilityMap1 = {
         flowTrigger: null,
         keep: true
     },
+	"meter_gas":
+	{
+		dataEntry: ['gasMeter', 'gasMeter', 'value' ],
+		capabilityID: 'gasMeter',
+		divider: 0,
+		boolCompare: '',
+		flowTrigger: null,
+		keep: true
+	},
     "washer_mode":
     {
         dataEntry: [ 'samsungce.washerCycle', 'washerCycle', 'value' ],
@@ -1133,7 +1142,7 @@ const CapabilityMap2 = {
         exclude: "",
         capabilities: [ 'measure_power' ],
         icon: "energy.svg",
-        iconPriority: 0
+        iconPriority: 1
     },
     "powerMeter":
     {
@@ -1141,8 +1150,16 @@ const CapabilityMap2 = {
         exclude: "",
         capabilities: [ 'meter_power' ],
         icon: "energy.svg",
-        iconPriority: 0
+        iconPriority: 1
     },
+	"gasMeter":
+	{
+		class: "sensor",
+		exclude: "",
+		capabilities: ['meter_gas'],
+		icon: "energy.svg",
+		iconPriority: 1
+	},
     "refrigeration":
     {
         class: "sensor",
@@ -1543,6 +1560,35 @@ class MyApp extends Homey.App
             }
         } );
 
+		this.homey.on('memwarn', (data) =>
+		{
+			if (data)
+			{
+				this.diagLog = '';
+				this.updateLog(`memwarn! ${data.count} of ${data.limit}`, 0);
+			}
+			else
+			{
+				this.updateLog('memwarn', 0);
+			}
+		});
+
+		this.homey.on('cpuwarn', (data) =>
+		{
+			if (data)
+			{
+				this.homey.clearTimeout(this.homey.app.timerID);
+				let interval = this.homey.settings.get('pollInterval') + 5;
+				this.homey.settings.set('pollInterval', interval);
+				this.homey.app.timerID = this.homey.setTimeout(this.homey.app.onPoll, interval * 1000);
+				this.updateLog(`cpuwarn! ${data.count} of ${data.limit}`, 0);
+			}
+			else
+			{
+				this.updateLog('cpuwarn', 0);
+			}
+		});
+
         let ac_auto_cleaning_mode_action = this.homey.flow.getActionCard( 'ac_auto_cleaning_mode_action' );
         ac_auto_cleaning_mode_action
             .registerRunListener( async ( args, state ) =>
@@ -1726,7 +1772,7 @@ class MyApp extends Homey.App
 				return args.device.triggerCapabilityListener( 'my_position', true );
 			});
 
-		
+
 		let siren_mode_action = this.homey.flow.getActionCard( 'siren_mode_action' );
 		siren_mode_action
 			.registerRunListener( async ( args, state ) =>
@@ -1734,7 +1780,7 @@ class MyApp extends Homey.App
 				this.homey.app.updateLog( "siren_mode_action: arg = " + args.siren_mode + " - state = " + state );
 				return await args.device.triggerCapabilityListener( 'siren', args.siren_mode ); // Promise<void>
 			} );
-	
+
         this.onPoll = this.onPoll.bind( this );
 
         if ( this.BearerToken )
@@ -1816,6 +1862,7 @@ class MyApp extends Homey.App
                 var components = device.components;
                 var iconName = "";
                 var iconPriority = 0;
+				const settings = { noDisabledCapabilities: true };
 
                 // Find if 'main - custom.disabledComponents' exists
                 let disabledComponents = null;
@@ -1828,6 +1875,7 @@ class MyApp extends Homey.App
                             if (deviceCapability.id === 'custom.disabledComponents')
                             {
                                 disabledComponents = await this.getDeviceCapabilityValue( device.deviceId, 'main', 'custom.disabledComponents' );
+								settings.noDisabledCapabilities = false;
                                 break;
                             }
                         }
@@ -1928,6 +1976,7 @@ class MyApp extends Homey.App
                             "icon": iconName, // relative to: /drivers/<driver_id>/assets/
                             "class": className,
                             "capabilities": capabilities,
+							settings,
                             data
                         } );
                     }
@@ -2348,7 +2397,7 @@ class MyApp extends Homey.App
                     }
                 } ).on( 'error', ( err ) =>
                 {
-                    this.homey.app.updateLog( err );
+                    this.homey.app.updateLog( this.varToString( err ));
                     reject(
                     {
                         statusCode: -1,
@@ -2458,7 +2507,7 @@ class MyApp extends Homey.App
                     }
                 } ).on( 'error', ( err ) =>
                 {
-                    this.homey.app.updateLog( err );
+					this.homey.app.updateLog(this.varToString(err) );
                     reject(
                     {
                         statusCode: -1,
@@ -2559,7 +2608,7 @@ class MyApp extends Homey.App
                     }
                 } ).on( 'error', ( err ) =>
                 {
-                    this.homey.app.updateLog( err );
+					this.homey.app.updateLog(this.varToString(err) );
                     reject(
                     {
                         statusCode: -1,
@@ -2721,7 +2770,7 @@ class MyApp extends Homey.App
             }
             catch ( err )
             {
-                this.updateLog( 'Send log error', err );
+				this.updateLog('Send log error', this.varToString(err) );
                 return {
                     error: err,
                     message: null,

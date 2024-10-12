@@ -39,12 +39,25 @@
                         "en": "digital"
                     }
                 },
+				{
+					"id": "digitalTV",
+					"title": {
+						"en": "digital TV"
+					}
+				},
                 {
                     "id": "wifi",
                     "title": {
                         "en": "wifi"
                     }
-                }
+                },
+				{
+					"id": "DisplayPort",
+					"title":
+					{
+						"en": "Display Port"
+					}
+				}
             ]
         }
     ]

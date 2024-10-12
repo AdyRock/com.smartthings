@@ -82,5 +82,8 @@
 	},
 	"2.0.27": {
 		"en": "changed thermostat to a custom capability to allow trigger on mode change with correct options."
+	},
+	"2.0.28": {
+		"en": "Added support for Digital Tv and Display Port in media_input_source Flow action card."
 	}
 }

@@ -23,26 +23,30 @@ class STDevice extends Homey.Device
 
         try
 		{
-			const value = await this.homey.app.getDeviceCapabilityValue( devData.id, component, 'custom.disabledCapabilities' );
-			if ( value && value.disabledCapabilities && value.disabledCapabilities.value )
+			if (!this.getSetting('noDisabledCapabilities'))
 			{
-				value.disabledCapabilities.value.forEach(element => {
-					const capabilities = this.homey.app.getCapabilitiesForSTCapability(element);
-					if (capabilities)
-					{
-						capabilities.forEach(capability => {
-							if ( this.hasCapability( capability ) )
-							{
-								this.removeCapability(capability);
-							}
-						});
-					}
-				});
+				const value = await this.homey.app.getDeviceCapabilityValue( devData.id, component, 'custom.disabledCapabilities' );
+				if ( value && value.disabledCapabilities && value.disabledCapabilities.value )
+				{
+					value.disabledCapabilities.value.forEach(element => {
+						const capabilities = this.homey.app.getCapabilitiesForSTCapability(element);
+						if (capabilities)
+						{
+							capabilities.forEach(capability => {
+								if ( this.hasCapability( capability ) )
+								{
+									this.removeCapability(capability);
+								}
+							});
+						}
+					});
+				}
 			}
 		}
 		catch (err)
 		{
 			console.log("Error getting disabled capabilities", err);
+			this.setSettings({noDisabledCapabilities: true});
 		}
 
         if (this.hasCapability('locked') && this.getClass() !== 'lock')
