@@ -52,7 +52,7 @@
                     }
                 },
 				{
-					"id": "DisplayPort",
+					"id": "displayPort",
 					"title":
 					{
 						"en": "Display Port"

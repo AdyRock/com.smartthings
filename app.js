@@ -1530,31 +1530,36 @@ class MyApp extends Homey.App
         this.homeyHash = this.hashCode( this.homeyHash ).toString();
 
         this.BearerToken = this.homey.settings.get( 'BearerToken' );
-        if ( this.homey.settings.get( 'pollInterval' ) < 1 )
+		this.pollInterval = this.homey.settings.get( 'pollInterval' );
+		if (this.pollInterval < 5 )
         {
             this.homey.settings.set( 'pollInterval', 5 );
         }
+		else if (this.pollInterval > 60 )
+		{
+			this.homey.settings.set( 'pollInterval', 60 );
+		}
 
         this.log( "SmartThings has started with Key: " + this.BearerToken + " Polling every " + this.homey.settings.get( 'pollInterval' ) + " seconds" );
 
         // Callback for app settings changed
         this.homey.settings.on( 'set', async function( setting )
         {
-            this.homey.app.updateLog( "Setting " + setting + " has changed." );
+            this.updateLog( "Setting " + setting + " has changed." );
 
             if ( setting === 'BearerToken' )
             {
-                this.homey.app.BearerToken = this.homey.settings.get( 'BearerToken' );
+                this.BearerToken = this.homey.settings.get( 'BearerToken' );
             }
 
             if ( setting === 'pollInterval' )
             {
-                this.homey.clearTimeout( this.homey.app.timerID );
-                if ( this.homey.app.BearerToken && !this.homey.app.timerProcessing )
+                this.homey.clearTimeout( this.timerID );
+                if ( this.BearerToken && !this.timerProcessing )
                 {
                     if ( this.homey.settings.get( 'pollInterval' ) > 1 )
                     {
-                        this.homey.app.timerID = this.homey.setTimeout( this.homey.app.onPoll, this.homey.settings.get( 'pollInterval' ) * 1000 );
+                        this.timerID = this.homey.setTimeout( this.onPoll, this.homey.settings.get( 'pollInterval' ) * 1000 );
                     }
                 }
             }
@@ -1577,10 +1582,14 @@ class MyApp extends Homey.App
 		{
 			if (data)
 			{
-				this.homey.clearTimeout(this.homey.app.timerID);
-				let interval = this.homey.settings.get('pollInterval') + 5;
-				this.homey.settings.set('pollInterval', interval);
-				this.homey.app.timerID = this.homey.setTimeout(this.homey.app.onPoll, interval * 1000);
+				this.homey.clearTimeout(this.timerID);
+				let interval = this.homey.settings.get('pollInterval');
+				if (interval <= 60)
+				{
+					interval += 5;
+					this.homey.settings.set('pollInterval', interval);
+				}
+				this.timerID = this.homey.setTimeout(this.onPoll, interval * 1000);
 				this.updateLog(`cpuwarn! ${data.count} of ${data.limit}`, 0);
 			}
 			else
@@ -1593,7 +1602,7 @@ class MyApp extends Homey.App
         ac_auto_cleaning_mode_action
             .registerRunListener( async ( args, state ) =>
             {
-                this.homey.app.updateLog( "ac_auto_cleaning_mode_action: arg = " + args.ac_auto_cleaning_option + " - state = " + state );
+                this.updateLog( "ac_auto_cleaning_mode_action: arg = " + args.ac_auto_cleaning_option + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'aircon_auto_cleaning_mode', args.ac_auto_cleaning_option = "auto" ); // Promise<void>
             } );
 
@@ -1601,7 +1610,7 @@ class MyApp extends Homey.App
         ac_sound_mode_action
             .registerRunListener( async ( args, state ) =>
             {
-                this.homey.app.updateLog( "ac_sound_mode_action: arg = " + args.ac_sound_option + " - state = " + state );
+                this.updateLog( "ac_sound_mode_action: arg = " + args.ac_sound_option + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'silent_mode', args.ac_sound_option == "on" ); // Promise<void>
             } );
 
@@ -1609,7 +1618,7 @@ class MyApp extends Homey.App
         ac_fan_mode_action
             .registerRunListener( async ( args, state ) =>
             {
-                this.homey.app.updateLog( "ac_fan_mode_action: arg = " + args.ac_fan_mode + " - state = " + state );
+                this.updateLog( "ac_fan_mode_action: arg = " + args.ac_fan_mode + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'aircon_fan_mode', args.ac_fan_mode ); // Promise<void>
             } );
 
@@ -1617,7 +1626,7 @@ class MyApp extends Homey.App
         ac_fan_oscillation_mode_action
             .registerRunListener( async ( args, state ) =>
             {
-                this.homey.app.updateLog( "ac_fan_oscillation_mode_action: arg = " + args.ac_fan_oscillation_mode + " - state = " + state );
+                this.updateLog( "ac_fan_oscillation_mode_action: arg = " + args.ac_fan_oscillation_mode + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'aircon_fan_oscillation_mode', args.ac_fan_oscillation_mode ); // Promise<void>
             } );
 
@@ -1625,7 +1634,7 @@ class MyApp extends Homey.App
         ac_lights_action
             .registerRunListener( async ( args, state ) =>
             {
-                this.homey.app.updateLog( "ac_lights_action: arg = " + args.ac_lights_option + " - state = " + state );
+                this.updateLog( "ac_lights_action: arg = " + args.ac_lights_option + " - state = " + state );
                 if ( args.ac_lights_option == "on" )
                 {
                     return await args.device.onCapabilityAc_lights_on( true, null );
@@ -1640,7 +1649,7 @@ class MyApp extends Homey.App
         ac_mode_action
             .registerRunListener( async ( args, state ) =>
             {
-                this.homey.app.updateLog( "ac_mode_action: arg = " + args.ac_mode + " - state = " + state );
+                this.updateLog( "ac_mode_action: arg = " + args.ac_mode + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'aircon_mode', args.ac_mode ); // Promise<void>
             } );
 
@@ -1648,7 +1657,7 @@ class MyApp extends Homey.App
         ac_options_action
             .registerRunListener( async ( args, state ) =>
             {
-                this.homey.app.updateLog( "ac_options_action: arg = " + args.ac_option + " - state = " + state );
+                this.updateLog( "ac_options_action: arg = " + args.ac_option + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'aircon_option', args.ac_option ); // Promise<void>
             } );
 
@@ -1656,7 +1665,7 @@ class MyApp extends Homey.App
         door_action
             .registerRunListener( async ( args, state ) =>
             {
-                this.homey.app.updateLog( "door_action: arg = " + args.garage_door + " - state = " + state );
+                this.updateLog( "door_action: arg = " + args.garage_door + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'alarm_garage_door', args.garage_door === 'open' ); // Promise<void>
             } );
 
@@ -1664,7 +1673,7 @@ class MyApp extends Homey.App
         washing_mode_action
             .registerRunListener( async ( args, state ) =>
             {
-                this.homey.app.updateLog( "washing_machine_mode_action: arg = " + args.washer_mode + " - state = " + state );
+                this.updateLog( "washing_machine_mode_action: arg = " + args.washer_mode + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'washer_mode', args.washer_mode ); // Promise<void>
             } );
 
@@ -1672,7 +1681,7 @@ class MyApp extends Homey.App
         washing_mode_02_action
             .registerRunListener( async ( args, state ) =>
             {
-                this.homey.app.updateLog( "washing_machine_mode_02_action: arg = " + args.washer_mode + " - state = " + state );
+                this.updateLog( "washing_machine_mode_02_action: arg = " + args.washer_mode + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'washer_mode_02', args.washer_mode ); // Promise<void>
             } );
 
@@ -1680,7 +1689,7 @@ class MyApp extends Homey.App
         washing_machine_temperature_action
             .registerRunListener( async ( args, state ) =>
             {
-                this.homey.app.updateLog( "washing_machine_temperature_action: arg = " + args.water_temperature + " - state = " + state );
+                this.updateLog( "washing_machine_temperature_action: arg = " + args.water_temperature + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'water_temperature', args.water_temperature ); // Promise<void>
             } );
 
@@ -1688,7 +1697,7 @@ class MyApp extends Homey.App
         washing_machine_status_action
             .registerRunListener( async ( args, state ) =>
             {
-                this.homey.app.updateLog( "washing_machine_status_action: arg = " + args.washer_status + " - state = " + state );
+                this.updateLog( "washing_machine_status_action: arg = " + args.washer_status + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'washer_status', args.washer_status ); // Promise<void>
             } );
 
@@ -1696,7 +1705,7 @@ class MyApp extends Homey.App
         washing_machine_rinse_cycles_action
             .registerRunListener( async ( args, state ) =>
             {
-                this.homey.app.updateLog( "washing_machine_rinse_cycles_action: arg = " + args.rinse_cycles + " - state = " + state );
+                this.updateLog( "washing_machine_rinse_cycles_action: arg = " + args.rinse_cycles + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'rinse_cycles', args.rinse_cycles ); // Promise<void>
             } );
 
@@ -1704,7 +1713,7 @@ class MyApp extends Homey.App
         washing_machine_spin_level_action
             .registerRunListener( async ( args, state ) =>
             {
-                this.homey.app.updateLog( "washing_machine_spin_level_action: arg = " + args.spin_level + " - state = " + state );
+                this.updateLog( "washing_machine_spin_level_action: arg = " + args.spin_level + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'spin_level', args.spin_level ); // Promise<void>
             } );
 
@@ -1712,7 +1721,7 @@ class MyApp extends Homey.App
         robot_vacuum_start_action
             .registerRunListener( async ( args, state ) =>
             {
-                this.homey.app.updateLog( "robot_vacuum_start_action: arg = " + args.robotCleanerCleaningMode * ", " + args.robotCleanerCleaningMovement + " - state = " + state );
+                this.updateLog( "robot_vacuum_start_action: arg = " + args.robotCleanerCleaningMode * ", " + args.robotCleanerCleaningMovement + " - state = " + state );
                 await args.device.triggerCapabilityListener( 'robot_cleaning_mode', args.robotCleanerCleaningMode ); // Promise<void>
                 return await args.device.triggerCapabilityListener( 'robot_cleaning_movement', args.robotCleanerCleaningMovement ); // Promise<void>
             } );
@@ -1729,7 +1738,7 @@ class MyApp extends Homey.App
         dryer_status_action
             .registerRunListener( async ( args, state ) =>
             {
-                this.homey.app.updateLog( "dryer_status_action: arg = " + args.dryer_status + " - state = " + state );
+                this.updateLog( "dryer_status_action: arg = " + args.dryer_status + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'dryer_status', args.dryer_status ); // Promise<void>
             } );
 
@@ -1737,7 +1746,7 @@ class MyApp extends Homey.App
         media_input_source_action
             .registerRunListener( async ( args, state ) =>
             {
-                this.homey.app.updateLog( "media_input_source_action: arg = " + args.media_input_source + " - state = " + state );
+                this.updateLog( "media_input_source_action: arg = " + args.media_input_source + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'media_input_source', args.media_input_source ); // Promise<void>
             } );
 
@@ -1745,7 +1754,7 @@ class MyApp extends Homey.App
         target_temperature_heating_action
             .registerRunListener( async ( args, state ) =>
             {
-                this.homey.app.updateLog( "target_temperature_heating_action: arg = " + args.target_temperature + " - state = " + state );
+                this.updateLog( "target_temperature_heating_action: arg = " + args.target_temperature + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'target_temperature.heating', args.target_temperature ); // Promise<void>
             } );
 
@@ -1753,7 +1762,7 @@ class MyApp extends Homey.App
         thermostat_mode2_action
             .registerRunListener( async ( args, state ) =>
             {
-                this.homey.app.updateLog( "thermostat_mode2_action: arg = " + args.mode + " - state = " + state );
+                this.updateLog( "thermostat_mode2_action: arg = " + args.mode + " - state = " + state );
                 return await args.device.triggerCapabilityListener( 'thermostat_mode2', args.mode ); // Promise<void>
             } );
 
@@ -1761,7 +1770,7 @@ class MyApp extends Homey.App
 		windowcoverings_set_v2
 			.registerRunListener( async ( args, state ) =>
 			{
-				this.homey.app.updateLog( "windowcoverings_set.real: arg = " + args.windowcoverings_set + " - state = " + state );
+				this.updateLog( "windowcoverings_set.real: arg = " + args.windowcoverings_set + " - state = " + state );
 				return await args.device.triggerCapabilityListener( 'windowcoverings_set.real', args.windowcoverings_set ); // Promise<void>
 			} );
 
@@ -1777,7 +1786,7 @@ class MyApp extends Homey.App
 		siren_mode_action
 			.registerRunListener( async ( args, state ) =>
 			{
-				this.homey.app.updateLog( "siren_mode_action: arg = " + args.siren_mode + " - state = " + state );
+				this.updateLog( "siren_mode_action: arg = " + args.siren_mode + " - state = " + state );
 				return await args.device.triggerCapabilityListener( 'siren', args.siren_mode ); // Promise<void>
 			} );
 
@@ -1788,6 +1797,7 @@ class MyApp extends Homey.App
             if ( this.homey.settings.get( 'pollInterval' ) > 1 )
             {
                 this.updateLog( "Start Polling" );
+				this.homey.clearTimeout( this.timerID );
                 this.timerID = this.homey.setTimeout( this.onPoll, 10000 );
             }
         }
@@ -1828,14 +1838,14 @@ class MyApp extends Homey.App
         }
 
         this.gettingDevices = true;
-        while (this.homey.app.timerProcessing)
+        while (this.timerProcessing)
         {
             await this.asyncDelay(100);
         }
 
         //https://api.smartthings.com/v1/devices
         const url = "devices";
-        let searchResult = await this.homey.app.GetURL( url );
+        let searchResult = await this.GetURL( url );
         if ( searchResult )
         {
             let searchData = JSON.parse( searchResult.body );
@@ -1856,8 +1866,8 @@ class MyApp extends Homey.App
             // Create an array of devices
             for ( const device of searchData.items )
             {
-                this.homey.app.updateLog( "Found device: " );
-                this.homey.app.updateLog( JSON.stringify( device, null, 2 ) );
+                this.updateLog( "Found device: " );
+                this.updateLog( JSON.stringify( device, null, 2 ) );
 
                 var components = device.components;
                 var iconName = "";
@@ -1888,7 +1898,7 @@ class MyApp extends Homey.App
                     if ( disabledComponents && disabledComponents.disabledComponents && disabledComponents.disabledComponents.value && disabledComponents.disabledComponents.value.findIndex( ( element ) => element === component.id ) >= 0 )
                     {
                         // This component is disabled
-                        this.homey.app.updateLog( `Component: ${device.label}, ${this.varToString( component )} is disabled` );
+                        this.updateLog( `Component: ${device.label}, ${this.varToString( component )} is disabled` );
                         continue;
                     }
 
@@ -1927,7 +1937,7 @@ class MyApp extends Homey.App
                                 {
                                     // We need to check the value status to get more information about which capability to add
                                     const capabilityStatus = await this.getDeviceCapabilityValue( device.deviceId, component.id, deviceCapability.id );
-                                    this.homey.app.updateLog( `Capability status for: ${deviceCapability.id} = ${this.varToString( capabilityStatus )}` );
+                                    this.updateLog( `Capability status for: ${deviceCapability.id} = ${this.varToString( capabilityStatus )}` );
                                     if ( capabilityStatus && capabilityStatus[ capabilityMapEntry.statusEntry ] )
                                     {
                                         const option = capabilityStatus[ capabilityMapEntry.statusEntry ];
@@ -1944,12 +1954,12 @@ class MyApp extends Homey.App
 
                                         if (!found)
                                         {
-                                            this.homey.app.updateLog( `Capability type unknown: ${deviceCapability.id}, ${capabilityStatus}` );
+                                            this.updateLog( `Capability type unknown: ${deviceCapability.id}, ${capabilityStatus}` );
                                         }
                                     }
                                     else
                                     {
-                                        this.homey.app.updateLog( `Capability type unknown: ${deviceCapability.id}, ${capabilityStatus}` );
+                                        this.updateLog( `Capability type unknown: ${deviceCapability.id}, ${capabilityStatus}` );
                                     }
                                 }
                                 else
@@ -1962,14 +1972,14 @@ class MyApp extends Homey.App
                             }
                             else
                             {
-                                this.homey.app.updateLog( "Excluded Capability: " + deviceCapability.id );
+                                this.updateLog( "Excluded Capability: " + deviceCapability.id );
                             }
                         }
                     }
                     if ( capabilities.length > 0 )
                     {
                         // Add this device to the table
-                        this.homey.app.updateLog( `Adding device ${device.label} with ${this.varToString( capabilities )}` );
+                        this.updateLog( `Adding device ${device.label} with ${this.varToString( capabilities )}` );
                         devices.push(
                         {
                             "name": device.label + ": " + component.id,
@@ -1988,7 +1998,7 @@ class MyApp extends Homey.App
         else
         {
             this.gettingDevices = false;
-            this.homey.app.updateLog( "Getting API Key returned NULL" );
+            this.updateLog( "Getting API Key returned NULL" );
             throw new Error( "HTTPS Error: Nothing returned" );
         }
     }
@@ -2040,7 +2050,7 @@ class MyApp extends Homey.App
 
         //https://api.smartthings.com/v1/devices
         const url = "devices";
-        let searchResult = await this.homey.app.GetURL( url );
+        let searchResult = await this.GetURL( url );
         if ( searchResult )
         {
             let searchData = JSON.parse( searchResult.body );
@@ -2063,8 +2073,8 @@ class MyApp extends Homey.App
                     {
                         if ( component.categories.findIndex( myFind ) >= 0 )
                         {
-                            this.homey.app.updateLog( "Found device: " );
-                            this.homey.app.updateLog( JSON.stringify( device, null, 2 ) );
+                            this.updateLog( "Found device: " );
+                            this.updateLog( JSON.stringify( device, null, 2 ) );
                             label = device.label;
                         }
 
@@ -2112,7 +2122,7 @@ class MyApp extends Homey.App
                                     {
                                         // We need to check the value status to get more information about which capability to add
                                         const capabilityStatus = await this.getDeviceCapabilityValue( device.deviceId, component.id, deviceCapability.id );
-                                        this.homey.app.updateLog( `Capability status for: ${deviceCapability.id} = ${this.varToString( capabilityStatus )}` );
+                                        this.updateLog( `Capability status for: ${deviceCapability.id} = ${this.varToString( capabilityStatus )}` );
                                         if ( capabilityStatus && capabilityStatus[ capabilityMapEntry.statusEntry ] )
                                         {
                                             const option = capabilityStatus[ capabilityMapEntry.statusEntry ];
@@ -2175,7 +2185,7 @@ class MyApp extends Homey.App
         }
         else
         {
-            this.homey.app.updateLog( "Getting API Key returned NULL" );
+            this.updateLog( "Getting API Key returned NULL" );
             throw new Error( "HTTPS Error: Nothing returned" );
         }
     }
@@ -2188,7 +2198,7 @@ class MyApp extends Homey.App
         if ( result )
         {
             let searchData = JSON.parse( result.body );
-            this.homey.app.updateLog( "Get all device: " + url + "\nResult: " + JSON.stringify( searchData, null, 2 ) );
+            this.updateLog( "Get all device: " + url + "\nResult: " + JSON.stringify( searchData, null, 2 ) );
             return searchData;
         }
 
@@ -2203,7 +2213,7 @@ class MyApp extends Homey.App
         if ( result )
         {
             let searchData = JSON.parse( result.body );
-            this.homey.app.updateLog( "Get component: " + url + "\nResult: " + JSON.stringify( searchData, null, 2 ) );
+            this.updateLog( "Get component: " + url + "\nResult: " + JSON.stringify( searchData, null, 2 ) );
             return searchData;
         }
 
@@ -2275,13 +2285,13 @@ class MyApp extends Homey.App
             if ( result )
             {
                 let searchData = JSON.parse( result.body );
-                this.homey.app.updateLog( "Get device: " + url + "\nResult: " + JSON.stringify( searchData, null, 2 ) );
+                this.updateLog( "Get device: " + url + "\nResult: " + JSON.stringify( searchData, null, 2 ) );
                 return searchData;
             }
         }
         catch ( err )
         {
-            this.homey.app.updateLog( "Get device error: " + url + "\nError: " + JSON.stringify( err, null, 2 ) );
+            this.updateLog( "Get device error: " + url + "\nError: " + JSON.stringify( err, null, 2 ) );
 			if (err.statusCode === 422)
 			{
 				throw err;
@@ -2292,7 +2302,7 @@ class MyApp extends Homey.App
 
     async setDeviceCapabilityValue( DeviceID, Commands )
     {
-        while ( this.homey.app.timerProcessing )
+        while ( this.timerProcessing )
         {
             // Wait for polling loop to finish fetching
             await new Promise( resolve => this.homey.setTimeout( resolve, 250 ) );
@@ -2304,7 +2314,7 @@ class MyApp extends Homey.App
         if ( result )
         {
             let searchData = JSON.parse( result.body );
-            this.homey.app.updateLog( "Set device: " + url + "\nResult: " + JSON.stringify( searchData, null, 2 ) );
+            this.updateLog( "Set device: " + url + "\nResult: " + JSON.stringify( searchData, null, 2 ) );
             return searchData;
         }
 
@@ -2324,13 +2334,13 @@ class MyApp extends Homey.App
             }
         }
 
-        this.homey.app.updateLog( url );
+        this.updateLog( url );
 
         return new Promise( ( resolve, reject ) =>
         {
             try
             {
-                if ( !this.homey.app.BearerToken )
+                if ( !this.BearerToken )
                 {
                     reject(
                     {
@@ -2344,7 +2354,7 @@ class MyApp extends Homey.App
                     path: "/v1/" + url,
                     headers:
                     {
-                        "Authorization": "Bearer " + this.homey.app.BearerToken,
+                        "Authorization": "Bearer " + this.BearerToken,
                     },
                 };
 
@@ -2388,7 +2398,7 @@ class MyApp extends Homey.App
                         {
                             message = "Not Found";
                         }
-                        this.homey.app.updateLog( "HTTPS Error: " + res.statusCode + ": " + message );
+                        this.updateLog( "HTTPS Error: " + res.statusCode + ": " + message );
                         reject(
                         {
                             statusCode: res.statusCode,
@@ -2397,7 +2407,7 @@ class MyApp extends Homey.App
                     }
                 } ).on( 'error', ( err ) =>
                 {
-                    this.homey.app.updateLog( this.varToString( err ));
+                    this.updateLog( this.varToString( err ));
                     reject(
                     {
                         statusCode: -1,
@@ -2407,7 +2417,7 @@ class MyApp extends Homey.App
             }
             catch ( err )
             {
-                this.homey.app.updateLog( err.message );
+                this.updateLog( err.message );
                 reject(
                 {
                     statusCode: -2,
@@ -2419,9 +2429,9 @@ class MyApp extends Homey.App
 
     async PostURL( url, body )
     {
-        this.homey.app.updateLog( "PostURL url: " + url );
+        this.updateLog( "PostURL url: " + url );
         let bodyText = JSON.stringify( body );
-        this.homey.app.updateLog( "PostUrl body: " + bodyText );
+        this.updateLog( "PostUrl body: " + bodyText );
 
         if ( ( process.env.DEBUG === '1' ) )
         {
@@ -2436,7 +2446,7 @@ class MyApp extends Homey.App
         {
             try
             {
-                if ( !this.homey.app.BearerToken )
+                if ( !this.BearerToken )
                 {
                     reject(
                     {
@@ -2451,7 +2461,7 @@ class MyApp extends Homey.App
                     method: "POST",
                     headers:
                     {
-                        "Authorization": "Bearer " + this.homey.app.BearerToken,
+                        "Authorization": "Bearer " + this.BearerToken,
                         "contentType": "application/json; charset=utf-8",
                         "Content-Length": bodyText.length
                     },
@@ -2468,7 +2478,7 @@ class MyApp extends Homey.App
                         } );
                         res.on( 'end', () =>
                         {
-                            //                            this.homey.app.updateLog( "Done PostRUL" );
+                            //                            this.updateLog( "Done PostRUL" );
                             resolve(
                             {
                                 "body": Buffer.concat( body )
@@ -2498,7 +2508,7 @@ class MyApp extends Homey.App
                         {
                             message = "Not Found";
                         }
-                        this.homey.app.updateLog( "HTTPS Error: " + res.statusCode + ": " + message );
+                        this.updateLog( "HTTPS Error: " + res.statusCode + ": " + message );
                         reject(
                         {
                             statusCode: res.statusCode,
@@ -2507,7 +2517,7 @@ class MyApp extends Homey.App
                     }
                 } ).on( 'error', ( err ) =>
                 {
-					this.homey.app.updateLog(this.varToString(err) );
+					this.updateLog(this.varToString(err) );
                     reject(
                     {
                         statusCode: -1,
@@ -2519,7 +2529,7 @@ class MyApp extends Homey.App
             }
             catch ( err )
             {
-                this.homey.app.updateLog( this.varToString( err.message ) );
+                this.updateLog( this.varToString( err.message ) );
                 reject(
                 {
                     statusCode: -2,
@@ -2536,13 +2546,13 @@ class MyApp extends Homey.App
 
     async GetImage( url, devData )
     {
-        this.homey.app.updateLog( url );
+        this.updateLog( url );
 
         return new Promise( ( resolve, reject ) =>
         {
             try
             {
-                if ( !this.homey.app.BearerToken )
+                if ( !this.BearerToken )
                 {
                     reject(
                     {
@@ -2558,7 +2568,7 @@ class MyApp extends Homey.App
                     path: urlComponents.pathname + urlComponents.search,
                     headers:
                     {
-                        "Authorization": "Bearer " + this.homey.app.BearerToken,
+                        "Authorization": "Bearer " + this.BearerToken,
                     },
                 };
 
@@ -2599,7 +2609,7 @@ class MyApp extends Homey.App
                         {
                             message = "Not Found";
                         }
-                        this.homey.app.updateLog( "HTTPS Error: " + res.statusCode + ": " + message );
+                        this.updateLog( "HTTPS Error: " + res.statusCode + ": " + message );
                         reject(
                         {
                             statusCode: res.statusCode,
@@ -2608,7 +2618,7 @@ class MyApp extends Homey.App
                     }
                 } ).on( 'error', ( err ) =>
                 {
-					this.homey.app.updateLog(this.varToString(err) );
+					this.updateLog(this.varToString(err) );
                     reject(
                     {
                         statusCode: -1,
@@ -2618,7 +2628,7 @@ class MyApp extends Homey.App
             }
             catch ( err )
             {
-                this.homey.app.updateLog( err.message );
+                this.updateLog( err.message );
                 reject(
                 {
                     statusCode: -2,
@@ -2632,9 +2642,8 @@ class MyApp extends Homey.App
     {
         if (!this.gettingDevices)
         {
-            this.homey.app.timerProcessing = true;
-            this.homey.app.updateLog( "!!!!!! Polling started" );
-            const promises = [];
+            this.timerProcessing = true;
+            this.updateLog( "!!!!!! Polling started" );
             try
             {
                 // Fetch the list of drivers for this app
@@ -2647,17 +2656,16 @@ class MyApp extends Homey.App
                         let device = devices[ i ];
                         if ( device.getDeviceValues )
                         {
-                            promises.push( device.getDeviceValues() );
+                            await device.getDeviceValues();
                         }
                     }
                 }
 
-                await Promise.all( promises );
-                this.homey.app.updateLog( "!!!!!! Polling finished" );
+                this.updateLog( "!!!!!! Polling finished" );
             }
             catch ( err )
             {
-                this.homey.app.updateLog( "Polling Error: " + this.varToString( err.message ) );
+                this.updateLog( "Polling Error: " + this.varToString( err.message ) );
             }
         }
 
@@ -2666,9 +2674,9 @@ class MyApp extends Homey.App
         {
             nextInterval = 5000;
         }
-        this.homey.app.updateLog( "Next Interval = " + nextInterval, true );
-        this.homey.app.timerID = this.homey.setTimeout( this.homey.app.onPoll, nextInterval );
-        this.homey.app.timerProcessing = false;
+        this.updateLog( "Next Interval = " + nextInterval, true );
+        this.timerID = this.homey.setTimeout( this.onPoll, nextInterval );
+        this.timerProcessing = false;
     }
 
     varToString( source )
