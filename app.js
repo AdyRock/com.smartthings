@@ -1545,21 +1545,21 @@ class MyApp extends Homey.App
         // Callback for app settings changed
         this.homey.settings.on( 'set', async function( setting )
         {
-            this.updateLog( "Setting " + setting + " has changed." );
+            this.homey.app.updateLog( "Setting " + setting + " has changed." );
 
             if ( setting === 'BearerToken' )
             {
-                this.BearerToken = this.homey.settings.get( 'BearerToken' );
+				this.homey.app.BearerToken = this.homey.settings.get( 'BearerToken' );
             }
 
             if ( setting === 'pollInterval' )
             {
-                this.homey.clearTimeout( this.timerID );
-                if ( this.BearerToken && !this.timerProcessing )
+				this.homey.clearTimeout(this.homey.app.timerID );
+				if (this.homey.app.BearerToken && !this.homey.app.timerProcessing )
                 {
                     if ( this.homey.settings.get( 'pollInterval' ) > 1 )
                     {
-                        this.timerID = this.homey.setTimeout( this.onPoll, this.homey.settings.get( 'pollInterval' ) * 1000 );
+						this.timerID = this.homey.setTimeout(this.homey.app.onPoll, this.homey.settings.get( 'pollInterval' ) * 1000 );
                     }
                 }
             }

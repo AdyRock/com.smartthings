@@ -88,5 +88,8 @@
 	},
 	"2.0.29": {
 		"en": "Fix issue with timeout constantly increasing caused by CPU warning."
+	},
+	"2.0.30": {
+		"en": "Fix issue saving settings."
 	}
 }
