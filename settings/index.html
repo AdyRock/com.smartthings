@@ -307,9 +307,18 @@
                     if ( err ) return Homey.alert( err );
                 } );
 
-                if ( pollIntervalElement.value < 1 ) pollIntervalElement.value = 5;
-                if ( pollIntervalElement.value > 600 ) pollIntervalElement.value = 600;
-                Homey.set( 'pollInterval', pollIntervalElement.value, function( err )
+				let pollInterval = parseInt( pollIntervalElement.value );
+                if ( pollInterval < 1 )
+				{
+					pollInterval = 5;
+					pollIntervalElement.value = pollInterval;
+				}
+				else if ( pollInterval > 60 )
+				{
+					pollInterval = 60;
+					pollIntervalElement.value = pollInterval;
+				}
+                Homey.set( 'pollInterval', pollInterval, function( err )
                 {
                     if ( err ) return Homey.alert( err );
                 } );
@@ -515,7 +524,7 @@
                     }
                 } );
             } );
-			
+
 			var tooltips = document.querySelectorAll(".tooltip");
 			tooltips.forEach(function(tooltip, index)
 			{

@@ -1530,7 +1530,7 @@ class MyApp extends Homey.App
         this.homeyHash = this.hashCode( this.homeyHash ).toString();
 
         this.BearerToken = this.homey.settings.get( 'BearerToken' );
-		this.pollInterval = this.homey.settings.get( 'pollInterval' );
+		this.pollInterval = Number(this.homey.settings.get('pollInterval'));
 		if (this.pollInterval < 5 )
         {
             this.homey.settings.set( 'pollInterval', 5 );
@@ -1557,9 +1557,10 @@ class MyApp extends Homey.App
 				this.homey.clearTimeout(this.homey.app.timerID );
 				if (this.homey.app.BearerToken && !this.homey.app.timerProcessing )
                 {
-                    if ( this.homey.settings.get( 'pollInterval' ) > 1 )
+					this.homey.app.pollInterval = Number(this.homey.settings.get('pollInterval'));
+					if (this.homey.app.pollInterval > 1 )
                     {
-						this.timerID = this.homey.setTimeout(this.homey.app.onPoll, this.homey.settings.get( 'pollInterval' ) * 1000 );
+						this.timerID = this.homey.setTimeout(this.homey.app.onPoll, this.homey.app.pollInterval * 1000 );
                     }
                 }
             }
@@ -1583,7 +1584,7 @@ class MyApp extends Homey.App
 			if (data)
 			{
 				this.homey.clearTimeout(this.timerID);
-				let interval = this.homey.settings.get('pollInterval');
+				let interval = Number(this.homey.settings.get('pollInterval'));
 				if (interval <= 60)
 				{
 					interval += 5;

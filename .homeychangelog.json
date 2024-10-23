@@ -91,5 +91,8 @@
 	},
 	"2.0.30": {
 		"en": "Fix issue saving settings."
+	},
+	"2.0.31": {
+		"en": "Ensure poll interval is a number and not a string."
 	}
 }
