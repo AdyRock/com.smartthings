@@ -1,6 +1,6 @@
 {
     "name": "com.smartthings",
-    "version": "2.0.31",
+    "version": "2.0.32",
     "main": "app.js",
     "dependencies": {
         "lodash": "^4.17.21",
