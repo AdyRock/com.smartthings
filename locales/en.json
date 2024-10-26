@@ -20,5 +20,11 @@
         "measure_temperature_freezer": "Freezer Current Temperature",
         "measure_temperature_cooler": "Cooler Current Temperature",
         "measure_temperature_cvroom": "CV Room Current Temperature"
-    }
+    },
+	"digitalTV": "Digital TV",
+	"DisplayPort": "Display Port",
+	"bluetooth": "Bluetooth",
+	"Pause": "Pause",
+	"run": "Run",
+	"stop": "Stop"
 }

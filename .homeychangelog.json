@@ -94,5 +94,8 @@
 	},
 	"2.0.31": {
 		"en": "Ensure poll interval is a number and not a string."
+	},
+	"2.0.32": {
+		"en": "Add dynamic delay between fetching capabilities if cpuwarn or error 429 occurs. Improve logging to show just errors when log is disabled."
 	}
 }

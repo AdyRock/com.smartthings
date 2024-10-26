@@ -66,7 +66,7 @@ const CapabilityMap1 = {
     },
     "volume_mute":
     {
-        dataEntry: [ 'audioMute', 'mute.', 'value' ],
+        dataEntry: [ 'audioMute', 'mute', 'value' ],
         capabilityID: 'audioMute',
         divider: 0,
         boolCompare: 'muted',
@@ -150,7 +150,7 @@ const CapabilityMap1 = {
         boolCompare: '',
         flowTrigger: 'washer_status_changed',
 		valueType: 'string',
-
+		supportValues: "supportedMachineStates",
         keep: true
     },
     "washer_job_status":
@@ -196,6 +196,7 @@ const CapabilityMap1 = {
         capabilityID: 'custom.washerSpinLevel',
         divider: 0,
         boolCompare: '',
+		supportValues: "supportedWasherSpinLevel",
         flowTrigger: null
     },
     "rinse_cycles":
@@ -204,6 +205,7 @@ const CapabilityMap1 = {
         capabilityID: 'custom.washerRinseCycles',
         divider: 0,
         boolCompare: '',
+		supportValues: "supportedWasherRinseCycles",
         flowTrigger: null
     },
     "alarm_presence":
@@ -563,12 +565,22 @@ const CapabilityMap1 = {
     },
     "media_input_source":
     {
+		exclude: ["samsungvd.mediaInputSource"], // Ignore if the device has this ST capability
         dataEntry: [ 'mediaInputSource', 'inputSource', 'value' ],
         capabilityID: 'mediaInputSource',
         divider: 0,
         boolCompare: '',
         flowTrigger: null
     },
+	"media_input_source_vd":
+	{
+		dataEntry: ['samsungvd.mediaInputSource', 'inputSource', 'value'],
+		capabilityID: 'samsungvd.mediaInputSource',
+		divider: 0,
+		boolCompare: '',
+		supportValues: "supportedInputSourcesMap",
+		flowTrigger: null
+	},
     "tag_button_status":
     {
         dataEntry: [ 'tag.tagButton', 'tagButton', 'value' ],
@@ -1525,6 +1537,7 @@ class MyApp extends Homey.App
         }
 
         this.gettingDevices = false;
+		this.logEnabled = this.homey.settings.get( 'logEnabled' );
 
         this.homeyHash = await this.homey.cloud.getHomeyId();
         this.homeyHash = this.hashCode( this.homeyHash ).toString();
@@ -1541,6 +1554,9 @@ class MyApp extends Homey.App
 		}
 
         this.log( "SmartThings has started with Key: " + this.BearerToken + " Polling every " + this.homey.settings.get( 'pollInterval' ) + " seconds" );
+
+		// Time between fetching each capability. This is to prevent overloading Homey and the SmartThings API. It is incremented each time a fetch returns error 429 or a cpuwarn event is received.
+		this.fetchPause = 0;
 
         // Callback for app settings changed
         this.homey.settings.on( 'set', async function( setting )
@@ -1564,6 +1580,11 @@ class MyApp extends Homey.App
                     }
                 }
             }
+
+			if ( setting === 'logEnabled' )
+			{
+				this.homey.app.logEnabled = this.homey.settings.get( 'logEnabled' );
+			}
         } );
 
 		this.homey.on('memwarn', (data) =>
@@ -1571,11 +1592,11 @@ class MyApp extends Homey.App
 			if (data)
 			{
 				this.diagLog = '';
-				this.updateLog(`memwarn! ${data.count} of ${data.limit}`, 0);
+				this.updateLog(`memwarn! ${data.count} of ${data.limit}`, true);
 			}
 			else
 			{
-				this.updateLog('memwarn', 0);
+				this.updateLog('memwarn', true);
 			}
 		});
 
@@ -1584,6 +1605,8 @@ class MyApp extends Homey.App
 			if (data)
 			{
 				this.homey.clearTimeout(this.timerID);
+				this.fetchPause += 10;	// Add a 10ms delay between each capability fetch
+
 				let interval = Number(this.homey.settings.get('pollInterval'));
 				if (interval <= 60)
 				{
@@ -1591,11 +1614,11 @@ class MyApp extends Homey.App
 					this.homey.settings.set('pollInterval', interval);
 				}
 				this.timerID = this.homey.setTimeout(this.onPoll, interval * 1000);
-				this.updateLog(`cpuwarn! ${data.count} of ${data.limit}`, 0);
+				this.updateLog(`cpuwarn! ${data.count} of ${data.limit}: Poll interval = ${interval}, delay = ${this.fetchPause}`, true);
 			}
 			else
 			{
-				this.updateLog('cpuwarn', 0);
+				this.updateLog('cpuwarn', true);
 			}
 		});
 
@@ -2641,7 +2664,15 @@ class MyApp extends Homey.App
 
     async onPoll()
     {
-        if (!this.gettingDevices)
+		var nextInterval = this.homey.app.pollInterval * 1000;
+		if (nextInterval < 1000)
+		{
+			nextInterval = 5000;
+		}
+
+		let showInterval = false;
+
+		if (!this.gettingDevices)
         {
             this.timerProcessing = true;
             this.updateLog( "!!!!!! Polling started" );
@@ -2657,7 +2688,27 @@ class MyApp extends Homey.App
                         let device = devices[ i ];
                         if ( device.getDeviceValues )
                         {
-                            await device.getDeviceValues();
+							try
+							{
+	                            await device.getDeviceValues();
+							}
+							catch (err)
+							{
+								this.updateLog( "Error getting device values: " + this.varToString( err.message ), true );
+								if (err.statusCode === 429)
+								{
+									// Too many requests so slow down the polling
+									this.fetchPause += 100;
+									nextInterval = 60000;
+									showInterval = true;
+									break;
+								}
+							}
+
+							if (this.fetchPause > 0)
+							{
+								await this.asyncDelay(this.fetchPause)
+							}
                         }
                     }
                 }
@@ -2666,16 +2717,18 @@ class MyApp extends Homey.App
             }
             catch ( err )
             {
-                this.updateLog( "Polling Error: " + this.varToString( err.message ) );
+				if (err.statusCode === 429)
+				{
+					// Too many requests so slow down the polling
+					this.fetchPause += 100;
+					nextInterval = 60000;
+					showInterval = true;
+				}
+				this.updateLog("Polling Error: " + this.varToString(err.message), true );
             }
         }
 
-        var nextInterval = Number( this.homey.settings.get( 'pollInterval' ) ) * 1000;
-        if ( nextInterval < 1000 )
-        {
-            nextInterval = 5000;
-        }
-        this.updateLog( "Next Interval = " + nextInterval, true );
+		this.updateLog(`Next Interval = ${nextInterval}, delay = ${this.fetchPause}`, showInterval );
         this.timerID = this.homey.setTimeout( this.onPoll, nextInterval );
         this.timerProcessing = false;
     }
@@ -2702,10 +2755,32 @@ class MyApp extends Homey.App
         return source.toString();
     }
 
-    updateLog( newMessage )
+    updateLog( newMessage, error = false )
     {
-        if ( this.homey.settings.get( 'logEnabled' ) )
+		if (error || this.homey.app.logEnabled)
         {
+			const nowTime = new Date(Date.now());
+
+			this.diagLog += "\r\n* ";
+			this.diagLog += (nowTime.getHours());
+			this.diagLog += ":";
+			this.diagLog += nowTime.getMinutes();
+			this.diagLog += ":";
+			this.diagLog += nowTime.getSeconds();
+			this.diagLog += ".";
+			let milliSeconds = nowTime.getMilliseconds().toString();
+			if (milliSeconds.length == 2)
+			{
+				this.diagLog += '0';
+			}
+			else if (milliSeconds.length == 1)
+			{
+				this.diagLog += '00';
+			}
+			this.diagLog += milliSeconds;
+			this.diagLog += ": ";
+			this.diagLog += "\r\n";
+
             console.log( newMessage );
             this.diagLog += "* ";
             this.diagLog += newMessage;

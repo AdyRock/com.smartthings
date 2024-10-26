@@ -1,0 +1,24 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Media Input Source"
+  },
+  "icon": "/assets/icon.svg",
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [
+      {
+          "id": "HDMI1",
+          "title": {
+              "en": "HDMI1"
+          }
+      },
+	  {
+		 "id": "Display Port",
+		 "title": {
+			 "en": "Display Port"
+		 }
+	  }
+  ]
+}

@@ -208,7 +208,7 @@ class STDevice extends Homey.Device
         {
             this.registerCapabilityListener( 'aircon_fan_oscillation_mode', this.onCapabilityAirCon_fan_oscillation_mode.bind( this ) );
         }
-        
+
         if ( this.hasCapability( 'aircon_fan_mode' ) )
         {
             this.registerCapabilityListener( 'aircon_fan_mode', this.onCapabilityAirCon_fan_mode.bind( this ) );
@@ -308,7 +308,9 @@ class STDevice extends Homey.Device
 		{
 			this.registerCapabilityListener( 'siren', this.onCapabilitySiren.bind( this ) );
 		}
-			
+
+		await this.updateEnums()
+
         this.getDeviceValues();
     }
 
@@ -338,6 +340,85 @@ class STDevice extends Homey.Device
             });
         }
     }
+
+	async updateEnums()
+	{
+		// Check all the capabilities to see if they have an ENUM lookup capability
+		const devData = this.getData();
+		var component = 'main';
+		if (devData.component)
+		{
+			component = devData.component;
+		}
+
+		const capabilities = this.getCapabilities();
+		for (var c = 0; c < capabilities.length; c++)
+		{
+			const capability = capabilities[c];
+			try
+			{
+				// Lookup the capability in the map
+				//this.homey.app.updateLog( "Capability Processing: " + capability );
+
+				var mapEntry = this.homey.app.getStCapabilitiesForCapability(capability);
+
+				// get the entry from the table for this capability
+				if (mapEntry && mapEntry.supportValues)
+				{
+					// There is an entry in the table so get the status object from the API which will be an objet of objects for each capability
+					let stValue = await this.homey.app.getDeviceCapabilityValue(devData.id, component, mapEntry.capabilityID);
+					if (stValue)
+					{
+						// Find the capability object specified in the mapEntry.supportValues
+						const capabilityObj = stValue[mapEntry.supportValues];
+
+						if (capabilityObj && capabilityObj.value)
+						{
+							// Create an array of the ENUM values in the format using the capabilityObj.value array as the id and value entry:
+							// {
+							// 	values: [
+							// 		{
+							// 			id: 'value4',
+							// 			title: { en: 'Value 4' },
+							// 		},
+							// 		{
+							// 			id: 'value5',
+							// 			title: { en: 'Value 5' },
+							// 		},
+							// 		{
+							// 			id: 'value6',
+							// 			title: { en: 'Value 6' },
+							// 		},
+							// 	],
+
+							const values = [];
+							for (var i = 0; i < capabilityObj.value.length; i++)
+							{
+								let value = capabilityObj.value[i];
+								// Translate the value if it is a string using the locales files
+								if (typeof value === 'string')
+								{
+									value = this.homey.__(value);
+								}
+
+								values.push({
+									id: capabilityObj.value[i].id ? capabilityObj.value[i].id : capabilityObj.value[i],
+									title: { en: capabilityObj.value[i].name ? capabilityObj.value[i].id : capabilityObj.value[i] },
+								});
+							}
+
+							// Now set the capability with the new ENUM options
+							await this.setCapabilityOptions(capability, { values });
+						}
+					}
+				}
+			}
+			catch (err)
+			{
+				this.homey.app.updateLog("getDeviceValues error: " + this.homey.app.varToString(err.message) + " for capability: " + this.homey.app.varToString(capability));
+			}
+		}
+	}
 
     async onDeleted()
     {
@@ -501,7 +582,7 @@ class STDevice extends Homey.Device
 							for ( var i = 1; i < mapEntry.dataEntry.length - 1; i++ )
 							{
 								units = units[ mapEntry.dataEntry[ i ] ];
-							}                            
+							}
 
 							if (units.units)
 							{
@@ -545,7 +626,7 @@ class STDevice extends Homey.Device
 
 							if ( mapEntry.flowTrigger && this.driver.flowTriggers[ mapEntry.flowTrigger ] )
 							{
-								this.homey.app.updateLog( "Trigger Check: " + capability + " = " + value + " was " + lastValue );
+								this.homey.app.updateLog(`Trigger Check: ${capability} = ${value} was ${lastValue}` );
 								if ( lastValue != value )
 								{
 									this.homey.app.updateLog( "Trigger change: " + capability, " = " + value );
@@ -565,7 +646,7 @@ class STDevice extends Homey.Device
 						{
 							if ( mapEntry.arrayIdx )
 							{
-								// Value contains an array of values so extract the required one 
+								// Value contains an array of values so extract the required one
 								value = value[ mapEntry.arrayIdx ];
 							}
 
@@ -586,7 +667,7 @@ class STDevice extends Homey.Device
 								{
 									continue;
 								}
-								
+
 								value -= lowValue;
 
 								if ( mapEntry.hiValue )
@@ -661,7 +742,7 @@ class STDevice extends Homey.Device
 
 							if ( mapEntry.flowTrigger && this.driver.flowTriggers[ mapEntry.flowTrigger ] )
 							{
-								this.homey.app.updateLog( "Trigger Check: " + capability + " = ", value + " was " + lastValue );
+								this.homey.app.updateLog( `Trigger Check: ${capability} = ${value} was ${lastValue}` );
 								if ( lastValue != value )
 								{
 									this.homey.app.updateLog( "Trigger change: " + capability + " = " + value );
@@ -710,7 +791,7 @@ class STDevice extends Homey.Device
 				{
 					this.removeCapability( capability );
 				}
-				
+
 				this.homey.app.updateLog( "getDeviceValues error: " + this.homey.app.varToString( err.message ) + " for capability: " + this.homey.app.varToString( capability ) );
             }
         }
@@ -1122,7 +1203,7 @@ class STDevice extends Homey.Device
             throw new Error( err.message );
         }
     }
-    
+
     async onCapabilityDryerWrinklePrevention( value, opts )
     {
         try
@@ -1847,7 +1928,7 @@ class STDevice extends Homey.Device
             throw new Error( err.message );
         }
     }
-    
+
     async onCapabilityRobotCleaningMode( value, opts )
     {
         try
@@ -1875,7 +1956,7 @@ class STDevice extends Homey.Device
             throw new Error( err.message );
         }
     }
-    
+
     async onCapabilityRobotCleaningMovement( value, opts )
     {
         try
@@ -1903,7 +1984,7 @@ class STDevice extends Homey.Device
             throw new Error( err.message );
         }
     }
-    
+
     async onCapabilityRobotCleaningTurboMode( value, opts )
     {
         try
@@ -2285,7 +2366,7 @@ class STDevice extends Homey.Device
 			}
         }
     }
-}    
+}
 
 
 module.exports = STDevice;

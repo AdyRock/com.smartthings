@@ -299,8 +299,8 @@ class FridgeDevice extends Homey.Device
                             for ( var i = 1; i < mapEntry.dataEntry.length - 1; i++ )
                             {
                                 units = units[ mapEntry.dataEntry[ i ] ];
-                            }                            
-    
+                            }
+
                             if (units.units)
                             {
                                 if (units.units === 'F')
@@ -310,7 +310,7 @@ class FridgeDevice extends Homey.Device
                                 }
                             }
                         }
-    
+
                         if ((value === null) && (this.getCapabilityValue( dotCapability ) === null))
                         {
                             await this.removeCapability( dotCapability );
@@ -335,7 +335,7 @@ class FridgeDevice extends Homey.Device
                                 let flowTrigger = `${mapEntry.flowTrigger}_${combinedCapability[1]}_changed`;
                                 if (this.driver.flowTriggers[ flowTrigger ])
                                 {
-                                    this.homey.app.updateLog( "Trigger Check: " + dotCapability + " = " + value + " was " + lastValue );
+									this.homey.app.updateLog(`Trigger Check: ${capability} = ${value} was ${lastValue}` );
                                     if ( lastValue != value )
                                     {
                                         this.homey.app.updateLog( "Trigger change: " + dotCapability, " = " + value );
@@ -368,7 +368,7 @@ class FridgeDevice extends Homey.Device
                         {
                             if ( mapEntry.arrayIdx )
                             {
-                                // Value contains an array of values so extract the required one 
+                                // Value contains an array of values so extract the required one
                                 value = value[ mapEntry.arrayIdx ];
                             }
 
@@ -389,7 +389,7 @@ class FridgeDevice extends Homey.Device
                                 {
                                     continue;
                                 }
-                                
+
                                 value -= lowValue;
 
                                 if ( mapEntry.hiValue )
@@ -452,7 +452,7 @@ class FridgeDevice extends Homey.Device
                                 let flowTrigger = `${mapEntry.flowTrigger}_${combinedCapability[1]}_changed`;
                                 if (this.driver.flowTriggers[ flowTrigger ])
                                 {
-                                    this.homey.app.updateLog( "Trigger Check: " + combinedCapability + " = ", value + " was " + lastValue );
+									this.homey.app.updateLog(`Trigger Check: ${capability} = ${value} was ${lastValue}` );
                                     if ( lastValue != value )
                                     {
                                         this.homey.app.updateLog( "Trigger change: " + combinedCapability + " = " + value );
