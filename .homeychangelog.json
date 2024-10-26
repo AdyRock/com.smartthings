@@ -97,5 +97,8 @@
 	},
 	"2.0.32": {
 		"en": "Add dynamic delay between fetching capabilities if cpuwarn or error 429 occurs. Improve logging to show just errors when log is disabled."
+	},
+	"2.0.33": {
+		"en": "Added handler to set the new samsungvd.media_input_source capability."
 	}
 }

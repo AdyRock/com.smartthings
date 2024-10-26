@@ -269,6 +269,11 @@ class STDevice extends Homey.Device
             this.registerCapabilityListener( 'media_input_source', this.onCapabilityMediaInputSource.bind( this ) );
         }
 
+		if (this.hasCapability('media_input_source_vd'))
+		{
+			this.registerCapabilityListener('media_input_source_vd', this.onCapabilityMediaInputSourceVD.bind(this));
+		}
+
         if ( this.hasCapability( 'dishwasher_washing_course' ) )
         {
             this.registerCapabilityListener( 'dishwasher_washing_course', this.onCapabilityDishwasherWashingCourse.bind( this ) );
@@ -2040,6 +2045,34 @@ class STDevice extends Homey.Device
             throw new Error( err.message );
         }
     }
+
+	async onCapabilityMediaInputSourceVD(value, opts)
+	{
+		try
+		{
+			// Get the device information stored during pairing
+			const devData = this.getData();
+
+			let body = {
+				"commands": [
+					{
+						"component": "main",
+						"capability": "samsungvd.mediaInputSource",
+						"command": 'setInputSource',
+						"arguments": [value]
+					}]
+			};
+
+			// Set the switch Value on the device using the unique feature ID stored during pairing
+			await this.homey.app.setDeviceCapabilityValue(devData.id, body);
+		}
+		catch (err)
+		{
+			//this.setUnavailable();
+			this.homey.app.updateLog(this.getName() + " onCapabilityMediaInputSource Error " + this.homey.app.varToString(err.message));
+			throw new Error(err.message);
+		}
+	}
 
     async onCapabilityDishwasherWashingCourse( value, opts )
     {
