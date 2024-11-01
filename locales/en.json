@@ -24,7 +24,9 @@
 	"digitalTV": "Digital TV",
 	"DisplayPort": "Display Port",
 	"bluetooth": "Bluetooth",
-	"Pause": "Pause",
+	"pause": "Pause",
 	"run": "Run",
-	"stop": "Stop"
+	"stop": "Stop",
+	"rinseHold": "Rinse Hold",
+	"noSpin": "No Spin"
 }

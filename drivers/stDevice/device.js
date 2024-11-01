@@ -400,15 +400,35 @@ class STDevice extends Homey.Device
 							for (var i = 0; i < capabilityObj.value.length; i++)
 							{
 								let value = capabilityObj.value[i];
-								// Translate the value if it is a string using the locales files
+								let name = value;
+								let id = value;
+								// Translate the value using the locales files
 								if (typeof value === 'string')
 								{
-									value = this.homey.__(value);
+									// Only an array of strings was returned so use the string as the value
+									name = this.homey.__(value);
+									if (!name)
+									{
+										name = value;
+									}
+								}
+								else if (value.name)
+								{
+									// An array of objects was returned so use the name as the value
+									id = value.id;
+									name = this.homey.__(value.name);
+									if (!name)
+									{
+										name = value.name;
+									}
+
+									// Combine the id and name to create the name value
+									name = `${id} - ${name}`;
 								}
 
 								values.push({
-									id: capabilityObj.value[i].id ? capabilityObj.value[i].id : capabilityObj.value[i],
-									title: { en: capabilityObj.value[i].name ? capabilityObj.value[i].id : capabilityObj.value[i] },
+									id: id,
+									title: { en: name },
 								});
 							}
 
@@ -579,22 +599,33 @@ class STDevice extends Homey.Device
 						for ( var i = 1; i < mapEntry.dataEntry.length; i++ )
 						{
 							value = value[ mapEntry.dataEntry[ i ] ];
+
+							if (value === null)
+							{
+								break;
+							}
+						}
+
+						if (value === null)
+						{
+							continue;
 						}
 
 						if (mapEntry.checkTUnits)
 						{
-							// Get the Units form the captured data to see if they are in F
+							// Get the Units from the captured data to see if they are in F
 							for ( var i = 1; i < mapEntry.dataEntry.length - 1; i++ )
 							{
 								units = units[ mapEntry.dataEntry[ i ] ];
-							}
 
-							if (units.units)
-							{
-								if (units.units === 'F')
+								if (units.units)
 								{
-									// Convert to C
-									value = (value - 32) / 1.8;
+									if (units.units === 'F')
+									{
+										// Convert to C
+										value = (value - 32) / 1.8;
+										break;
+									}
 								}
 							}
 						}

@@ -100,5 +100,8 @@
 	},
 	"2.0.33": {
 		"en": "Added handler to set the new samsungvd.media_input_source capability."
+	},
+	"2.0.34": {
+		"en": "Changed DisplayPort to Display Port for media_input_source data."
 	}
 }

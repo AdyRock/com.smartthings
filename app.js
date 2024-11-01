@@ -565,11 +565,11 @@ const CapabilityMap1 = {
     },
     "media_input_source":
     {
-		exclude: ["samsungvd.mediaInputSource"], // Ignore if the device has this ST capability
         dataEntry: [ 'mediaInputSource', 'inputSource', 'value' ],
         capabilityID: 'mediaInputSource',
         divider: 0,
         boolCompare: '',
+		supportValues: "supportedInputSources",
         flowTrigger: null
     },
 	"media_input_source_vd":
@@ -1313,11 +1313,19 @@ const CapabilityMap2 = {
     "mediaInputSource":
     {
         class: "speaker",
-        exclude: "",
+		exclude: ["samsungvd.mediaInputSource"], // Ignore if the device has this ST capability
         capabilities: [ 'media_input_source' ],
         icon: "media.svg",
         iconPriority: 2
     },
+	"samsungvd.mediaInputSource":
+	{
+		class: "speaker",
+		exclude: "",
+		capabilities: ['media_input_source_vd'],
+		icon: "media.svg",
+		iconPriority: 2
+	},
     "samsungce.dishwasherJobState":
     {
         class: "other",
@@ -1909,7 +1917,6 @@ class MyApp extends Homey.App
                             if (deviceCapability.id === 'custom.disabledComponents')
                             {
                                 disabledComponents = await this.getDeviceCapabilityValue( device.deviceId, 'main', 'custom.disabledComponents' );
-								settings.noDisabledCapabilities = false;
                                 break;
                             }
                         }
@@ -1939,6 +1946,12 @@ class MyApp extends Homey.App
                     var deviceCapabilities = component.capabilities;
                     for ( const deviceCapability of deviceCapabilities )
                     {
+						if (deviceCapability.id === 'custom.disabledComponents')
+						{
+							settings.noDisabledCapabilities = false;
+							continue;
+						}
+
                         const capabilityMapEntry = CapabilityMap2[ deviceCapability.id ];
                         if ( capabilityMapEntry )
                         {
