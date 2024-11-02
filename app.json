@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "ady.smartthings",
-  "version": "2.0.34",
+  "version": "2.0.35",
   "compatibility": ">=12.0.1",
   "sdk": 3,
   "platforms": [
@@ -1398,6 +1398,32 @@
       },
       {
         "title": {
+          "en": "Media Input Source"
+        },
+        "titleFormatted": {
+          "en": "Change the media input source to [[media_input_source]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=stDevice&capabilities=media_input_source_vd"
+          },
+          {
+            "type": "autocomplete",
+            "name": "media_input_source",
+            "title": {
+              "en": "Media Input Source"
+            },
+            "placeholder": {
+              "en": "Media input source"
+            }
+          }
+        ],
+        "id": "media_input_source_vd_action"
+      },
+      {
+        "title": {
           "en": "Start Vacuum"
         },
         "titleFormatted": {
@@ -2087,52 +2113,14 @@
             "filter": "driver_id=stDevice&capabilities=spin_level"
           },
           {
-            "type": "dropdown",
+            "type": "autocomplete",
             "name": "spin_level",
-            "values": [
-              {
-                "id": "rinseHold",
-                "title": {
-                  "en": "Rinse Hold"
-                }
-              },
-              {
-                "id": "noSpin",
-                "title": {
-                  "en": "No Spin"
-                }
-              },
-              {
-                "id": "400",
-                "title": {
-                  "en": "400 RPM"
-                }
-              },
-              {
-                "id": "800",
-                "title": {
-                  "en": "800 RPM"
-                }
-              },
-              {
-                "id": "1200",
-                "title": {
-                  "en": "1200 RPM"
-                }
-              },
-              {
-                "id": "1400",
-                "title": {
-                  "en": "1400 RPM"
-                }
-              },
-              {
-                "id": "1600",
-                "title": {
-                  "en": "1600 RPM"
-                }
-              }
-            ]
+            "title": {
+              "en": "Spin Level"
+            },
+            "placeholder": {
+              "en": "400"
+            }
           }
         ],
         "id": "washing_machine_spin_level_action"

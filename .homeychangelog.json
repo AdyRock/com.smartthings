@@ -103,5 +103,8 @@
 	},
 	"2.0.34": {
 		"en": "Changed DisplayPort to Display Port for media_input_source data."
+	},
+	"2.0.35": {
+		"en": "Added Flow action card for samsungvd.media_input_source."
 	}
 }

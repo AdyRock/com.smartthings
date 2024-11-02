@@ -1741,13 +1741,33 @@ class MyApp extends Homey.App
                 return await args.device.triggerCapabilityListener( 'rinse_cycles', args.rinse_cycles ); // Promise<void>
             } );
 
-        let washing_machine_spin_level_action = this.homey.flow.getActionCard( 'washing_machine_spin_level_action' );
-        washing_machine_spin_level_action
-            .registerRunListener( async ( args, state ) =>
-            {
-                this.updateLog( "washing_machine_spin_level_action: arg = " + args.spin_level + " - state = " + state );
-                return await args.device.triggerCapabilityListener( 'spin_level', args.spin_level ); // Promise<void>
-            } );
+		const washing_machine_spin_level_action = this.homey.flow.getActionCard('washing_machine_spin_level_action');
+		washing_machine_spin_level_action.registerArgumentAutocompleteListener(
+			"spin_level",
+			async (query, args) =>
+			{
+				const { values } = args.device.getCapabilityOptions("spin_level");
+				const languageCode = this.homey.i18n.getLanguage();
+
+				// Transform the values array to include id and name entries based on the language code
+				const transformedValues = values.map(value => ({
+					id: value.id,
+					name: value.title[languageCode] || value.title['en'] // Fallback to 'en' if the language code is not found
+				}));
+
+				// Filter based on the query
+				return transformedValues.filter(result =>
+				{
+					return result.name.toLowerCase().includes(query.toLowerCase());
+				});
+			}
+		);
+		washing_machine_spin_level_action
+			.registerRunListener(async (args, state) =>
+			{
+				this.updateLog("washing_machine_spin_level_action: arg = " + args.spin_level + " - state = " + state);
+				return await args.device.triggerCapabilityListener('spin_level', args.spin_level.id); // Promise<void>
+			});
 
         let robot_vacuum_start_action = this.homey.flow.getActionCard( 'robot_vacuum_start_action' );
         robot_vacuum_start_action
@@ -1821,6 +1841,36 @@ class MyApp extends Homey.App
 				this.updateLog( "siren_mode_action: arg = " + args.siren_mode + " - state = " + state );
 				return await args.device.triggerCapabilityListener( 'siren', args.siren_mode ); // Promise<void>
 			} );
+
+
+		const media_input_source_vd_action = this.homey.flow.getActionCard('media_input_source_vd_action');
+		media_input_source_vd_action.registerArgumentAutocompleteListener(
+			"media_input_source",
+			async (query, args) =>
+			{
+				const { values } = args.device.getCapabilityOptions("media_input_source_vd");
+				const languageCode = this.homey.i18n.getLanguage();
+
+				// Transform the values array to include id and name entries based on the language code
+				const transformedValues = values.map(value => ({
+					id: value.id,
+					name: value.title[languageCode] || value.title['en'] // Fallback to 'en' if the language code is not found
+				}));
+
+				// Filter based on the query
+				return transformedValues.filter(result =>
+				{
+					return result.name.toLowerCase().includes(query.toLowerCase());
+				});
+			}
+		);
+		media_input_source_vd_action
+			.registerRunListener(async (args, state) =>
+			{
+				this.updateLog("media_input_source_vd_action: arg = " + args.media_input_source + " - state = " + state);
+				return await args.device.triggerCapabilityListener('media_input_source_vd', args.media_input_source.id); // Promise<void>
+			});
+
 
         this.onPoll = this.onPoll.bind( this );
 

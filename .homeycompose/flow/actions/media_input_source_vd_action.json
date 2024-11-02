@@ -1,0 +1,25 @@
+{
+    "title": {
+        "en": "Media Input Source"
+    },
+    "titleFormatted": {
+        "en": "Change the media input source to [[media_input_source]]"
+    },
+    "args": [
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=stDevice&capabilities=media_input_source_vd"
+        },
+        {
+            "type": "autocomplete",
+            "name": "media_input_source",
+			"title": {
+				"en": "Media Input Source"
+			},
+			"placeholder": {
+				"en": "Media input source"
+			}
+        }
+    ]
+}
