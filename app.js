@@ -91,9 +91,8 @@ const CapabilityMap1 = {
     },
     "measure_power":
     {
-        dataEntry: [ 'powerConsumptionReport', 'powerConsumption', 'value', 'energy' ],
-        capabilityID: 'powerConsumptionReport',
-        diffBetween: 'meter_power',
+		dataEntry: [ 'powerMeter', 'power', 'value' ],
+		capabilityID: 'powerMeter',
         divider: 0,
         boolCompare: '',
         flowTrigger: null,
@@ -110,9 +109,9 @@ const CapabilityMap1 = {
     },
     "meter_power":
     {
-        dataEntry: [ 'powerConsumptionReport', 'powerConsumption', 'value', 'energy' ],
-        capabilityID: 'powerConsumptionReport',
-        divider: 1000,
+		dataEntry: [ 'energyMeter', 'energy', 'value' ],
+		capabilityID: 'energyMeter',
+        divider: 0,
         boolCompare: '',
         flowTrigger: null,
         keep: true
@@ -1152,7 +1151,7 @@ const CapabilityMap2 = {
     {
         class: "sensor",
         exclude: "",
-        capabilities: [ 'measure_power' ],
+        capabilities: [ 'meter_power' ],
         icon: "energy.svg",
         iconPriority: 1
     },
@@ -1160,7 +1159,7 @@ const CapabilityMap2 = {
     {
         class: "sensor",
         exclude: "",
-        capabilities: [ 'meter_power' ],
+        capabilities: [ 'measure_power' ],
         icon: "energy.svg",
         iconPriority: 1
     },
