@@ -108,6 +108,6 @@
 		"en": "Added Flow action card for samsungvd.media_input_source."
 	},
 	"2.0.36": {
-		"en": "Fix crashes shown in reports."
+		"en": "Added method to authenticate via OAuth2 by fetching a compatible PAT, Added a more friendly polling mechanism that evens out the calls instead of burting them. Fix crashes shown in reports."
 	}
 }
