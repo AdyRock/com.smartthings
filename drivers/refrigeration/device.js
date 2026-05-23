@@ -5,6 +5,78 @@ const Homey = require( 'homey' );
 
 class FridgeDevice extends Homey.Device
 {
+    normalizeTemperatureUnit( unit )
+    {
+        if ( typeof unit !== 'string' )
+        {
+            return null;
+        }
+
+        const normalized = unit.replace( /[^a-z]/gi, '' ).toUpperCase();
+        if ( normalized.startsWith( 'F' ) )
+        {
+            return 'F';
+        }
+        if ( normalized.startsWith( 'C' ) )
+        {
+            return 'C';
+        }
+
+        return null;
+    }
+
+    getTemperatureUnitFromCapabilityStatus( status, dataEntry )
+    {
+        if ( !status || !Array.isArray( dataEntry ) || dataEntry.length < 2 )
+        {
+            return null;
+        }
+
+        let node = status;
+        for ( let i = 1; i < dataEntry.length - 1; i++ )
+        {
+            if ( !node || typeof node !== 'object' )
+            {
+                break;
+            }
+
+            const unit = this.normalizeTemperatureUnit( node.unit || node.units );
+            if ( unit )
+            {
+                return unit;
+            }
+
+            node = node[ dataEntry[ i ] ];
+        }
+
+        if ( node && typeof node === 'object' )
+        {
+            return this.normalizeTemperatureUnit( node.unit || node.units );
+        }
+
+        return null;
+    }
+
+    async getSetpointValueForSmartThings( deviceId, component, capabilityId, attributeName, value )
+    {
+        try
+        {
+            const capabilityStatus = await this.homey.app.getDeviceCapabilityValue( deviceId, component, capabilityId );
+            const attributeStatus = capabilityStatus && capabilityStatus[ attributeName ];
+            const unit = this.normalizeTemperatureUnit( attributeStatus && ( attributeStatus.unit || attributeStatus.units ) );
+            if ( unit === 'F' )
+            {
+                return ( value * 1.8 ) + 32;
+            }
+        }
+        catch ( err )
+        {
+            this.homey.app.updateLog( `${this.getName()} getSetpointValueForSmartThings: ${this.homey.app.varToString( err.message )}` );
+        }
+
+        return value;
+    }
+
     /**
      * onInit is called when the device is initialized.
      */
@@ -135,18 +207,18 @@ class FridgeDevice extends Homey.Device
     {
         try
         {
+            const devData = this.getData();
+            const targetValue = await this.getSetpointValueForSmartThings( devData.id, component, 'thermostatCoolingSetpoint', 'coolingSetpoint', value );
+
             let body = {
                 "commands": [
                 {
                     "component": component,
                     "capability": "thermostatCoolingSetpoint",
                     "command": "setCoolingSetpoint",
-                    "arguments": [ value ]
+                    "arguments": [ targetValue ]
                 } ]
             };
-
-            // Get the device information stored during pairing
-            const devData = this.getData();
 
             // Set the dim Value on the device using the unique feature ID stored during pairing
             await this.homey.app.setDeviceCapabilityValue( devData.id, body );
@@ -260,19 +332,22 @@ class FridgeDevice extends Homey.Device
                     }
 
                     var value = null;
+                    let statusValue = null;
                     const cacheName = `${mapEntry.capabilityID}.${combinedCapability[1]}`;
                     if ( mapEntry.keep )
                     {
                         // Check the cache first
                         if ( capabilityCache[ cacheName ] )
                         {
-                            value = capabilityCache[ cacheName ];
+                            statusValue = capabilityCache[ cacheName ];
+                            value = statusValue;
                         }
                     }
 
                     if ( !value )
                     {
-                        value = await this.homey.app.getDeviceCapabilityValue( devData.id, combinedCapability[1], mapEntry.capabilityID );
+                        statusValue = await this.homey.app.getDeviceCapabilityValue( devData.id, combinedCapability[1], mapEntry.capabilityID );
+                        value = statusValue;
                     }
 
                     if (value !== null)
@@ -295,19 +370,11 @@ class FridgeDevice extends Homey.Device
 
                         if (mapEntry.checkTUnits)
                         {
-                            // Get the Units form the captured data to see if they are in F
-                            for ( var i = 1; i < mapEntry.dataEntry.length - 1; i++ )
+                            const unit = this.getTemperatureUnitFromCapabilityStatus( statusValue, mapEntry.dataEntry );
+                            if ( unit === 'F' )
                             {
-                                units = units[ mapEntry.dataEntry[ i ] ];
-                            }
-
-                            if (units.units)
-                            {
-                                if (units.units === 'F')
-                                {
-                                    // Convert to C
-                                    value = (value - 32) / 1.8;
-                                }
+                                // Homey stores temperatures in C internally.
+                                value = ( value - 32 ) / 1.8;
                             }
                         }
 

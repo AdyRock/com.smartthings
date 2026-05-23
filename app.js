@@ -1535,6 +1535,21 @@ class MyApp extends Homey.App
         this.diagLog = "";
         this.log( 'SmartThings is starting...' );
 
+        if ( !this._globalErrorHandlersInstalled )
+        {
+            process.on( 'unhandledRejection', ( reason ) =>
+            {
+                this.updateLog( `unhandledRejection: ${this.varToString( reason )}`, true );
+            } );
+
+            process.on( 'uncaughtException', ( error ) =>
+            {
+                this.updateLog( `uncaughtException: ${this.varToString( error )}`, true );
+            } );
+
+            this._globalErrorHandlersInstalled = true;
+        }
+
         if ( process.env.DEBUG === '1' )
         {
             this.homey.settings.set( 'debugMode', true );
@@ -1554,10 +1569,12 @@ class MyApp extends Homey.App
 		this.pollInterval = Number(this.homey.settings.get('pollInterval'));
 		if (this.pollInterval < 5 )
         {
+            this.pollInterval = 5;
             this.homey.settings.set( 'pollInterval', 5 );
         }
 		else if (this.pollInterval > 60 )
 		{
+            this.pollInterval = 60;
 			this.homey.settings.set( 'pollInterval', 60 );
 		}
 
@@ -1581,7 +1598,22 @@ class MyApp extends Homey.App
 				this.homey.clearTimeout(this.homey.app.timerID );
 				if (this.homey.app.BearerToken && !this.homey.app.timerProcessing )
                 {
-					this.homey.app.pollInterval = Number(this.homey.settings.get('pollInterval'));
+                    this.homey.app.pollInterval = Number(this.homey.settings.get('pollInterval'));
+                    if ( Number.isNaN( this.homey.app.pollInterval ) )
+                    {
+                        this.homey.app.pollInterval = 10;
+                        this.homey.settings.set( 'pollInterval', this.homey.app.pollInterval );
+                    }
+                    else if ( this.homey.app.pollInterval < 5 )
+                    {
+                        this.homey.app.pollInterval = 5;
+                        this.homey.settings.set( 'pollInterval', this.homey.app.pollInterval );
+                    }
+                    else if ( this.homey.app.pollInterval > 60 )
+                    {
+                        this.homey.app.pollInterval = 60;
+                        this.homey.settings.set( 'pollInterval', this.homey.app.pollInterval );
+                    }
 					if (this.homey.app.pollInterval > 1 )
                     {
 						this.timerID = this.homey.setTimeout(this.homey.app.onPoll, this.homey.app.pollInterval * 1000 );
@@ -1616,9 +1648,14 @@ class MyApp extends Homey.App
 				this.fetchPause += 10;	// Add a 10ms delay between each capability fetch
 
 				let interval = Number(this.homey.settings.get('pollInterval'));
-				if (interval <= 60)
+                if (Number.isNaN(interval) || interval < 5)
+                {
+                    interval = 5;
+                }
+
+                if (interval < 60)
 				{
-					interval += 5;
+                    interval = Math.min(60, interval + 5);
 					this.homey.settings.set('pollInterval', interval);
 				}
 				this.timerID = this.homey.setTimeout(this.onPoll, interval * 1000);
@@ -2378,7 +2415,7 @@ class MyApp extends Homey.App
         }
         catch ( err )
         {
-            this.updateLog( "Get device error: " + url + "\nError: " + JSON.stringify( err, null, 2 ) );
+            this.updateLog( "Get device error: " + url + "\nError: " + this.varToString( err ) );
 			if (err.statusCode === 422)
 			{
 				throw err;
@@ -2808,7 +2845,53 @@ class MyApp extends Homey.App
         }
         if ( typeof( source ) === "object" )
         {
-            return JSON.stringify( source, null, 2 );
+            const seen = new WeakSet();
+            const replacer = ( key, value ) =>
+            {
+                if ( value instanceof Error )
+                {
+                    const errorDetails = {
+                        name: value.name,
+                        message: value.message,
+                        stack: value.stack
+                    };
+
+                    for ( const prop of Object.getOwnPropertyNames( value ) )
+                    {
+                        if ( !( prop in errorDetails ) )
+                        {
+                            errorDetails[ prop ] = value[ prop ];
+                        }
+                    }
+
+                    return errorDetails;
+                }
+
+                if ( typeof value === "bigint" )
+                {
+                    return value.toString();
+                }
+
+                if ( value && typeof value === "object" )
+                {
+                    if ( seen.has( value ) )
+                    {
+                        return "[Circular]";
+                    }
+                    seen.add( value );
+                }
+
+                return value;
+            };
+
+            try
+            {
+                return JSON.stringify( source, replacer, 2 );
+            }
+            catch ( err )
+            {
+                return String( source );
+            }
         }
         if ( typeof( source ) === "string" )
         {
