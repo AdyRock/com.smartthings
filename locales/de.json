@@ -34,18 +34,19 @@
                        "eyebrow":  "SmartThings-Zugriffstoken",
                        "getToken":  "Token abrufen",
                        "step2":  "Verwende \u003cstrong\u003eHomey\u003c/strong\u003e als Namen und aktiviere das Kontrollkästchen \u003cstrong\u003eApplications\u003c/strong\u003e.",
-                       "step3":  "Wähle \u003cstrong\u003eGenerate Token\u003c/strong\u003e und kopiere das Token anschließend hier hinein.",
+                       "step3":  "WÃƒÂ¤hle \u003cstrong\u003eGenerate Token\u003c/strong\u003e und kopiere das Token anschlieÃƒÅ¸end hier hinein.",
                        "continue":  "Weiter",
                        "invalidToken":  "Dieses Zugriffstoken hat nicht funktioniert. Bitte versuche es erneut.",
                        "pair":  {
                                     "title":  "SmartThings verbinden",
                                     "intro":  "Erstelle ein SmartThings Personal Access Token, um mit der Kopplung fortzufahren.",
-                                    "hint":  "Klicke auf Weiter, um dieses Token zu verwenden, dich bei deinem Konto anzumelden und der App Zugriff auf deine Geräte zu gewähren."
+                                    "hint":  "Klicke auf Weiter, um dieses Token zu verwenden, dich bei deinem Konto anzumelden und der App Zugriff auf deine GerÃƒÂ¤te zu gewÃƒÂ¤hren."
                                 },
                        "repair":  {
                                       "title":  "SmartThings erneut verbinden",
                                       "intro":  "Erstelle ein neues SmartThings Personal Access Token, um die Verbindung zu reparieren.",
-                                      "hint":  "Klicke auf Weiter, um dieses Token zu verwenden, dich bei deinem Konto anzumelden und der App Zugriff auf deine Geräte zu gewähren."
+                                      "hint":  "Klicke auf Weiter, um dieses Token zu verwenden, dich bei deinem Konto anzumelden und der App Zugriff auf deine GerÃƒÂ¤te zu gewÃƒÂ¤hren.",
+                                      "legacyFallback":  null
                                   }
                    }
 }

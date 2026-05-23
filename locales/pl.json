@@ -31,21 +31,22 @@
     "noSpin":  "No Spin",
     "pairRepair":  {
                        "brandAlt":  "SmartThings",
-                       "eyebrow":  "Token dostępu SmartThings",
+                       "eyebrow":  "Token dostÃ„â„¢pu SmartThings",
                        "getToken":  "Pobierz token",
                        "step2":  "Użyj \u003cstrong\u003eHomey\u003c/strong\u003e jako nazwy i zaznacz pole \u003cstrong\u003eApplications\u003c/strong\u003e.",
-                       "step3":  "Wybierz \u003cstrong\u003eGenerate Token\u003c/strong\u003e, a następnie skopiuj i wklej tutaj token.",
+                       "step3":  "Wybierz \u003cstrong\u003eGenerate Token\u003c/strong\u003e, a nastÃ„â„¢pnie skopiuj i wklej tutaj token.",
                        "continue":  "Kontynuuj",
-                       "invalidToken":  "Ten token dostępu nie zadziałał. Spróbuj ponownie.",
+                       "invalidToken":  "Ten token dostÃ„â„¢pu nie zadziaÃ…â€šaÃ…â€š. SprÃƒÂ³buj ponownie.",
                        "pair":  {
-                                    "title":  "Połącz SmartThings",
-                                    "intro":  "Utwórz osobisty token dostępu SmartThings, aby kontynuować parowanie.",
-                                    "hint":  "Kliknij Kontynuuj, aby użyć tego tokenu do zalogowania się na konto i autoryzowania aplikacji do dostępu do urządzeń."
+                                    "title":  "PoÃ…â€šÃ„â€¦cz SmartThings",
+                                    "intro":  "UtwÃƒÂ³rz osobisty token dostÃ„â„¢pu SmartThings, aby kontynuowaÃ„â€¡ parowanie.",
+                                    "hint":  "Kliknij Kontynuuj, aby uÃ…Â¼yÃ„â€¡ tego tokenu do zalogowania siÃ„â„¢ na konto i autoryzowania aplikacji do dostÃ„â„¢pu do urzÃ„â€¦dzeÃ…â€ž."
                                 },
                        "repair":  {
-                                      "title":  "Połącz ponownie SmartThings",
-                                      "intro":  "Utwórz nowy osobisty token dostępu SmartThings, aby naprawić połączenie.",
-                                      "hint":  "Kliknij Kontynuuj, aby użyć tego tokenu do zalogowania się na konto i autoryzowania aplikacji do dostępu do urządzeń."
+                                      "title":  "PoÃ…â€šÃ„â€¦cz ponownie SmartThings",
+                                      "intro":  "UtwÃƒÂ³rz nowy osobisty token dostÃ„â„¢pu SmartThings, aby naprawiÃ„â€¡ poÃ…â€šÃ„â€¦czenie.",
+                                      "hint":  "Kliknij Kontynuuj, aby uÃ…Â¼yÃ„â€¡ tego tokenu do zalogowania siÃ„â„¢ na konto i autoryzowania aplikacji do dostÃ„â„¢pu do urzÃ„â€¦dzeÃ…â€ž.",
+                                      "legacyFallback":  null
                                   }
                    }
 }

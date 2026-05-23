@@ -34,18 +34,19 @@
                        "eyebrow":  "Token de acceso de SmartThings",
                        "getToken":  "Obtener token",
                        "step2":  "Usa \u003cstrong\u003eHomey\u003c/strong\u003e como nombre y habilita la casilla \u003cstrong\u003eApplications\u003c/strong\u003e.",
-                       "step3":  "Selecciona \u003cstrong\u003eGenerate Token\u003c/strong\u003e y luego copia y pega aquí el token.",
+                       "step3":  "Selecciona \u003cstrong\u003eGenerate Token\u003c/strong\u003e y luego copia y pega aquÃƒÂ­ el token.",
                        "continue":  "Continuar",
-                       "invalidToken":  "Ese token de acceso no funcionó. Inténtalo de nuevo.",
+                       "invalidToken":  "Ese token de acceso no funcionÃƒÂ³. IntÃƒÂ©ntalo de nuevo.",
                        "pair":  {
                                     "title":  "Conectar SmartThings",
                                     "intro":  "Crea un token de acceso personal de SmartThings para continuar con el emparejamiento.",
-                                    "hint":  "Haz clic en Continuar para usar este token para iniciar sesión en tu cuenta y autorizar a la app a acceder a tus dispositivos."
+                                    "hint":  "Haz clic en Continuar para usar este token para iniciar sesiÃƒÂ³n en tu cuenta y autorizar a la app a acceder a tus dispositivos."
                                 },
                        "repair":  {
                                       "title":  "Reconectar SmartThings",
-                                      "intro":  "Crea un nuevo token de acceso personal de SmartThings para reparar la conexión.",
-                                      "hint":  "Haz clic en Continuar para usar este token para iniciar sesión en tu cuenta y autorizar a la app a acceder a tus dispositivos."
+                                      "intro":  "Crea un nuevo token de acceso personal de SmartThings para reparar la conexiÃƒÂ³n.",
+                                      "hint":  "Haz clic en Continuar para usar este token para iniciar sesiÃƒÂ³n en tu cuenta y autorizar a la app a acceder a tus dispositivos.",
+                                      "legacyFallback":  null
                                   }
                    }
 }

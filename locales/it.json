@@ -45,7 +45,8 @@
                        "repair":  {
                                       "title":  "Riconnetti SmartThings",
                                       "intro":  "Crea un nuovo token di accesso personale SmartThings per riparare la connessione.",
-                                      "hint":  "Fai clic su Continua per usare questo token per accedere al tuo account e autorizzare l\u0027app ad accedere ai tuoi dispositivi."
+                                      "hint":  "Fai clic su Continua per usare questo token per accedere al tuo account e autorizzare l\u0027app ad accedere ai tuoi dispositivi.",
+                                      "legacyFallback":  null
                                   }
                    }
 }

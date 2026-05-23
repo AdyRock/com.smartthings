@@ -31,21 +31,22 @@
     "noSpin":  "No Spin",
     "pairRepair":  {
                        "brandAlt":  "SmartThings",
-                       "eyebrow":  "SmartThings-åtkomsttoken",
-                       "getToken":  "Hämta token",
+                       "eyebrow":  "SmartThings-ÃƒÂ¥tkomsttoken",
+                       "getToken":  "HÃƒÂ¤mta token",
                        "step2":  "Använd \u003cstrong\u003eHomey\u003c/strong\u003e som namn och aktivera kryssrutan \u003cstrong\u003eApplications\u003c/strong\u003e.",
-                       "step3":  "Välj \u003cstrong\u003eGenerate Token\u003c/strong\u003e och kopiera och klistra sedan in token här.",
-                       "continue":  "Fortsätt",
-                       "invalidToken":  "Den åtkomsttoken fungerade inte. Försök igen.",
+                       "step3":  "VÃƒÂ¤lj \u003cstrong\u003eGenerate Token\u003c/strong\u003e och kopiera och klistra sedan in token hÃƒÂ¤r.",
+                       "continue":  "FortsÃƒÂ¤tt",
+                       "invalidToken":  "Den ÃƒÂ¥tkomsttoken fungerade inte. FÃƒÂ¶rsÃƒÂ¶k igen.",
                        "pair":  {
                                     "title":  "Anslut SmartThings",
-                                    "intro":  "Skapa en personlig SmartThings-åtkomsttoken för att fortsätta parkopplingen.",
-                                    "hint":  "Klicka på Fortsätt för att använda denna token för att logga in på ditt konto och ge appen åtkomst till dina enheter."
+                                    "intro":  "Skapa en personlig SmartThings-ÃƒÂ¥tkomsttoken fÃƒÂ¶r att fortsÃƒÂ¤tta parkopplingen.",
+                                    "hint":  "Klicka pÃƒÂ¥ FortsÃƒÂ¤tt fÃƒÂ¶r att anvÃƒÂ¤nda denna token fÃƒÂ¶r att logga in pÃƒÂ¥ ditt konto och ge appen ÃƒÂ¥tkomst till dina enheter."
                                 },
                        "repair":  {
                                       "title":  "Anslut SmartThings igen",
-                                      "intro":  "Skapa en ny personlig SmartThings-åtkomsttoken för att reparera anslutningen.",
-                                      "hint":  "Klicka på Fortsätt för att använda denna token för att logga in på ditt konto och ge appen åtkomst till dina enheter."
+                                      "intro":  "Skapa en ny personlig SmartThings-ÃƒÂ¥tkomsttoken fÃƒÂ¶r att reparera anslutningen.",
+                                      "hint":  "Klicka pÃƒÂ¥ FortsÃƒÂ¤tt fÃƒÂ¶r att anvÃƒÂ¤nda denna token fÃƒÂ¶r att logga in pÃƒÂ¥ ditt konto och ge appen ÃƒÂ¥tkomst till dina enheter.",
+                                      "legacyFallback":  null
                                   }
                    }
 }

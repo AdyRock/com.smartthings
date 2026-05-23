@@ -34,18 +34,19 @@
                        "eyebrow":  "SmartThings-adgangstoken",
                        "getToken":  "Hent token",
                        "step2":  "Brug \u003cstrong\u003eHomey\u003c/strong\u003e som navn, og aktivér afkrydsningsfeltet \u003cstrong\u003eApplications\u003c/strong\u003e.",
-                       "step3":  "Vælg \u003cstrong\u003eGenerate Token\u003c/strong\u003e, og kopiér og indsæt derefter tokenet her.",
-                       "continue":  "Fortsæt",
-                       "invalidToken":  "Adgangstokenet virkede ikke. Prøv igen.",
+                       "step3":  "VÃƒÂ¦lg \u003cstrong\u003eGenerate Token\u003c/strong\u003e, og kopiÃƒÂ©r og indsÃƒÂ¦t derefter tokenet her.",
+                       "continue":  "FortsÃƒÂ¦t",
+                       "invalidToken":  "Adgangstokenet virkede ikke. PrÃƒÂ¸v igen.",
                        "pair":  {
                                     "title":  "Forbind SmartThings",
-                                    "intro":  "Opret et SmartThings Personal Access Token for at fortsætte parringen.",
-                                    "hint":  "Klik på Fortsæt for at bruge dette token til at logge ind på din konto og give appen adgang til dine enheder."
+                                    "intro":  "Opret et SmartThings Personal Access Token for at fortsÃƒÂ¦tte parringen.",
+                                    "hint":  "Klik pÃƒÂ¥ FortsÃƒÂ¦t for at bruge dette token til at logge ind pÃƒÂ¥ din konto og give appen adgang til dine enheder."
                                 },
                        "repair":  {
                                       "title":  "Genopret forbindelse til SmartThings",
                                       "intro":  "Opret et nyt SmartThings Personal Access Token for at reparere forbindelsen.",
-                                      "hint":  "Klik på Fortsæt for at bruge dette token til at logge ind på din konto og give appen adgang til dine enheder."
+                                      "hint":  "Klik pÃƒÂ¥ FortsÃƒÂ¦t for at bruge dette token til at logge ind pÃƒÂ¥ din konto og give appen adgang til dine enheder.",
+                                      "legacyFallback":  null
                                   }
                    }
 }

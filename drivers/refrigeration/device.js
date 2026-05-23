@@ -558,7 +558,7 @@ class FridgeDevice extends Homey.Device
             }
             catch ( err )
             {
-				if (err.statusCode && (err.statusCode === 422))
+                if (err.statusCode && ((err.statusCode === 422) || (err.statusCode === 403)))
 				{
 					this.removeCapability( combinedCapability );
 				}

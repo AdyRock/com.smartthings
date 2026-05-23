@@ -60,12 +60,32 @@
                 <p>Connect SmartThings while pairing or repairing a device. This settings page only manages polling and diagnostics.</p>
             </div>
             <div class="field row">
-                <label class="homey-form-label" for="pollInterval">Polling Interval (seconds)</label>
+                <label class="homey-form-label" for="pollInterval">Polling Interval (seconds)
+                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                        <span class="tooltiptext" data-i18n="settings.pollIntervalExplanation"></span>
+                    </div>
+                </label>
                 <input class="homey-form-input" id="pollInterval" type="text" value="" />
+            </div>
+            <div class="field row">
+                <label class="homey-form-label" for="alarmPollMultiplier">Alarm Capability Priority
+                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                        <span class="tooltiptext" data-i18n="settings.alarmPollPriorityExplanation"></span>
+                    </div>
+                </label>
+                <select class="homey-form-select" id="alarmPollMultiplier" title="Alarm capability polling priority">
+                    <option value="1">1x (normal)</option>
+                    <option value="2" selected>2x (default)</option>
+                    <option value="3">3x</option>
+                    <option value="4">4x</option>
+                </select>
             </div>
             <div class="field row">
                 <p></p>
                 <p><button id="save" class="homey-button-primary-full">Save changes</button></p>
+                <div class="tooltip"><i class="fi fi-rr-info"></i>
+                    <span class="tooltiptext" data-i18n="settings.saveChangesExplanation"></span>
+                </div>
             </div>
         </fieldset>
 
@@ -75,7 +95,11 @@
                 <p>For backward compatibility testing only. This legacy PAT fallback is ignored whenever OAuth2 is available.</p>
             </div>
             <div class="field row">
-                <label class="homey-form-label" for="legacyPat">Legacy SmartThings PAT</label>
+                <label class="homey-form-label" for="legacyPat">Legacy SmartThings PAT
+                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                        <span class="tooltiptext" data-i18n="settings.legacyPatExplanation"></span>
+                    </div>
+                </label>
                 <input class="homey-form-input" id="legacyPat" type="password" value="" autocomplete="off" title="Legacy SmartThings PAT" placeholder="Paste legacy PAT for fallback testing" />
             </div>
         </fieldset>
@@ -190,7 +214,45 @@
         var diagLogElement = document.getElementById( 'diagLog' );
         var logEnabledElement = document.getElementById( 'logEnabled' );
         var pollIntervalElement = document.getElementById( 'pollInterval' );
+        var alarmPollMultiplierElement = document.getElementById( 'alarmPollMultiplier' );
         var legacyPatElement = document.getElementById( 'legacyPat' );
+
+        function getMultiplierFromFactor( factor )
+        {
+            const numericFactor = Number( factor );
+            if ( Number.isNaN( numericFactor ) || numericFactor <= 0 )
+            {
+                return 2;
+            }
+
+            const targetMultiplier = 1 / numericFactor;
+            const options = [ 1, 2, 3, 4 ];
+            let closest = options[ 0 ];
+            let bestDistance = Math.abs( targetMultiplier - closest );
+            for ( let i = 1; i < options.length; i++ )
+            {
+                const distance = Math.abs( targetMultiplier - options[ i ] );
+                if ( distance < bestDistance )
+                {
+                    closest = options[ i ];
+                    bestDistance = distance;
+                }
+            }
+
+            return closest;
+        }
+
+        function getFactorFromMultiplier( multiplier )
+        {
+            const numericMultiplier = Number( multiplier );
+            if ( Number.isNaN( numericMultiplier ) || numericMultiplier <= 0 )
+            {
+                return 0.5;
+            }
+
+            const factor = 1 / numericMultiplier;
+            return Math.max( 0.2, Math.min( 1, factor ) );
+        }
 
         var detectedDevicesElement = document.getElementById( 'detectedDevices' );
         var getDeviceLogElement = document.getElementById('getDeviceLog');
@@ -249,6 +311,13 @@
             {
                 if ( err ) return Homey.alert( err );
                 pollIntervalElement.value = pollInterval;
+            } );
+
+            Homey.get( 'alarmPollPriorityFactor', function( err, alarmPollPriorityFactor )
+            {
+                if ( err ) return Homey.alert( err );
+                const multiplier = getMultiplierFromFactor( alarmPollPriorityFactor );
+                alarmPollMultiplierElement.value = String( multiplier );
             } );
 
             Homey.get( 'BearerToken', function( err, bearerToken )
@@ -322,6 +391,12 @@
 					pollIntervalElement.value = pollInterval;
 				}
                 Homey.set( 'pollInterval', pollInterval, function( err )
+                {
+                    if ( err ) return Homey.alert( err );
+                } );
+
+                const alarmPollFactor = getFactorFromMultiplier( alarmPollMultiplierElement.value );
+                Homey.set( 'alarmPollPriorityFactor', alarmPollFactor, function( err )
                 {
                     if ( err ) return Homey.alert( err );
                 } );

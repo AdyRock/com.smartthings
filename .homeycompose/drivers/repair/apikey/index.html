@@ -207,7 +207,11 @@
 
         Homey.emit('validateKey', apiKeyElement.value)
           .then(result => {
-            if (result && result.legacyFallback) return Homey.done();
+            if (result && result.legacyFallback) {
+              return Homey.alert(i18n('repair.legacyFallback'))
+                .catch(() => null)
+                .then(() => Homey.done());
+            }
             if (result) return Homey.nextView();
             Homey.alert(i18n('invalidToken'));
           })

@@ -3,7 +3,11 @@
 		"email": "Email Address or Forum id",
         "emailExplanation": "If you want me to respond to your log, please enter your email address or forum id here so I know how to contact you.",
         "description": "Description",
-        "descriptionExplanation": "Please enter a brief description of the problem or name of the device if you are going to send the log."
+        "descriptionExplanation": "Please enter a brief description of the problem or name of the device if you are going to send the log.",
+        "pollIntervalExplanation": "Sets the base refresh interval per device. Device polls are staggered across this period, and lower values increase polling frequency and API traffic.",
+        "alarmPollPriorityExplanation": "Controls how often alarm-related capabilities are polled compared to other capabilities. 1x is normal. 2x, 3x, and 4x give progressively faster alarm polling.",
+        "saveChangesExplanation": "Click to apply and store the current polling and legacy PAT settings.",
+        "legacyPatExplanation": "Used for backward compatibility testing only. This fallback token is ignored whenever OAuth2 is available."
 	},
     "Refrigerator": {
         "target_temperature_freezer": "Freezer Temperature",
@@ -33,7 +37,7 @@
         "brandAlt": "SmartThings",
         "eyebrow": "SmartThings Access Token",
         "getToken": "Get Token",
-        "step2": "Use <strong>Homey</strong> as the name and enable the <strong>Applications</strong> checkbox.",
+        "step2": "Use <strong>Homey</strong> as the name and enable <strong>Applications</strong>, <strong>Devices</strong>, <strong>Locations</strong>, and <strong>Scenes</strong>.",
         "step3": "Select <strong>Generate Token</strong>, then copy and paste the token here.",
         "continue": "Continue",
         "invalidToken": "That Access Token did not work. Please try again.",
@@ -45,7 +49,8 @@
         "repair": {
             "title": "Reconnect SmartThings",
             "intro": "Create a fresh SmartThings Personal Access Token to repair the connection.",
-            "hint": "Click Continue to use this token to log in to your account and authorise the app to access your devices."
+            "hint": "Click Continue to use this token to log in to your account and authorise the app to access your devices.",
+            "legacyFallback": "OAuth setup is not available for this account right now. The app will continue using legacy PAT mode. If the OAuth login page does not open, create a new PAT and make sure <strong>Applications</strong>, <strong>Devices</strong>, <strong>Locations</strong>, and <strong>Scenes</strong> are enabled."
         }
     }
 }

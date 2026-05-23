@@ -36,16 +36,17 @@
                        "step2":  "Bruk \u003cstrong\u003eHomey\u003c/strong\u003e som navn og aktiver avkrysningsboksen \u003cstrong\u003eApplications\u003c/strong\u003e.",
                        "step3":  "Velg \u003cstrong\u003eGenerate Token\u003c/strong\u003e, og kopier og lim deretter inn tokenet her.",
                        "continue":  "Fortsett",
-                       "invalidToken":  "Dette tilgangstokenet fungerte ikke. Prøv igjen.",
+                       "invalidToken":  "Dette tilgangstokenet fungerte ikke. PrÃƒÂ¸v igjen.",
                        "pair":  {
                                     "title":  "Koble til SmartThings",
-                                    "intro":  "Opprett et SmartThings Personal Access Token for å fortsette paringen.",
-                                    "hint":  "Klikk Fortsett for å bruke dette tokenet til å logge inn på kontoen din og gi appen tilgang til enhetene dine."
+                                    "intro":  "Opprett et SmartThings Personal Access Token for ÃƒÂ¥ fortsette paringen.",
+                                    "hint":  "Klikk Fortsett for ÃƒÂ¥ bruke dette tokenet til ÃƒÂ¥ logge inn pÃƒÂ¥ kontoen din og gi appen tilgang til enhetene dine."
                                 },
                        "repair":  {
-                                      "title":  "Koble til SmartThings på nytt",
-                                      "intro":  "Opprett et nytt SmartThings Personal Access Token for å reparere tilkoblingen.",
-                                      "hint":  "Klikk Fortsett for å bruke dette tokenet til å logge inn på kontoen din og gi appen tilgang til enhetene dine."
+                                      "title":  "Koble til SmartThings pÃƒÂ¥ nytt",
+                                      "intro":  "Opprett et nytt SmartThings Personal Access Token for ÃƒÂ¥ reparere tilkoblingen.",
+                                      "hint":  "Klikk Fortsett for ÃƒÂ¥ bruke dette tokenet til ÃƒÂ¥ logge inn pÃƒÂ¥ kontoen din og gi appen tilgang til enhetene dine.",
+                                      "legacyFallback":  null
                                   }
                    }
 }

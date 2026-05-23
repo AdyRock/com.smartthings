@@ -31,21 +31,22 @@
     "noSpin":  "No Spin",
     "pairRepair":  {
                        "brandAlt":  "SmartThings",
-                       "eyebrow":  "Jeton d\u0027accès SmartThings",
+                       "eyebrow":  "Jeton d\u0027accÃƒÂ¨s SmartThings",
                        "getToken":  "Obtenir un jeton",
                        "step2":  "Utilisez \u003cstrong\u003eHomey\u003c/strong\u003e comme nom et cochez la case \u003cstrong\u003eApplications\u003c/strong\u003e.",
-                       "step3":  "Sélectionnez \u003cstrong\u003eGenerate Token\u003c/strong\u003e, puis copiez-collez le jeton ici.",
+                       "step3":  "SÃƒÂ©lectionnez \u003cstrong\u003eGenerate Token\u003c/strong\u003e, puis copiez-collez le jeton ici.",
                        "continue":  "Continuer",
-                       "invalidToken":  "Ce jeton d\u0027accès n\u0027a pas fonctionné. Veuillez réessayer.",
+                       "invalidToken":  "Ce jeton d\u0027accÃƒÂ¨s n\u0027a pas fonctionnÃƒÂ©. Veuillez rÃƒÂ©essayer.",
                        "pair":  {
                                     "title":  "Connecter SmartThings",
-                                    "intro":  "Créez un jeton d\u0027accès personnel SmartThings pour continuer l\u0027appairage.",
-                                    "hint":  "Cliquez sur Continuer pour utiliser ce jeton afin de vous connecter à votre compte et autoriser l\u0027application à accéder à vos appareils."
+                                    "intro":  "CrÃƒÂ©ez un jeton d\u0027accÃƒÂ¨s personnel SmartThings pour continuer l\u0027appairage.",
+                                    "hint":  "Cliquez sur Continuer pour utiliser ce jeton afin de vous connecter ÃƒÂ  votre compte et autoriser l\u0027application ÃƒÂ  accÃƒÂ©der ÃƒÂ  vos appareils."
                                 },
                        "repair":  {
                                       "title":  "Reconnecter SmartThings",
-                                      "intro":  "Créez un nouveau jeton d\u0027accès personnel SmartThings pour réparer la connexion.",
-                                      "hint":  "Cliquez sur Continuer pour utiliser ce jeton afin de vous connecter à votre compte et autoriser l\u0027application à accéder à vos appareils."
+                                      "intro":  "CrÃƒÂ©ez un nouveau jeton d\u0027accÃƒÂ¨s personnel SmartThings pour rÃƒÂ©parer la connexion.",
+                                      "hint":  "Cliquez sur Continuer pour utiliser ce jeton afin de vous connecter ÃƒÂ  votre compte et autoriser l\u0027application ÃƒÂ  accÃƒÂ©der ÃƒÂ  vos appareils.",
+                                      "legacyFallback":  null
                                   }
                    }
 }

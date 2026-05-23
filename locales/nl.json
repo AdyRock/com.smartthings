@@ -45,7 +45,8 @@
                        "repair":  {
                                       "title":  "SmartThings opnieuw verbinden",
                                       "intro":  "Maak een nieuw SmartThings Personal Access Token aan om de verbinding te herstellen.",
-                                      "hint":  "Klik op Doorgaan om dit token te gebruiken om in te loggen op je account en de app toegang tot je apparaten te geven."
+                                      "hint":  "Klik op Doorgaan om dit token te gebruiken om in te loggen op je account en de app toegang tot je apparaten te geven.",
+                                      "legacyFallback":  null
                                   }
                    }
 }

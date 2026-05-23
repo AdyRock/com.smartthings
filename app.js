@@ -1564,6 +1564,8 @@ class MyApp extends OAuth2App
         this.gettingDevices = false;
 		this.logEnabled = this.homey.settings.get( 'logEnabled' );
 
+        this.logOAuth2RestoreDiagnostics();
+
         if ( this.hasOAuth2Access() )
         {
             this.clearLegacyBearerToken();
@@ -1589,6 +1591,10 @@ class MyApp extends OAuth2App
 
 		// Time between fetching each capability. This is to prevent overloading Homey and the SmartThings API. It is incremented each time a fetch returns error 429 or a cpuwarn event is received.
 		this.fetchPause = 0;
+        this.pendingDeviceRefreshTimers = new Map();
+        this.commandRefreshDelayMs = 1500;
+        this.initPollingSchedulerState();
+        this.initCapabilityValueCache();
 
         // Callback for app settings changed
         this.homey.settings.on( 'set', async function( setting )
@@ -1618,7 +1624,8 @@ class MyApp extends OAuth2App
                     }
 					if (this.homey.app.pollInterval > 1 )
                     {
-						this.timerID = this.homey.setTimeout(this.homey.app.onPoll, this.homey.app.pollInterval * 1000 );
+                        const nextDelayMs = this.homey.app.getSchedulerTickDelayMs();
+						this.timerID = this.homey.setTimeout(this.homey.app.onPoll, nextDelayMs );
                     }
                 }
             }
@@ -1627,6 +1634,13 @@ class MyApp extends OAuth2App
 			{
 				this.homey.app.logEnabled = this.homey.settings.get( 'logEnabled' );
 			}
+
+            if ( setting === 'alarmPollPriorityFactor' )
+            {
+                this.homey.app.alarmPollPriorityFactor = this.homey.app.normalizeAlarmPollPriorityFactor(
+                    this.homey.settings.get( 'alarmPollPriorityFactor' )
+                );
+            }
         } );
 
 		this.homey.on('memwarn', (data) =>
@@ -1646,6 +1660,13 @@ class MyApp extends OAuth2App
 		{
 			if (data)
 			{
+                if ( !this.hasApiAccess() )
+                {
+                    this.homey.clearTimeout( this.timerID );
+                    this.updateLog( 'cpuwarn received while not authenticated; polling remains disabled.', true );
+                    return;
+                }
+
 				this.homey.clearTimeout(this.timerID);
 				this.fetchPause += 10;	// Add a 10ms delay between each capability fetch
 
@@ -1660,8 +1681,9 @@ class MyApp extends OAuth2App
                     interval = Math.min(60, interval + 5);
 					this.homey.settings.set('pollInterval', interval);
 				}
-				this.timerID = this.homey.setTimeout(this.onPoll, interval * 1000);
-				this.updateLog(`cpuwarn! ${data.count} of ${data.limit}: Poll interval = ${interval}, delay = ${this.fetchPause}`, true);
+                const nextDelayMs = this.getSchedulerTickDelayMs();
+                this.timerID = this.homey.setTimeout(this.onPoll, nextDelayMs);
+                this.updateLog(`cpuwarn! ${data.count} of ${data.limit}: Poll interval = ${interval}, fetch delay = ${this.fetchPause}`, true);
 			}
 			else
 			{
@@ -1919,7 +1941,7 @@ class MyApp extends OAuth2App
             {
                 this.updateLog( "Start Polling" );
 				this.homey.clearTimeout( this.timerID );
-                this.timerID = this.homey.setTimeout( this.onPoll, 10000 );
+                this.timerID = this.homey.setTimeout( this.onPoll, this.getSchedulerTickDelayMs() );
             }
         }
 
@@ -1939,6 +1961,416 @@ class MyApp extends OAuth2App
     async asyncDelay(period)
     {
         await new Promise(resolve => this.homey.setTimeout(resolve, period));
+    }
+
+    initPollingSchedulerState()
+    {
+        this.pollingDeviceState = new Map();
+        this.pollingSchedulerTickMs = 1000;
+        this.pollingBatchSize = 4;
+        this.pollingMaxBackoffMs = 60000;
+        this.pollingLagLogThresholdMs = 5000;
+        this.alarmPollPriorityFactor = this.normalizeAlarmPollPriorityFactor(
+            this.homey.settings.get( 'alarmPollPriorityFactor' )
+        );
+    }
+
+    normalizeAlarmPollPriorityFactor( value )
+    {
+        const parsed = Number( value );
+        if ( Number.isNaN( parsed ) )
+        {
+            return 0.5;
+        }
+
+        return Math.min( 1, Math.max( 0.2, parsed ) );
+    }
+
+    initCapabilityValueCache()
+    {
+        this.capabilityValueCache = new Map();
+        this.capabilityCacheTtlById = {
+            'samsungce.washerCycle': 60000,
+        };
+        this.capabilityCacheActiveTtlById = {
+            'samsungce.washerCycle': 15000,
+        };
+        this.washerActivityByDevice = new Map();
+    }
+
+    getCapabilityCacheKey( DeviceID, ComponentID, CapabilityID )
+    {
+        return `${DeviceID}:${ComponentID}:${CapabilityID}`;
+    }
+
+    isWasherDeviceActive( DeviceID )
+    {
+        return this.washerActivityByDevice.get( DeviceID ) === true;
+    }
+
+    updateWasherActivityFromCapabilityValue( DeviceID, CapabilityID, value )
+    {
+        if ( CapabilityID !== 'washerOperatingState' )
+        {
+            return;
+        }
+
+        const machineState = String( value?.machineState?.value || '' ).toLowerCase();
+        if ( !machineState )
+        {
+            return;
+        }
+
+        const inactiveStates = new Set( [
+            'none',
+            'ready',
+            'stop',
+            'stopped',
+            'paused',
+            'finished',
+            'end',
+            'poweroff',
+            'standby',
+        ] );
+
+        this.washerActivityByDevice.set( DeviceID, !inactiveStates.has( machineState ) );
+    }
+
+    getCapabilityCacheTtlMs( DeviceID, CapabilityID )
+    {
+        const baseTtlMs = this.capabilityCacheTtlById?.[ CapabilityID ] || 0;
+        if ( baseTtlMs <= 0 )
+        {
+            return 0;
+        }
+
+        const activeTtlMs = this.capabilityCacheActiveTtlById?.[ CapabilityID ];
+        if ( activeTtlMs && this.isWasherDeviceActive( DeviceID ) )
+        {
+            return activeTtlMs;
+        }
+
+        return baseTtlMs;
+    }
+
+    getCachedCapabilityValue( DeviceID, ComponentID, CapabilityID )
+    {
+        const ttlMs = this.getCapabilityCacheTtlMs( DeviceID, CapabilityID );
+        if ( ttlMs <= 0 )
+        {
+            return null;
+        }
+
+        const cacheKey = this.getCapabilityCacheKey( DeviceID, ComponentID, CapabilityID );
+        const entry = this.capabilityValueCache.get( cacheKey );
+        if ( !entry )
+        {
+            return null;
+        }
+
+        if ( ( Date.now() - entry.timestamp ) > ttlMs )
+        {
+            this.capabilityValueCache.delete( cacheKey );
+            return null;
+        }
+
+        return entry.value;
+    }
+
+    setCachedCapabilityValue( DeviceID, ComponentID, CapabilityID, value )
+    {
+        this.updateWasherActivityFromCapabilityValue( DeviceID, CapabilityID, value );
+
+        const ttlMs = this.getCapabilityCacheTtlMs( DeviceID, CapabilityID );
+        if ( ttlMs <= 0 )
+        {
+            return;
+        }
+
+        const cacheKey = this.getCapabilityCacheKey( DeviceID, ComponentID, CapabilityID );
+        this.capabilityValueCache.set( cacheKey,
+        {
+            timestamp: Date.now(),
+            value,
+        } );
+    }
+
+    invalidateCapabilityCacheForDevice( DeviceID )
+    {
+        const prefix = `${DeviceID}:`;
+        for ( const key of this.capabilityValueCache.keys() )
+        {
+            if ( key.startsWith( prefix ) )
+            {
+                this.capabilityValueCache.delete( key );
+            }
+        }
+
+        this.washerActivityByDevice.delete( DeviceID );
+    }
+
+    getSchedulerTickDelayMs()
+    {
+        const baseTick = Math.max( 250, Number( this.pollingSchedulerTickMs ) || 1000 );
+        const jitterFactor = 0.85 + ( Math.random() * 0.3 );
+        return Math.max( 250, Math.round( baseTick * jitterFactor ) );
+    }
+
+    getDevicePollIntervalMs()
+    {
+        const pollIntervalMs = Math.max( 5000, ( Number( this.pollInterval ) || 10 ) * 1000 );
+        return pollIntervalMs;
+    }
+
+    getDevicePollPriorityFactor( device )
+    {
+        if ( !device || ( typeof device.getCapabilities !== 'function' ) )
+        {
+            return 1;
+        }
+
+        const capabilities = device.getCapabilities() || [];
+        const hasAlarmCapability = capabilities.some( ( capability ) =>
+            ( typeof capability === 'string' ) && capability.startsWith( 'alarm_' )
+        );
+
+        if ( hasAlarmCapability )
+        {
+            // Alarm-oriented devices poll more often. Lower factor = faster polling.
+            return this.alarmPollPriorityFactor;
+        }
+
+        return 1;
+    }
+
+    getPollStateKey( driverId, device )
+    {
+        const data = ( device && typeof device.getData === 'function' ) ? device.getData() : null;
+        if ( !data )
+        {
+            return null;
+        }
+
+        const id = data.id || data.deviceId || '';
+        const component = data.component || data.components || 'main';
+        return `${driverId}:${id}:${component}`;
+    }
+
+    getAllPollableDevices()
+    {
+        const drivers = this.homey.drivers.getDrivers();
+        const pollable = [];
+
+        for ( const driverId in drivers )
+        {
+            const devices = this.homey.drivers.getDriver( driverId ).getDevices();
+            for ( const device of devices )
+            {
+                if ( !device || ( typeof device.getDeviceValues !== 'function' ) )
+                {
+                    continue;
+                }
+
+                const key = this.getPollStateKey( driverId, device );
+                if ( !key )
+                {
+                    continue;
+                }
+
+                const priorityFactor = this.getDevicePollPriorityFactor( device );
+                const pollIntervalMs = Math.max( 2500, Math.round( this.getDevicePollIntervalMs() * priorityFactor ) );
+
+                pollable.push( {
+                    key,
+                    driverId,
+                    device,
+                    priorityFactor,
+                    pollIntervalMs,
+                } );
+            }
+        }
+
+        return pollable;
+    }
+
+    syncPollingDeviceState( pollableDevices )
+    {
+        const now = Date.now();
+        const activeKeys = new Set();
+
+        for ( const entry of pollableDevices )
+        {
+            activeKeys.add( entry.key );
+            if ( this.pollingDeviceState.has( entry.key ) )
+            {
+                continue;
+            }
+
+            this.pollingDeviceState.set( entry.key,
+            {
+                nextDueAt: now + Math.floor( Math.random() * entry.pollIntervalMs ),
+                backoffMs: 0,
+                lastPollAt: 0,
+            } );
+        }
+
+        for ( const key of Array.from( this.pollingDeviceState.keys() ) )
+        {
+            if ( !activeKeys.has( key ) )
+            {
+                this.pollingDeviceState.delete( key );
+            }
+        }
+    }
+
+    async runStaggeredPoll()
+    {
+        const now = Date.now();
+        const pollableDevices = this.getAllPollableDevices();
+        this.syncPollingDeviceState( pollableDevices );
+
+        if ( pollableDevices.length < 1 )
+        {
+            this.updateLog( 'Staggered polling: no pollable devices found.' );
+            return;
+        }
+
+        const due = [];
+
+        for ( const entry of pollableDevices )
+        {
+            const state = this.pollingDeviceState.get( entry.key );
+            if ( state && state.nextDueAt <= now )
+            {
+                due.push( {
+                    ...entry,
+                    state,
+                } );
+            }
+        }
+
+        if ( due.length < 1 )
+        {
+            return;
+        }
+
+        due.sort( ( a, b ) =>
+        {
+            const byDue = a.state.nextDueAt - b.state.nextDueAt;
+            if ( byDue !== 0 )
+            {
+                return byDue;
+            }
+
+            return a.priorityFactor - b.priorityFactor;
+        } );
+        const batch = due.slice( 0, Math.max( 1, Number( this.pollingBatchSize ) || 4 ) );
+
+        for ( const entry of batch )
+        {
+            const state = entry.state;
+            try
+            {
+                await entry.device.getDeviceValues();
+                state.backoffMs = 0;
+                state.lastPollAt = Date.now();
+                state.nextDueAt = state.lastPollAt + entry.pollIntervalMs;
+            }
+            catch ( err )
+            {
+                const statusCode = err?.statusCode || err?.status || 0;
+                if ( statusCode === 429 )
+                {
+                    this.fetchPause += 100;
+                    state.backoffMs = Math.min( this.pollingMaxBackoffMs, Math.max( 10000, state.backoffMs + 10000 ) );
+                }
+                else
+                {
+                    state.backoffMs = Math.min( this.pollingMaxBackoffMs, Math.max( 5000, state.backoffMs + 5000 ) );
+                }
+
+                state.nextDueAt = Date.now() + state.backoffMs;
+                this.updateLog( `Staggered poll error: ${this.varToString( err?.message || err )}` );
+            }
+
+            if ( this.fetchPause > 0 )
+            {
+                await this.asyncDelay( this.fetchPause );
+            }
+        }
+
+        const maxLagMs = batch.reduce( ( maxLag, entry ) => Math.max( maxLag, now - entry.state.nextDueAt ), 0 );
+        if ( maxLagMs > this.pollingLagLogThresholdMs )
+        {
+            this.updateLog( `Staggered polling lag: ${maxLagMs}ms across ${batch.length} device(s).`, true );
+        }
+    }
+
+    async refreshDeviceById( deviceId )
+    {
+        if ( !deviceId || !this.hasApiAccess() || this.timerProcessing || this.gettingDevices )
+        {
+            return false;
+        }
+
+        const drivers = this.homey.drivers.getDrivers();
+        let refreshed = false;
+
+        for ( const driver in drivers )
+        {
+            const devices = this.homey.drivers.getDriver( driver ).getDevices();
+            for ( const device of devices )
+            {
+                if ( !device || typeof device.getDeviceValues !== 'function' )
+                {
+                    continue;
+                }
+
+                const data = device.getData();
+                if ( data && ( data.id === deviceId ) )
+                {
+                    await device.getDeviceValues();
+                    refreshed = true;
+                }
+            }
+        }
+
+        return refreshed;
+    }
+
+    queueDeviceRefresh( deviceId, delayMs = this.commandRefreshDelayMs )
+    {
+        if ( !deviceId || !this.hasApiAccess() )
+        {
+            return;
+        }
+
+        const existingTimer = this.pendingDeviceRefreshTimers.get( deviceId );
+        if ( existingTimer )
+        {
+            this.homey.clearTimeout( existingTimer );
+        }
+
+        const timer = this.homey.setTimeout( async () =>
+        {
+            this.pendingDeviceRefreshTimers.delete( deviceId );
+            try
+            {
+                if ( this.timerProcessing || this.gettingDevices )
+                {
+                    this.queueDeviceRefresh( deviceId, 1000 );
+                    return;
+                }
+
+                await this.refreshDeviceById( deviceId );
+            }
+            catch ( err )
+            {
+                this.updateLog( `Command refresh failed for ${deviceId}: ${this.varToString( err.message || err )}` );
+            }
+        }, Math.max( 250, Number( delayMs ) || this.commandRefreshDelayMs ) );
+
+        this.pendingDeviceRefreshTimers.set( deviceId, timer );
     }
 
     async getDevices( LogOnly = false )
@@ -2403,6 +2835,12 @@ class MyApp extends OAuth2App
             }
         }
 
+        const cachedValue = this.getCachedCapabilityValue( DeviceID, ComponentID, CapabilityID );
+        if ( cachedValue )
+        {
+            return cachedValue;
+        }
+
         //https://api.smartthings.com/v1/devices/{deviceId}/components/{componentId}/capabilities/{capabilityId}/status
         let url = "devices/" + DeviceID + "/components/" + ComponentID + "/capabilities/" + CapabilityID + "/status";
         try
@@ -2411,14 +2849,28 @@ class MyApp extends OAuth2App
             if ( result )
             {
                 let searchData = JSON.parse( result.body );
-                this.updateLog( "Get device: " + url + "\nResult: " + JSON.stringify( searchData, null, 2 ) );
+                this.updateWasherActivityFromCapabilityValue( DeviceID, CapabilityID, searchData );
+                this.setCachedCapabilityValue( DeviceID, ComponentID, CapabilityID, searchData );
+
+                if ( CapabilityID === 'samsungce.washerCycle' )
+                {
+                    const washerCycle = searchData?.washerCycle?.value || 'unknown';
+                    const cycleType = searchData?.cycleType?.value || 'unknown';
+                    const referenceTable = searchData?.referenceTable?.value?.id || 'unknown';
+                    const supportedCycles = Array.isArray( searchData?.supportedCycles?.value ) ? searchData.supportedCycles.value.length : 0;
+                    this.updateLog( `Get device: ${url}\nResult: washerCycle=${washerCycle}, cycleType=${cycleType}, referenceTable=${referenceTable}, supportedCycles=${supportedCycles}` );
+                }
+                else
+                {
+                    this.updateLog( "Get device: " + url + "\nResult: " + JSON.stringify( searchData, null, 2 ) );
+                }
                 return searchData;
             }
         }
         catch ( err )
         {
             this.updateLog( "Get device error: " + url + "\nError: " + this.varToString( err ) );
-			if (err.statusCode === 422)
+			if ( ( err.statusCode === 422 ) || ( err.statusCode === 403 ) )
 			{
 				throw err;
 			}
@@ -2441,6 +2893,8 @@ class MyApp extends OAuth2App
         {
             let searchData = JSON.parse( result.body );
             this.updateLog( "Set device: " + url + "\nResult: " + JSON.stringify( searchData, null, 2 ) );
+            this.invalidateCapabilityCacheForDevice( DeviceID );
+            this.queueDeviceRefresh( DeviceID );
             return searchData;
         }
 
@@ -2456,6 +2910,41 @@ class MyApp extends OAuth2App
         catch ( err )
         {
             return null;
+        }
+    }
+
+    saveOAuth2Client( { configId, sessionId, client } )
+    {
+        super.saveOAuth2Client( { configId, sessionId, client } );
+
+        try
+        {
+            const sessions = this.getSavedOAuth2Sessions();
+            const token = client?.getToken?.();
+            const sessionCount = Object.keys( sessions || {} ).length;
+
+            this.updateLog( `OAuth2 save: stored session ${sessionId} (${configId}); access token present: ${!!token?.access_token}; refresh token present: ${!!token?.refresh_token}; saved session count: ${sessionCount}`, true );
+        }
+        catch ( err )
+        {
+            this.updateLog( `OAuth2 save logging failed: ${this.varToString( err )}`, true );
+        }
+    }
+
+    deleteOAuth2Client( { sessionId, configId = 'default' } = {} )
+    {
+        super.deleteOAuth2Client( { sessionId, configId } );
+
+        try
+        {
+            const sessions = this.getSavedOAuth2Sessions();
+            const sessionCount = Object.keys( sessions || {} ).length;
+
+            this.updateLog( `OAuth2 delete: removed session ${sessionId} (${configId}); saved session count: ${sessionCount}`, true );
+        }
+        catch ( err )
+        {
+            this.updateLog( `OAuth2 delete logging failed: ${this.varToString( err )}`, true );
         }
     }
 
@@ -2514,6 +3003,82 @@ class MyApp extends OAuth2App
         }
 
         return `${lines.join( '\r\n' )}\r\n`;
+    }
+
+    isInvalidOAuth2Identifier( value )
+    {
+        if ( typeof value !== 'string' )
+        {
+            return !value;
+        }
+
+        const trimmed = value.trim();
+        return !trimmed || ( trimmed === 'undefined' ) || ( trimmed === 'null' );
+    }
+
+    pruneInvalidSavedOAuth2Sessions()
+    {
+        const sessions = this.getSavedOAuth2Sessions();
+        const cleanedSessions = { ...sessions };
+        const invalidSessionIds = [];
+
+        for ( const [ sessionId, sessionData ] of Object.entries( sessions || {} ) )
+        {
+            const configId = sessionData?.configId;
+            if ( this.isInvalidOAuth2Identifier( sessionId ) || this.isInvalidOAuth2Identifier( configId ) )
+            {
+                invalidSessionIds.push( `${sessionId} (${configId || 'default'})` );
+                delete cleanedSessions[ sessionId ];
+            }
+        }
+
+        if ( invalidSessionIds.length )
+        {
+            this.homey.settings.set( 'OAuth2Sessions', cleanedSessions );
+            this.updateLog( `OAuth2 restore: removed malformed saved sessions: ${invalidSessionIds.join( ', ' )}`, true );
+        }
+
+        return cleanedSessions;
+    }
+
+    logOAuth2RestoreDiagnostics()
+    {
+        try
+        {
+            const sessions = this.pruneInvalidSavedOAuth2Sessions();
+            const entries = Object.entries( sessions || {} );
+
+            if ( entries.length < 1 )
+            {
+                this.updateLog( 'OAuth2 restore: no saved sessions found.', true );
+                return;
+            }
+
+            const sessionSummary = entries.map( ( [ sessionId, sessionData ] ) =>
+            {
+                const configId = sessionData?.configId || 'default';
+                return `${sessionId} (${configId})`;
+            } ).join( ', ' );
+
+            this.updateLog( `OAuth2 restore: saved sessions: ${sessionSummary}`, true );
+
+            const [ sessionId, sessionData ] = entries[ 0 ];
+            const configId = sessionData?.configId || 'default';
+
+            this.updateLog( `OAuth2 restore: attempting session ${sessionId} (${configId})`, true );
+
+            const client = this.getOAuth2Client( {
+                configId,
+                sessionId,
+            } );
+            const token = client.getToken();
+
+            this.updateLog( `OAuth2 restore: restored session ${sessionId} (${configId}); access token present: ${!!token?.access_token}; refresh token present: ${!!token?.refresh_token}`, true );
+        }
+        catch ( err )
+        {
+            this.updateLog( `OAuth2 restore failed: ${this.varToString( err )}`, true );
+        }
     }
 
     getFormattedDiagLog()
@@ -2642,9 +3207,12 @@ class MyApp extends OAuth2App
         catch ( err )
         {
             const statusCode = err.statusCode || err.status || -1;
+            const message = ( typeof err.message === 'string' )
+                ? err.message
+                : this.varToString( err.message || err );
             throw {
                 statusCode,
-                message: err.message || 'OAuth2 Request failed'
+                message: message || 'OAuth2 Request failed'
             };
         }
     }
@@ -2752,72 +3320,28 @@ class MyApp extends OAuth2App
 
     async onPoll()
     {
-		var nextInterval = this.homey.app.pollInterval * 1000;
-		if (nextInterval < 1000)
-		{
-			nextInterval = 5000;
-		}
+        if ( !this.hasApiAccess() )
+        {
+            this.homey.clearTimeout( this.timerID );
+            this.timerProcessing = false;
+            this.updateLog( 'Polling skipped: no SmartThings authentication available.', true );
+            return;
+        }
 
-		let showInterval = false;
-
-		if (!this.gettingDevices)
+        if (!this.gettingDevices)
         {
             this.timerProcessing = true;
-            this.updateLog( "!!!!!! Polling started" );
             try
             {
-                // Fetch the list of drivers for this app
-                const drivers = this.homey.drivers.getDrivers();
-                for ( const driver in drivers )
-                {
-                    let devices = this.homey.drivers.getDriver( driver ).getDevices();
-                    for ( var i = 0; i < devices.length; i++ )
-                    {
-                        let device = devices[ i ];
-                        if ( device.getDeviceValues )
-                        {
-							try
-							{
-	                            await device.getDeviceValues();
-							}
-							catch (err)
-							{
-								this.updateLog( "Error getting device values: " + this.varToString( err.message ), true );
-								if (err.statusCode === 429)
-								{
-									// Too many requests so slow down the polling
-									this.fetchPause += 100;
-									nextInterval = 60000;
-									showInterval = true;
-									break;
-								}
-							}
-
-							if (this.fetchPause > 0)
-							{
-								await this.asyncDelay(this.fetchPause)
-							}
-                        }
-                    }
-                }
-
-                this.updateLog( "!!!!!! Polling finished" );
+                await this.runStaggeredPoll();
             }
             catch ( err )
             {
-				if (err.statusCode === 429)
-				{
-					// Too many requests so slow down the polling
-					this.fetchPause += 100;
-					nextInterval = 60000;
-					showInterval = true;
-				}
-				this.updateLog("Polling Error: " + this.varToString(err.message), true );
+				this.updateLog("Staggered polling error: " + this.varToString(err.message), true );
             }
         }
 
-		this.updateLog(`Next Interval = ${nextInterval}, delay = ${this.fetchPause}`, showInterval );
-        this.timerID = this.homey.setTimeout( this.onPoll, nextInterval );
+        this.timerID = this.homey.setTimeout( this.onPoll, this.getSchedulerTickDelayMs() );
         this.timerProcessing = false;
     }
 
