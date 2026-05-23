@@ -1,0 +1,223 @@
+<style type="text/css">
+  :root {
+    color-scheme: light;
+  }
+
+  #st-wrap {
+    min-height: 100%;
+    padding: 12px;
+    box-sizing: border-box;
+    background:
+      radial-gradient(circle at top right, rgba(42, 202, 234, 0.16), transparent 42%),
+      linear-gradient(180deg, rgba(247, 251, 255, 0.95) 0%, rgba(255, 255, 255, 1) 100%);
+  }
+
+  #st-card {
+    padding: 14px 14px 12px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(24, 35, 52, 0.08);
+    box-shadow: 0 14px 34px rgba(24, 35, 52, 0.08);
+  }
+
+  #st-brand {
+    display: flex;
+    justify-content: center;
+    margin: 0 0 10px;
+  }
+
+  #st-logo {
+    width: 40px;
+    height: 40px;
+    display: block;
+    flex: 0 0 auto;
+  }
+
+  #st-card h1 {
+    margin: 0 0 6px;
+    font-size: 24px;
+    line-height: 1.15;
+    color: #132033;
+  }
+
+  #st-intro {
+    margin: 0 0 12px;
+    font-size: 18px;
+    line-height: 1.35;
+    color: #4a5a70;
+  }
+
+  #st-steps {
+    margin: 0 0 12px;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 10px;
+  }
+
+  #st-steps li {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 10px;
+    align-items: start;
+    font-size: 18px;
+    line-height: 1.4;
+    color: #223247;
+  }
+
+  .st-step-index {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: #ebfafd;
+    color: #129fc8;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  #st-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 10px;
+    background: #1aa7d8;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  #st-link:hover {
+    background: #1299c8;
+  }
+
+  #st-hint {
+    margin: 0 0 10px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    background: #f5f9fc;
+    color: #4f6278;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+
+  #st-apikey {
+    width: 100%;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+    font-family: Consolas, Monaco, 'Courier New', monospace;
+    text-align: center;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+  }
+
+  #st-validate {
+    width: 100%;
+  }
+
+  strong {
+    font-weight: 700;
+  }
+</style>
+
+<div id="st-wrap">
+  <div id="st-card">
+    <div id="st-brand">
+      <img id="st-logo" src="{{assets}}/smartthings-logo.svg" alt="SmartThings" />
+    </div>
+
+    <h1 id="st-title"></h1>
+    <p id="st-intro"></p>
+
+    <ol id="st-steps">
+      <li>
+        <span class="st-step-index">1</span>
+        <span><button id="st-link" type="button"></button></span>
+      </li>
+      <li>
+        <span class="st-step-index">2</span>
+        <span id="st-step2"></span>
+      </li>
+      <li>
+        <span class="st-step-index">3</span>
+        <span id="st-step3"></span>
+      </li>
+    </ol>
+
+    <input
+      id="st-apikey"
+      class="homey-form-input"
+      type="text"
+      minlength="36"
+      maxlength="36"
+      placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      title="SmartThings Personal Access Token"
+    />
+
+    <p id="st-hint"></p>
+
+    <button id="st-validate" class="homey-button-primary-shadow-full" disabled="disabled"></button>
+  </div>
+</div>
+
+<script type="text/javascript">
+  const i18n = key => Homey.__(`pairRepair.${key}`);
+
+  document.getElementById('st-logo').setAttribute('alt', i18n('brandAlt'));
+  document.getElementById('st-title').textContent = i18n('repair.title');
+  document.getElementById('st-intro').textContent = i18n('repair.intro');
+  document.getElementById('st-link').textContent = i18n('getToken');
+  document.getElementById('st-step2').innerHTML = i18n('step2');
+  document.getElementById('st-step3').innerHTML = i18n('step3');
+  document.getElementById('st-hint').textContent = i18n('repair.hint');
+  document.getElementById('st-validate').textContent = i18n('continue');
+
+  Homey.showLoadingOverlay();
+  Homey.emit('hasClient')
+    .then(() => {
+      Homey.hideLoadingOverlay();
+
+      const linkElement = document.getElementById('st-link');
+      const apiKeyElement = document.getElementById('st-apikey');
+      const validateElement = document.getElementById('st-validate');
+
+      linkElement.addEventListener('click', () => {
+        Homey.popup('https://account.smartthings.com/tokens/new');
+      });
+
+      ['keyup', 'change', 'blur', 'paste'].forEach(eventName => {
+        apiKeyElement.addEventListener(eventName, () => {
+          if (apiKeyElement.value.length === 36) {
+            validateElement.removeAttribute('disabled');
+          } else {
+            validateElement.setAttribute('disabled', 'disabled');
+          }
+        });
+      });
+
+      validateElement.addEventListener('click', () => {
+        if (validateElement.classList.contains('is-loading')) return;
+        validateElement.classList.add('is-loading');
+
+        Homey.emit('validateKey', apiKeyElement.value)
+          .then(result => {
+            if (result && result.legacyFallback) return Homey.done();
+            if (result) return Homey.nextView();
+            Homey.alert(i18n('invalidToken'));
+          })
+          .catch(err => {
+            Homey.alert(err);
+          })
+          .finally(() => {
+            validateElement.classList.remove('is-loading');
+          });
+      });
+    })
+    .catch(err => Homey.alert(err));
+</script>

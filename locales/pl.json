@@ -1,0 +1,51 @@
+{
+    "settings":  {
+                     "email":  "Email Address or Forum id",
+                     "emailExplanation":  "If you want me to respond to your log, please enter your email address or forum id here so I know how to contact you.",
+                     "description":  "Description",
+                     "descriptionExplanation":  "Please enter a brief description of the problem or name of the device if you are going to send the log."
+                 },
+    "Refrigerator":  {
+                         "target_temperature_freezer":  "Freezer Temperature",
+                         "target_temperature_cooler":  "Cooler Temperature",
+                         "target_temperature_cvroom":  "CV Room Temperature",
+                         "target_temperature_onedoor":  "One Door Temperature",
+                         "onoff_icemaker":  "Ice Maker",
+                         "onoff_icemaker-02":  "Ice Maker 2",
+                         "alarm_contact_main":  "Door Open",
+                         "alarm_contact_freezer":  "Freezer Door Open",
+                         "alarm_contact_cooler":  "Cooler Door Open",
+                         "alarm_contact_cvroom":  "CV Room Door Open",
+                         "alarm_contact_onedoor":  "One Door Open",
+                         "measure_temperature_freezer":  "Freezer Current Temperature",
+                         "measure_temperature_cooler":  "Cooler Current Temperature",
+                         "measure_temperature_cvroom":  "CV Room Current Temperature"
+                     },
+    "digitalTV":  "Digital TV",
+    "DisplayPort":  "Display Port",
+    "bluetooth":  "Bluetooth",
+    "pause":  "Pause",
+    "run":  "Run",
+    "stop":  "Stop",
+    "rinseHold":  "Rinse Hold",
+    "noSpin":  "No Spin",
+    "pairRepair":  {
+                       "brandAlt":  "SmartThings",
+                       "eyebrow":  "Token dostępu SmartThings",
+                       "getToken":  "Pobierz token",
+                       "step2":  "Użyj \u003cstrong\u003eHomey\u003c/strong\u003e jako nazwy i zaznacz pole \u003cstrong\u003eApplications\u003c/strong\u003e.",
+                       "step3":  "Wybierz \u003cstrong\u003eGenerate Token\u003c/strong\u003e, a następnie skopiuj i wklej tutaj token.",
+                       "continue":  "Kontynuuj",
+                       "invalidToken":  "Ten token dostępu nie zadziałał. Spróbuj ponownie.",
+                       "pair":  {
+                                    "title":  "Połącz SmartThings",
+                                    "intro":  "Utwórz osobisty token dostępu SmartThings, aby kontynuować parowanie.",
+                                    "hint":  "Kliknij Kontynuuj, aby użyć tego tokenu do zalogowania się na konto i autoryzowania aplikacji do dostępu do urządzeń."
+                                },
+                       "repair":  {
+                                      "title":  "Połącz ponownie SmartThings",
+                                      "intro":  "Utwórz nowy osobisty token dostępu SmartThings, aby naprawić połączenie.",
+                                      "hint":  "Kliknij Kontynuuj, aby użyć tego tokenu do zalogowania się na konto i autoryzowania aplikacji do dostępu do urządzeń."
+                                  }
+                   }
+}

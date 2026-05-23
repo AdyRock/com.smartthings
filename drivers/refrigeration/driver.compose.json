@@ -1,5 +1,6 @@
 {
     "id": "refrigeration",
+    "$extends": "apikey",
     "name": {
         "en": "Refrigeration"
     },
@@ -7,19 +8,6 @@
     "capabilities": [
         "measure_temperature.freezer",
         "measure_temperature.cooler"
-    ],
-    "pair": [
-        {
-            "id": "list_devices",
-            "template": "list_devices",
-            "navigation": {
-                "next": "add_devices"
-            }
-        },
-        {
-            "id": "add_devices",
-            "template": "add_devices"
-        }
     ],
     "images": {
         "large": "/drivers/refrigeration/assets/images/large.jpg",

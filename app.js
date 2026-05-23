@@ -7,9 +7,9 @@ if ( process.env.DEBUG === '1' )
 }
 
 const Homey = require( 'homey' );
-const https = require( "https" );
+const { OAuth2App, fetch } = require( 'homey-oauth2app' );
+const SmartThingsOAuth2Client = require( './lib/SmartThingsOAuth2Client' );
 const nodemailer = require( 'nodemailer' );
-const URL = require( 'url' ).URL;
 const fs = require( 'fs' );
 const path = require('path');
 
@@ -1528,9 +1528,11 @@ const CapabilityMap2 = {
     },
 };
 
-class MyApp extends Homey.App
+class MyApp extends OAuth2App
 {
-    async onInit()
+    static OAUTH2_CLIENT = SmartThingsOAuth2Client;
+
+    async onOAuth2Init()
     {
         this.diagLog = "";
         this.log( 'SmartThings is starting...' );
@@ -1562,10 +1564,14 @@ class MyApp extends Homey.App
         this.gettingDevices = false;
 		this.logEnabled = this.homey.settings.get( 'logEnabled' );
 
+        if ( this.hasOAuth2Access() )
+        {
+            this.clearLegacyBearerToken();
+        }
+
         this.homeyHash = await this.homey.cloud.getHomeyId();
         this.homeyHash = this.hashCode( this.homeyHash ).toString();
 
-        this.BearerToken = this.homey.settings.get( 'BearerToken' );
 		this.pollInterval = Number(this.homey.settings.get('pollInterval'));
 		if (this.pollInterval < 5 )
         {
@@ -1578,7 +1584,8 @@ class MyApp extends Homey.App
 			this.homey.settings.set( 'pollInterval', 60 );
 		}
 
-        this.log( "SmartThings has started with Key: " + this.BearerToken + " Polling every " + this.homey.settings.get( 'pollInterval' ) + " seconds" );
+        const authType = this.hasOAuth2Access() ? 'OAuth2' : ( this.hasLegacyPATAccess() ? 'Legacy PAT Fallback' : 'None' );
+        this.log( "SmartThings has started using auth: " + authType + " Polling every " + this.homey.settings.get( 'pollInterval' ) + " seconds" );
 
 		// Time between fetching each capability. This is to prevent overloading Homey and the SmartThings API. It is incremented each time a fetch returns error 429 or a cpuwarn event is received.
 		this.fetchPause = 0;
@@ -1588,15 +1595,10 @@ class MyApp extends Homey.App
         {
             this.homey.app.updateLog( "Setting " + setting + " has changed." );
 
-            if ( setting === 'BearerToken' )
-            {
-				this.homey.app.BearerToken = this.homey.settings.get( 'BearerToken' );
-            }
-
             if ( setting === 'pollInterval' )
             {
 				this.homey.clearTimeout(this.homey.app.timerID );
-				if (this.homey.app.BearerToken && !this.homey.app.timerProcessing )
+                if ( this.homey.app.hasApiAccess() && !this.homey.app.timerProcessing )
                 {
                     this.homey.app.pollInterval = Number(this.homey.settings.get('pollInterval'));
                     if ( Number.isNaN( this.homey.app.pollInterval ) )
@@ -1911,7 +1913,7 @@ class MyApp extends Homey.App
 
         this.onPoll = this.onPoll.bind( this );
 
-        if ( this.BearerToken )
+        if ( this.hasApiAccess() )
         {
             if ( this.homey.settings.get( 'pollInterval' ) > 1 )
             {
@@ -2445,6 +2447,162 @@ class MyApp extends Homey.App
         return -1;
     }
 
+    getOAuth2ClientSafe()
+    {
+        try
+        {
+            return this.getFirstSavedOAuth2Client();
+        }
+        catch ( err )
+        {
+            return null;
+        }
+    }
+
+    hasOAuth2Access()
+    {
+        const client = this.getOAuth2ClientSafe();
+        if ( !client )
+        {
+            return false;
+        }
+
+        const token = client.getToken();
+        return !!( token && token.access_token );
+    }
+
+    getLegacyBearerToken()
+    {
+        const token = this.homey.settings.get( 'BearerToken' );
+        return ( typeof token === 'string' ) ? token.trim() : '';
+    }
+
+    hasLegacyPATAccess()
+    {
+        return !this.hasOAuth2Access() && !!this.getLegacyBearerToken();
+    }
+
+    hasApiAccess()
+    {
+        return this.hasOAuth2Access() || this.hasLegacyPATAccess();
+    }
+
+    getAuthModeLabel()
+    {
+        if ( this.hasOAuth2Access() )
+        {
+            return 'OAuth2';
+        }
+
+        if ( this.hasLegacyPATAccess() )
+        {
+            return 'Legacy PAT Fallback';
+        }
+
+        return 'None';
+    }
+
+    getDiagnosticsHeader()
+    {
+        const lines = [
+            `Auth mode: ${this.getAuthModeLabel()}`,
+        ];
+
+        if ( this.hasLegacyPATAccess() )
+        {
+            lines.push( 'Migration pending: this install is still using the legacy PAT fallback. OAuth2 will be used after the next successful pair or repair flow.' );
+        }
+
+        return `${lines.join( '\r\n' )}\r\n`;
+    }
+
+    getFormattedDiagLog()
+    {
+        return `${this.getDiagnosticsHeader()}${this.diagLog || ''}`;
+    }
+
+    clearLegacyBearerToken()
+    {
+        if ( !this.homey.settings.get( 'BearerToken' ) )
+        {
+            return;
+        }
+
+        if ( typeof this.homey.settings.unset === 'function' )
+        {
+            this.homey.settings.unset( 'BearerToken' );
+        }
+        else
+        {
+            this.homey.settings.set( 'BearerToken', '' );
+        }
+    }
+
+    getSmartThingsRequestUrl( url )
+    {
+        if ( /^https?:\/\//i.test( url ) )
+        {
+            return url;
+        }
+
+        const baseUrl = SmartThingsOAuth2Client.API_URL.replace( /\/+$/, '' );
+        return `${baseUrl}/${String( url ).replace( /^\/+/, '' )}`;
+    }
+
+    async getLegacyPATResponse( url, options = {} )
+    {
+        const token = this.getLegacyBearerToken();
+        if ( !token )
+        {
+            throw {
+                statusCode: 401,
+                message: 'No SmartThings authentication available. Pair or repair the device again.'
+            };
+        }
+
+        const response = await fetch( this.getSmartThingsRequestUrl( url ),
+        {
+            ...options,
+            headers:
+            {
+                Authorization: `Bearer ${token}`,
+                ...( options.headers || {} ),
+            },
+        } );
+
+        if ( response.ok )
+        {
+            return response;
+        }
+
+        let message = 'Legacy PAT request failed';
+        try
+        {
+            const body = await response.json();
+            message = body?.message || body?.error_description || body?.error || message;
+        }
+        catch ( err )
+        {
+            try
+            {
+                const text = await response.text();
+                if ( text )
+                {
+                    message = text;
+                }
+            }
+            catch ( readErr )
+            {
+                message = response.statusText || message;
+            }
+        }
+
+        throw {
+            statusCode: response.status,
+            message,
+        };
+    }
+
     async GetURL( url )
     {
         if ( ( process.env.DEBUG === '1' ) && ( url === 'devices' ) )
@@ -2460,95 +2618,35 @@ class MyApp extends Homey.App
 
         this.updateLog( url );
 
-        return new Promise( ( resolve, reject ) =>
+        const oAuth2Client = this.getOAuth2ClientSafe();
+        if ( !oAuth2Client )
         {
-            try
-            {
-                if ( !this.BearerToken )
-                {
-                    reject(
-                    {
-                        statusCode: 401,
-                        message: "No Token specified"
-                    } );
-                }
+            const response = await this.getLegacyPATResponse( url );
+            const text = await response.text();
+            return {
+                body: text || '{}'
+            };
+        }
 
-                let https_options = {
-                    host: "api.smartthings.com",
-                    path: "/v1/" + url,
-                    headers:
-                    {
-                        "Authorization": "Bearer " + this.BearerToken,
-                    },
-                };
-
-                https.get( https_options, ( res ) =>
-                {
-                    if ( res.statusCode === 200 )
-                    {
-                        let body = [];
-                        res.on( 'data', ( chunk ) =>
-                        {
-                            body.push( chunk );
-                        } );
-                        res.on( 'end', () =>
-                        {
-                            resolve(
-                            {
-                                "body": Buffer.concat( body )
-                            } );
-                        } );
-                    }
-                    else
-                    {
-                        let message = "";
-                        if ( res.statusCode === 204 )
-                        {
-                            message = "No Data Found";
-                        }
-                        else if ( res.statusCode === 400 )
-                        {
-                            message = "Bad request";
-                        }
-                        else if ( res.statusCode === 401 )
-                        {
-                            message = "Unauthorized";
-                        }
-                        else if ( res.statusCode === 403 )
-                        {
-                            message = "Forbidden";
-                        }
-                        else if ( res.statusCode === 404 )
-                        {
-                            message = "Not Found";
-                        }
-                        this.updateLog( "HTTPS Error: " + res.statusCode + ": " + message );
-                        reject(
-                        {
-                            statusCode: res.statusCode,
-                            message: "HTTPS Error: " + message
-                        } );
-                    }
-                } ).on( 'error', ( err ) =>
-                {
-                    this.updateLog( this.varToString( err ));
-                    reject(
-                    {
-                        statusCode: -1,
-                        message: "HTTPS Catch : " + err
-                    } );
-                } );
-            }
-            catch ( err )
+        try
+        {
+            const body = await oAuth2Client.get(
             {
-                this.updateLog( err.message );
-                reject(
-                {
-                    statusCode: -2,
-                    message: "HTTPS Catch: " + err.message
-                } );
-            }
-        } );
+                path: `/${url}`,
+            } );
+
+            return {
+                body: JSON.stringify( body )
+            };
+        }
+        catch ( err )
+        {
+            const statusCode = err.statusCode || err.status || -1;
+            throw {
+                statusCode,
+                message: err.message || 'OAuth2 Request failed'
+            };
+        }
     }
 
     async PostURL( url, body )
@@ -2566,101 +2664,44 @@ class MyApp extends Homey.App
             }
         }
 
-        return new Promise( ( resolve, reject ) =>
+        const oAuth2Client = this.getOAuth2ClientSafe();
+        if ( !oAuth2Client )
         {
-            try
+            const response = await this.getLegacyPATResponse( url,
             {
-                if ( !this.BearerToken )
+                method: 'POST',
+                headers:
                 {
-                    reject(
-                    {
-                        statusCode: 401,
-                        message: "No Token specified"
-                    } );
-                }
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify( body ),
+            } );
 
-                let https_options = {
-                    host: "api.smartthings.com",
-                    path: "/v1/" + url,
-                    method: "POST",
-                    headers:
-                    {
-                        "Authorization": "Bearer " + this.BearerToken,
-                        "contentType": "application/json; charset=utf-8",
-                        "Content-Length": bodyText.length
-                    },
-                };
+            const text = await response.text();
+            return {
+                body: text || '{}'
+            };
+        }
 
-                let req = https.request( https_options, ( res ) =>
-                {
-                    if ( res.statusCode === 200 )
-                    {
-                        let body = [];
-                        res.on( 'data', ( chunk ) =>
-                        {
-                            body.push( chunk );
-                        } );
-                        res.on( 'end', () =>
-                        {
-                            //                            this.updateLog( "Done PostRUL" );
-                            resolve(
-                            {
-                                "body": Buffer.concat( body )
-                            } );
-                        } );
-                    }
-                    else
-                    {
-                        let message = "";
-                        if ( res.statusCode === 204 )
-                        {
-                            message = "No Data Found";
-                        }
-                        else if ( res.statusCode === 400 )
-                        {
-                            message = "Bad request";
-                        }
-                        else if ( res.statusCode === 401 )
-                        {
-                            message = "Unauthorized";
-                        }
-                        else if ( res.statusCode === 403 )
-                        {
-                            message = "Forbidden";
-                        }
-                        else if ( res.statusCode === 404 )
-                        {
-                            message = "Not Found";
-                        }
-                        this.updateLog( "HTTPS Error: " + res.statusCode + ": " + message );
-                        reject(
-                        {
-                            statusCode: res.statusCode,
-                            message: "HTTPS Error: " + message
-                        } );
-                    }
-                } ).on( 'error', ( err ) =>
-                {
-					this.updateLog(this.varToString(err) );
-                    reject(
-                    {
-                        statusCode: -1,
-                        message: "HTTPS Catch : " + err
-                    } );
-                } );
-                req.write( bodyText );
-                req.end();
-            }
-            catch ( err )
+        try
+        {
+            const response = await oAuth2Client.post(
             {
-                this.updateLog( this.varToString( err.message ) );
-                reject(
-                {
-                    statusCode: -2,
-                    message: "HTTPS Catch: " + err.message
-                } );
-            }
-        } );
+                path: `/${url}`,
+                json: body
+            } );
+
+            return {
+                body: JSON.stringify( response )
+            };
+        }
+        catch ( err )
+        {
+            throw {
+                statusCode: err.statusCode || err.status || -1,
+                message: err.message || 'OAuth2 Request failed'
+            };
+        }
     }
 
     getUserDataPath(filename)
@@ -2672,94 +2713,41 @@ class MyApp extends Homey.App
     {
         this.updateLog( url );
 
-        return new Promise( ( resolve, reject ) =>
+        const oAuth2Client = this.getOAuth2ClientSafe();
+        if ( !oAuth2Client )
         {
-            try
+            const response = await this.getLegacyPATResponse( url );
+            let imageFilename = 'eventImage' + devData.id;
+            imageFilename = imageFilename.replace( /[^a-z0-9]/gi, '_' ).toLowerCase();
+            imageFilename += ".jpg";
+            const eventImagePath = this.getUserDataPath( imageFilename );
+            const imageBuffer = Buffer.from( await response.arrayBuffer() );
+            await fs.promises.writeFile( eventImagePath, imageBuffer );
+            return eventImagePath;
+        }
+
+        try
+        {
+            let imageFilename = 'eventImage' + devData.id;
+            imageFilename = imageFilename.replace( /[^a-z0-9]/gi, '_' ).toLowerCase();
+            imageFilename += ".jpg";
+            const eventImagePath = this.getUserDataPath( imageFilename );
+
+            const imageBuffer = await oAuth2Client.get(
             {
-                if ( !this.BearerToken )
-                {
-                    reject(
-                    {
-                        statusCode: 401,
-                        message: "No Token specified"
-                    } );
-                }
+                path: url,
+            } );
 
-                const urlComponents = new URL( url );
-
-                let https_options = {
-                    host: urlComponents.host,
-                    path: urlComponents.pathname + urlComponents.search,
-                    headers:
-                    {
-                        "Authorization": "Bearer " + this.BearerToken,
-                    },
-                };
-
-                let imageFilename = 'eventImage' + devData.id;
-                imageFilename = imageFilename.replace( /[^a-z0-9]/gi, '_' ).toLowerCase();
-                imageFilename += ".jpg";
-                const eventImagePath = this.getUserDataPath(imageFilename);
-
-                https.get( https_options, ( res ) =>
-                {
-                    if ( res.statusCode === 200 )
-                    {
-                        res.pipe( fs.createWriteStream( eventImagePath ) )
-                            .on( 'error', reject )
-                            .once( 'close', () => resolve( eventImagePath ) );
-                    }
-                    else
-                    {
-                        res.resume();
-                        let message = "";
-                        if ( res.statusCode === 204 )
-                        {
-                            message = "No Data Found";
-                        }
-                        else if ( res.statusCode === 400 )
-                        {
-                            message = "Bad request";
-                        }
-                        else if ( res.statusCode === 401 )
-                        {
-                            message = "Unauthorized";
-                        }
-                        else if ( res.statusCode === 403 )
-                        {
-                            message = "Forbidden";
-                        }
-                        else if ( res.statusCode === 404 )
-                        {
-                            message = "Not Found";
-                        }
-                        this.updateLog( "HTTPS Error: " + res.statusCode + ": " + message );
-                        reject(
-                        {
-                            statusCode: res.statusCode,
-                            message: "HTTPS Error: " + message
-                        } );
-                    }
-                } ).on( 'error', ( err ) =>
-                {
-					this.updateLog(this.varToString(err) );
-                    reject(
-                    {
-                        statusCode: -1,
-                        message: "HTTPS Catch : " + err
-                    } );
-                } );
-            }
-            catch ( err )
-            {
-                this.updateLog( err.message );
-                reject(
-                {
-                    statusCode: -2,
-                    message: "HTTPS Catch: " + err.message
-                } );
-            }
-        } );
+            await fs.promises.writeFile( eventImagePath, imageBuffer );
+            return eventImagePath;
+        }
+        catch ( err )
+        {
+            throw {
+                statusCode: err.statusCode || err.status || -1,
+                message: err.message || 'OAuth2 image fetch failed'
+            };
+        }
     }
 
     async onPoll()
@@ -2937,7 +2925,7 @@ class MyApp extends Homey.App
             }
             this.homey.api.realtime( 'com.smartthings.logupdated',
             {
-                'log': this.diagLog
+                'log': this.getFormattedDiagLog()
             } );
         }
     }
@@ -2955,7 +2943,7 @@ class MyApp extends Homey.App
                 if ( logType === 'infoLog' )
                 {
                     subject = `SmartThings Information log`;
-                    text += this.varToString( this.diagLog );
+                    text += this.varToString( this.getFormattedDiagLog() );
                 }
                 else if ( logType === 'deviceLog' )
                 {

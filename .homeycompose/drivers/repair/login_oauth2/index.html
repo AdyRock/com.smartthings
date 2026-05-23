@@ -1,0 +1,52 @@
+<style type="text/css">
+  #oauth-wrap {
+    padding: 16px;
+  }
+
+  #oauth-link {
+    display: none;
+    margin-top: 16px;
+    word-break: break-all;
+  }
+
+  #oauth-status {
+    margin-top: 12px;
+  }
+</style>
+
+<div id="oauth-wrap">
+  <p>Continue in SmartThings to re-authorize Homey.</p>
+  <p id="oauth-status">Opening the SmartThings login page…</p>
+  <a id="oauth-link" href="#" target="_blank" rel="noopener noreferrer">Open SmartThings authorization page</a>
+</div>
+
+<script type="text/javascript">
+  const statusElement = document.getElementById('oauth-status');
+  const linkElement = document.getElementById('oauth-link');
+
+  function setStatus(message) {
+    statusElement.textContent = message;
+  }
+
+  Homey.on('url', url => {
+    linkElement.href = url;
+    linkElement.style.display = 'inline';
+    setStatus('Finish the SmartThings authorization page, then return to Homey.');
+    Homey.popup(url);
+  });
+
+  Homey.on('authorized', () => {
+    setStatus('Authorization complete. Finalizing repair…');
+  });
+
+  Homey.on('error', err => {
+    setStatus('Authorization failed.');
+    Homey.alert(err);
+  });
+
+  Homey.emit('showView', 'login_oauth2')
+    .catch(err => {
+      setStatus('Failed to start authorization.');
+      Homey.alert(err);
+    });
+</script>

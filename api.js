@@ -3,7 +3,7 @@
 module.exports = {
     async getLog( { homey, query } )
     {
-        return homey.app.diagLog;
+        return homey.app.getFormattedDiagLog();
     },
     async getDetect( { homey, query } )
     {
@@ -13,7 +13,7 @@ module.exports = {
     async clearLog( { homey, body } )
     {
         homey.app.diagLog = "";
-        return "ok";
+        return homey.app.getFormattedDiagLog();
     },
     async sendCmd( { homey, body } )
     {

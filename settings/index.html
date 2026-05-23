@@ -1,7 +1,10 @@
 <!doctype html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SmartThings Settings</title>
     <link rel="stylesheet" type="text/css" href="lwsa.css">
 	<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css'>
     <link rel="stylesheet" type="text/css" href="busy_indicator.css" />
@@ -19,6 +22,10 @@
 
         #busybox.show {
             display: block;
+        }
+
+        .is-hidden {
+            display: none;
         }
     </style>
 
@@ -39,24 +46,19 @@
         <button class="tablinks" onclick="setPage(event, 'detected')">Detected</button>
         <button class="tablinks" onclick="setPage(event, 'log')">Log</button>
         <button class="tablinks" onclick="setPage(event, 'send')">Send Command</button>
-        <button class="tablinks" onclick="setPage(event, 'simulator')" id="simLogTab" style="display:none">Simulation Devices</button>
-        <button class="tablinks" onclick="setPage(event, 'simulatorData')" id="simDataLogTab" style="display:none">Simulation Data</button>
+        <button class="tablinks is-hidden" onclick="setPage(event, 'simulator')" id="simLogTab">Simulation Devices</button>
+        <button class="tablinks is-hidden" onclick="setPage(event, 'simulatorData')" id="simDataLogTab">Simulation Data</button>
     </div>
 
     <!-- SETTINGS PAGE -->
     <div id="settings" class="tabcontent">
 
         <p data-i18n="settings.subtitle"></p>
-
-        <fieldset class="homey-form-fieldset">
-            <legend>Account Details</legend>
-            <div class="field row">
-                <label class="homey-form-label" for="BearerToken">Bearer Token</label>
-                <input class="homey-form-input" id="BearerToken" type="text" value="" />
-            </div>
-        </fieldset>
         <fieldset class="homey-form-fieldset">
             <legend>Polling</legend>
+            <div class="field row">
+                <p>Connect SmartThings while pairing or repairing a device. This settings page only manages polling and diagnostics.</p>
+            </div>
             <div class="field row">
                 <label class="homey-form-label" for="pollInterval">Polling Interval (seconds)</label>
                 <input class="homey-form-input" id="pollInterval" type="text" value="" />
@@ -64,6 +66,17 @@
             <div class="field row">
                 <p></p>
                 <p><button id="save" class="homey-button-primary-full">Save changes</button></p>
+            </div>
+        </fieldset>
+
+        <fieldset class="homey-form-fieldset">
+            <legend>Legacy PAT Testing</legend>
+            <div class="field row">
+                <p>For backward compatibility testing only. This legacy PAT fallback is ignored whenever OAuth2 is available.</p>
+            </div>
+            <div class="field row">
+                <label class="homey-form-label" for="legacyPat">Legacy SmartThings PAT</label>
+                <input class="homey-form-input" id="legacyPat" type="password" value="" autocomplete="off" title="Legacy SmartThings PAT" placeholder="Paste legacy PAT for fallback testing" />
             </div>
         </fieldset>
     </div>
@@ -77,18 +90,19 @@
 						<span class="tooltiptext" data-i18n="settings.emailExplanation"></span>
 					</div>
 				</label>
-				<input class="homey-form-input" id="email" type="text" value />
+                <input class="homey-form-input" id="email" type="text" value title="Email address" placeholder="name@example.com" />
 				<label class="homey-form-label" for="description"><span data-i18n="settings.description"></span>
 					<div class="tooltip"><i class="fi fi-rr-info"></i>
 						<span class="tooltiptext" data-i18n="settings.descriptionExplanation"></span>
 					</div>
 				</label>
-				<input class="homey-form-input" id="description" type="text" value />
+                <input class="homey-form-input" id="description" type="text" value title="Description" placeholder="Add a short description" />
 				<p></p>
 			</div>
 			<p><button id="getDeviceLog"  class="homey-button-small">Get Devices</button> <button id="sendDeviceLog"  class="homey-button-small">Send Log</button></p>
             <div class="field row">
-                <textarea id="detectedDevices" class="homey-form-textarea"></textarea>
+                <label class="is-hidden" for="detectedDevices">Detected devices</label>
+                <textarea id="detectedDevices" class="homey-form-textarea" title="Detected devices" placeholder="Detected devices will appear here"></textarea>
             </div>
         </fieldset>
     </div>
@@ -110,18 +124,19 @@
 						<span class="tooltiptext" data-i18n="settings.emailExplanation"></span>
 					</div>
 				</label>
-				<input class="homey-form-input" id="email2" type="text" value />
+                <input class="homey-form-input" id="email2" type="text" value title="Email address" placeholder="name@example.com" />
 				<label class="homey-form-label" for="description2"><span data-i18n="settings.description"></span>
 					<div class="tooltip"><i class="fi fi-rr-info"></i>
 						<span class="tooltiptext" data-i18n="settings.descriptionExplanation"></span>
 					</div>
 				</label>
-				<input class="homey-form-input" id="description2" type="text" value />
+                <input class="homey-form-input" id="description2" type="text" value title="Description" placeholder="Add a short description" />
 				<p></p>
 			</div>
             <p><button id="clearLog" class="homey-button-small">Clear Log</button> <button id="sendInfoLog" class="homey-button-small">Send Log</button></p>
             <div class="field row">
-                <textarea id="diagLog" class="homey-form-textarea"></textarea>
+                <label class="is-hidden" for="diagLog">Diagnostics log</label>
+                <textarea id="diagLog" class="homey-form-textarea" title="Diagnostics log" placeholder="Diagnostics log output"></textarea>
             </div>
         </fieldset>
     </div>
@@ -137,7 +152,8 @@
         <fieldset class="homey-form-fieldset">
             <button id="clearSend" class="homey-button-small">Clear Log</button></p>
             <div class="field row">
-                <textarea id="sendResponse" class="homey-form-textarea"></textarea>
+                <label class="is-hidden" for="sendResponse">Command response</label>
+                <textarea id="sendResponse" class="homey-form-textarea" title="Command response" placeholder="Command responses will appear here"></textarea>
             </div>
         </fieldset>
     </div>
@@ -148,7 +164,8 @@
             <h1>For debug use only</h1>
             <p><button id="useSim"  class="homey-button-small">Activate</button> <button id="clearSim"  class="homey-button-small">Clear Sim</button></p>
             <div class="field row">
-                <textarea id="simData" class="homey-form-textarea"></textarea>
+                <label class="is-hidden" for="simData">Simulation devices</label>
+                <textarea id="simData" class="homey-form-textarea" title="Simulation devices" placeholder="Simulation device JSON"></textarea>
             </div>
         </fieldset>
     </div>
@@ -159,7 +176,8 @@
             <h1>For debug use only</h1>
             <p><button id="useSimData"  class="homey-button-small">Activate</button> <button id="clearSimData"  class="homey-button-small"">Clear Sim</button></p>
             <div class="field row">
-                <textarea id="simDataData" class="homey-form-textarea"></textarea>
+                <label class="is-hidden" for="simDataData">Simulation data</label>
+                <textarea id="simDataData" class="homey-form-textarea" title="Simulation data" placeholder="Simulation status JSON"></textarea>
             </div>
         </fieldset>
     </div>
@@ -169,10 +187,10 @@
         var busyi;
         busyi = new busy_indicator(document.getElementById("busybox"), document.querySelector("#busybox div"));
 
-        var BearerTokenElement = document.getElementById( 'BearerToken' );
         var diagLogElement = document.getElementById( 'diagLog' );
         var logEnabledElement = document.getElementById( 'logEnabled' );
         var pollIntervalElement = document.getElementById( 'pollInterval' );
+        var legacyPatElement = document.getElementById( 'legacyPat' );
 
         var detectedDevicesElement = document.getElementById( 'detectedDevices' );
         var getDeviceLogElement = document.getElementById('getDeviceLog');
@@ -227,25 +245,16 @@
                 detectedDevicesElement.value = data.devices;
             } );
 
-            Homey.on( 'settings.set', function()
-            {
-                Homey.get( 'BearerToken', function( err, BearerToken )
-                {
-                    if ( err ) return Homey.alert( err );
-                    BearerTokenElement.value = BearerToken;
-                } );
-            } );
-
-            Homey.get( 'BearerToken', function( err, BearerToken )
-            {
-                if ( err ) return Homey.alert( err );
-                BearerTokenElement.value = BearerToken;
-            } );
-
             Homey.get( 'pollInterval', function( err, pollInterval )
             {
                 if ( err ) return Homey.alert( err );
                 pollIntervalElement.value = pollInterval;
+            } );
+
+            Homey.get( 'BearerToken', function( err, bearerToken )
+            {
+                if ( err ) return Homey.alert( err );
+                legacyPatElement.value = bearerToken || '';
             } );
 
             Homey.get( 'logEnabled', function( err, logEnabled )
@@ -301,12 +310,6 @@
 
             saveElement.addEventListener( 'click', function( e )
             {
-                BearerTokenElement.value = BearerTokenElement.value.replace( /[\"\']/g, '' );
-                Homey.set( 'BearerToken', BearerTokenElement.value, function( err )
-                {
-                    if ( err ) return Homey.alert( err );
-                } );
-
 				let pollInterval = parseInt( pollIntervalElement.value );
                 if ( pollInterval < 1 )
 				{
@@ -319,6 +322,11 @@
 					pollIntervalElement.value = pollInterval;
 				}
                 Homey.set( 'pollInterval', pollInterval, function( err )
+                {
+                    if ( err ) return Homey.alert( err );
+                } );
+
+                Homey.set( 'BearerToken', legacyPatElement.value.trim(), function( err )
                 {
                     if ( err ) return Homey.alert( err );
                 } );
@@ -347,7 +355,7 @@
                     }
                     else
                     {
-                        diagLogElement.value = "";
+                        diagLogElement.value = result;
                     }
                 } );
             } );

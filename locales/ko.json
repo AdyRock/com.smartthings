@@ -1,0 +1,51 @@
+{
+    "settings":  {
+                     "email":  "Email Address or Forum id",
+                     "emailExplanation":  "If you want me to respond to your log, please enter your email address or forum id here so I know how to contact you.",
+                     "description":  "Description",
+                     "descriptionExplanation":  "Please enter a brief description of the problem or name of the device if you are going to send the log."
+                 },
+    "Refrigerator":  {
+                         "target_temperature_freezer":  "Freezer Temperature",
+                         "target_temperature_cooler":  "Cooler Temperature",
+                         "target_temperature_cvroom":  "CV Room Temperature",
+                         "target_temperature_onedoor":  "One Door Temperature",
+                         "onoff_icemaker":  "Ice Maker",
+                         "onoff_icemaker-02":  "Ice Maker 2",
+                         "alarm_contact_main":  "Door Open",
+                         "alarm_contact_freezer":  "Freezer Door Open",
+                         "alarm_contact_cooler":  "Cooler Door Open",
+                         "alarm_contact_cvroom":  "CV Room Door Open",
+                         "alarm_contact_onedoor":  "One Door Open",
+                         "measure_temperature_freezer":  "Freezer Current Temperature",
+                         "measure_temperature_cooler":  "Cooler Current Temperature",
+                         "measure_temperature_cvroom":  "CV Room Current Temperature"
+                     },
+    "digitalTV":  "Digital TV",
+    "DisplayPort":  "Display Port",
+    "bluetooth":  "Bluetooth",
+    "pause":  "Pause",
+    "run":  "Run",
+    "stop":  "Stop",
+    "rinseHold":  "Rinse Hold",
+    "noSpin":  "No Spin",
+    "pairRepair":  {
+                       "brandAlt":  "SmartThings",
+                       "eyebrow":  "SmartThings 액세스 토큰",
+                       "getToken":  "토큰 받기",
+                       "step2":  "\u003cstrong\u003eHomey\u003c/strong\u003e를 이름으로 사용하고 \u003cstrong\u003eApplications\u003c/strong\u003e 체크박스를 활성화하세요.",
+                       "step3":  "\u003cstrong\u003eGenerate Token\u003c/strong\u003e을 선택한 다음 토큰을 여기에 복사해 붙여넣으세요.",
+                       "continue":  "계속",
+                       "invalidToken":  "해당 액세스 토큰이 작동하지 않았습니다. 다시 시도해 주세요.",
+                       "pair":  {
+                                    "title":  "SmartThings 연결",
+                                    "intro":  "페어링을 계속하려면 SmartThings 개인 액세스 토큰을 생성하세요.",
+                                    "hint":  "이 토큰으로 계정에 로그인하고 앱이 기기에 접근하도록 승인하려면 계속을 누르세요."
+                                },
+                       "repair":  {
+                                      "title":  "SmartThings 다시 연결",
+                                      "intro":  "연결을 복구하려면 새 SmartThings 개인 액세스 토큰을 생성하세요.",
+                                      "hint":  "이 토큰으로 계정에 로그인하고 앱이 기기에 접근하도록 승인하려면 계속을 누르세요."
+                                  }
+                   }
+}

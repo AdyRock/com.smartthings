@@ -2294,16 +2294,18 @@
   },
   "drivers": [
     {
-      "id": "refrigeration",
-      "name": {
-        "en": "Refrigeration"
+      "images": {
+        "large": "/drivers/refrigeration/assets/images/large.jpg",
+        "small": "/drivers/refrigeration/assets/images/small.png"
       },
-      "class": "sensor",
-      "capabilities": [
-        "measure_temperature.freezer",
-        "measure_temperature.cooler"
-      ],
       "pair": [
+        {
+          "id": "apikey"
+        },
+        {
+          "id": "login_oauth2",
+          "template": "login_oauth2"
+        },
         {
           "id": "list_devices",
           "template": "list_devices",
@@ -2316,12 +2318,59 @@
           "template": "add_devices"
         }
       ],
-      "images": {
-        "large": "/drivers/refrigeration/assets/images/large.jpg",
-        "small": "/drivers/refrigeration/assets/images/small.png"
-      }
+      "repair": [
+        {
+          "id": "apikey"
+        },
+        {
+          "id": "login_oauth2",
+          "template": "login_oauth2"
+        }
+      ],
+      "id": "refrigeration",
+      "name": {
+        "en": "Refrigeration"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "measure_temperature.freezer",
+        "measure_temperature.cooler"
+      ]
     },
     {
+      "images": {
+        "large": "/drivers/stDevice/assets/images/large.png",
+        "small": "/drivers/stDevice/assets/images/small.png"
+      },
+      "pair": [
+        {
+          "id": "apikey"
+        },
+        {
+          "id": "login_oauth2",
+          "template": "login_oauth2"
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "repair": [
+        {
+          "id": "apikey"
+        },
+        {
+          "id": "login_oauth2",
+          "template": "login_oauth2"
+        }
+      ],
       "id": "stDevice",
       "name": {
         "en": "SmartThings Device"
@@ -2342,23 +2391,6 @@
             "en": "W"
           }
         }
-      },
-      "pair": [
-        {
-          "id": "list_devices",
-          "template": "list_devices",
-          "navigation": {
-            "next": "add_devices"
-          }
-        },
-        {
-          "id": "add_devices",
-          "template": "add_devices"
-        }
-      ],
-      "images": {
-        "large": "/drivers/stDevice/assets/images/large.png",
-        "small": "/drivers/stDevice/assets/images/small.png"
       },
       "settings": [
         {

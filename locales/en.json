@@ -28,5 +28,24 @@
 	"run": "Run",
 	"stop": "Stop",
 	"rinseHold": "Rinse Hold",
-	"noSpin": "No Spin"
+    "noSpin": "No Spin",
+    "pairRepair": {
+        "brandAlt": "SmartThings",
+        "eyebrow": "SmartThings Access Token",
+        "getToken": "Get Token",
+        "step2": "Use <strong>Homey</strong> as the name and enable the <strong>Applications</strong> checkbox.",
+        "step3": "Select <strong>Generate Token</strong>, then copy and paste the token here.",
+        "continue": "Continue",
+        "invalidToken": "That Access Token did not work. Please try again.",
+        "pair": {
+            "title": "Connect SmartThings",
+            "intro": "Create a SmartThings Personal Access Token to continue pairing.",
+            "hint": "Click Continue to use this token to log in to your account and authorise the app to access your devices."
+        },
+        "repair": {
+            "title": "Reconnect SmartThings",
+            "intro": "Create a fresh SmartThings Personal Access Token to repair the connection.",
+            "hint": "Click Continue to use this token to log in to your account and authorise the app to access your devices."
+        }
+    }
 }

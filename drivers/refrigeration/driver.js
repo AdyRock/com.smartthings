@@ -2,13 +2,14 @@
 'use strict';
 
 const Homey = require( 'homey' );
+const SmartThingsDriver = require( '../../lib/SmartThingsDriver' );
 
-class FridgeDriver extends Homey.Driver
+class FridgeDriver extends SmartThingsDriver
 {
     /**
      * onInit is called when the driver is initialized.
      */
-    async onInit()
+    async onOAuth2Init()
     {
         this.flowTriggers = {
             'alarm_contact_main_changed_true': this.homey.flow.getDeviceTriggerCard( 'alarm_contact_main_true' ),
