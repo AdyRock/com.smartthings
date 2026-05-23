@@ -106,5 +106,8 @@
 	},
 	"2.0.35": {
 		"en": "Added Flow action card for samsungvd.media_input_source."
+	},
+	"2.0.36": {
+		"en": "Fix crashes shown in reports."
 	}
 }
