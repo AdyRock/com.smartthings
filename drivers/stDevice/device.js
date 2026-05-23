@@ -375,10 +375,21 @@ class STDevice extends Homey.Device
 					if (stValue)
 					{
 						// Find the capability object specified in the mapEntry.supportValues
-						const capabilityObj = stValue[mapEntry.supportValues];
+                        const supportValueKeys = Array.isArray(mapEntry.supportValues) ? mapEntry.supportValues : [ mapEntry.supportValues ];
+                        const capabilityObj = supportValueKeys
+                            .map((key) => stValue[key])
+                            .find((entry) => entry && Array.isArray(entry.value) && entry.value.length > 0);
 
 						if (capabilityObj && capabilityObj.value)
 						{
+                            const existingOptions = this.getCapabilityOptions(capability) || {};
+                            const existingValues = Array.isArray(existingOptions.values) ? existingOptions.values : [];
+                            const existingTitlesById = new Map(existingValues.map((entry) =>
+                            {
+                                const title = entry?.title?.en || entry?.title;
+                                return [entry?.id, title];
+                            }));
+
 							// Create an array of the ENUM values in the format using the capabilityObj.value array as the id and value entry:
 							// {
 							// 	values: [
@@ -402,28 +413,36 @@ class STDevice extends Homey.Device
 								let value = capabilityObj.value[i];
 								let name = value;
 								let id = value;
+                                const referenceTableId = stValue?.referenceTable?.value?.id;
 								// Translate the value using the locales files
 								if (typeof value === 'string')
 								{
+                                    if (capability.startsWith('washer_mode') && referenceTableId && !value.startsWith(`${referenceTableId}_`))
+                                    {
+                                        id = `${referenceTableId}_${value}`;
+                                    }
+
 									// Only an array of strings was returned so use the string as the value
-									name = this.homey.__(value);
+                                    name = existingTitlesById.get(id) || this.homey.__(value) || this.homey.__(id);
 									if (!name)
 									{
-										name = value;
+                                        name = id;
 									}
 								}
 								else if (value.name)
 								{
 									// An array of objects was returned so use the name as the value
 									id = value.id;
-									name = this.homey.__(value.name);
+                                    if (capability.startsWith('washer_mode') && referenceTableId && id && !id.startsWith(`${referenceTableId}_`))
+                                    {
+                                        id = `${referenceTableId}_${id}`;
+                                    }
+
+                                    name = existingTitlesById.get(id) || this.homey.__(value.name) || this.homey.__(id);
 									if (!name)
 									{
-										name = value.name;
+                                        name = value.name || id;
 									}
-
-									// Combine the id and name to create the name value
-									name = `${id} - ${name}`;
 								}
 
 								values.push({

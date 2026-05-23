@@ -132,6 +132,7 @@ const CapabilityMap1 = {
         capabilityID: 'samsungce.washerCycle',
         divider: 0,
         boolCompare: '',
+        supportValues: 'supportedCycles',
         flowTrigger: null
     },
     "washer_mode_02":
@@ -140,6 +141,7 @@ const CapabilityMap1 = {
         capabilityID: 'samsungce.washerCycle',
         divider: 0,
         boolCompare: '',
+        supportValues: 'supportedCycles',
         flowTrigger: null
     },
     "washer_status":
@@ -253,6 +255,7 @@ const CapabilityMap1 = {
         capabilityID: 'airConditionerMode',
         divider: 0,
         boolCompare: '',
+        supportValues: [ 'availableAcModes', 'supportedAcModes' ],
         flowTrigger: null
     },
     "aircon_fan_mode":
@@ -261,6 +264,7 @@ const CapabilityMap1 = {
         capabilityID: 'airConditionerFanMode',
         divider: 0,
         boolCompare: '',
+        supportValues: [ 'availableAcFanModes', 'supportedAcFanModes' ],
         flowTrigger: null
     },
     "aircon_fan_oscillation_mode":
@@ -269,6 +273,7 @@ const CapabilityMap1 = {
         capabilityID: 'fanOscillationMode',
         divider: 0,
         boolCompare: '',
+        supportValues: [ 'availableFanOscillationModes', 'supportedFanOscillationModes' ],
         flowTrigger: null
     },
     "measure_temperature":
