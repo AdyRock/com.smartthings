@@ -1,6 +1,6 @@
 {
     "name": "com.smartthings",
-    "version": "2.0.36",
+    "version": "2.0.37",
     "main": "app.js",
     "dependencies": {
         "homey-oauth2app": "^3.7.2",

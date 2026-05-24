@@ -17,6 +17,7 @@ Upgrade compatibility:
 
 - Existing installs that still only have a legacy SmartThings PAT continue to work as an automatic fallback after update.
 - The legacy PAT is only removed after a real OAuth2 session exists.
+- Existing devices continue using the old PAT until that device is repaired.
 - New pairing and repair still use the OAuth2 flow.
 
 Optional app environment variables:

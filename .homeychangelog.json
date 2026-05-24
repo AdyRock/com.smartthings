@@ -109,5 +109,8 @@
 	},
 	"2.0.36": {
 		"en": "Added method to authenticate via OAuth2 by fetching a compatible PAT, Added a more friendly polling mechanism that evens out the calls instead of burting them. Fix crashes shown in reports."
+	},
+	"2.0.37": {
+		"en": "Updated readme to reflect new pairing method and added more details to the readme."
 	}
 }
