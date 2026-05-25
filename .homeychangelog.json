@@ -115,5 +115,8 @@
 	},
 	"2.0.38": {
 		"en": "Improved error reporting to help track down a crash reported by users."
+	},
+	"2.0.39": {
+		"en": "Fix for obtaining a token for devices when pairing for the first time without an existing PAT."
 	}
 }

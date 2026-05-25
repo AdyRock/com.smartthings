@@ -7,8 +7,23 @@ module.exports = {
     },
     async getDetect( { homey, query } )
     {
-        homey.app.getDevices(true);
-        return homey.app.detectedDevices;
+        if ( !homey.app.hasApiAccess() )
+        {
+            return {
+                error: 'No SmartThings authentication available. Pair or repair the device again.',
+                authenticated: false,
+                devices: homey.app.detectedDevices || null,
+            };
+        }
+
+        // Keep this endpoint non-blocking for the settings UI. Any background
+        // fetch failures are swallowed to prevent unhandled rejections/crashes.
+        homey.app.getDevices( true ).catch( () => null );
+
+        return {
+            authenticated: true,
+            devices: homey.app.detectedDevices || null,
+        };
     },
     async clearLog( { homey, body } )
     {
