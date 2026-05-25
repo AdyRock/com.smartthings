@@ -1,33 +1,50 @@
-# SmartThings
+# Add devices from SmartThings to Homey
 
-Add devices from SmartThings to Homey
+The app uses the updated SmartThings Personal Access Token (PAT) flow during pairing and repair.
 
-## OAuth2 Setup
+## Pairing Procedure (PAT + OAuth)
 
-This app now supports Homey OAuth2 pairing using `homey-oauth2app`.
+1. Start pairing (or repair) in Homey and press the "Get Token" button on the first screen.
+2. This opens the Samsung token page: <https://account.smartthings.com/tokens/new>
+3. Generate a new Personal Access Token and assign at least the following permissions:
+   - Devices:
+     - List all devices
+     - See all devices
+     - Control all devices
+   - Applications:
+     - See all apps
+     - Manage all apps* (required to continue to OAuth setup)
+   - Locations:
+     - See all locations
+     - Control all locations
+   - Scenes (not currently used but maybe in the future):
+     - See all scenes
+     - Control these scenes
+   - Custom capabilities:
+     - See all custom capabilities
 
-This now follows the official Homey SmartThings pattern more closely:
+4. Click "Generate Token". The token is shown only once, so copy it before leaving the page.
+5. Paste the token into the Homey pairing/repair screen and continue.
 
-1. During pairing, the user provides a SmartThings Personal Access Token.
-2. The app creates a per-user SmartThings `API_ONLY` app.
-3. The app uses the returned OAuth client credentials for the Homey OAuth2 login flow.
-4. Access and refresh tokens are then managed through Homey's OAuth2 session.
+6. If the PAT includes *Manage all apps, Homey will show the next screen to connect your SmartThings account with OAuth.
+7. Review and accept the permissions on that OAuth screen, then complete the connection.
 
-Upgrade compatibility:
+- **Note**: The PAT token expires after 24 hours, but OAuth tokens are refreshed automatically by the app after a successful connection.
+- Important for existing installs:
+  - If you already had devices installed before this change, they will keep using their existing (legacy) PAT after update.
+  - Those devices will continue to use the old PAT until that device is repaired.
+- Samsung put a limit on the number of times the server can be accessed, so make sure you don't set the polling time too low. The actual time will depend on the number of devices you add to this app, as each one will need to make an API call to get the current status.
+- Troubleshooting: If you see an authentication error later, run Repair on the affected device and reconnect SmartThings.
 
-- Existing installs that still only have a legacy SmartThings PAT continue to work as an automatic fallback after update.
-- The legacy PAT is only removed after a real OAuth2 session exists.
-- Existing devices continue using the old PAT until that device is repaired.
-- New pairing and repair still use the OAuth2 flow.
+1. Select the items you want to add to Homey and then tap on Next.
 
-Optional app environment variables:
+So far the app has been tested with:
 
-- `SMARTTHINGS_API_URL` (optional, default: `https://api.smartthings.com`)
-- `SMARTTHINGS_AUTHORIZATION_URL` (optional, default: `https://api.smartthings.com/oauth/authorize`)
-- `SMARTTHINGS_TOKEN_URL` (optional, default: `https://auth-global.api.smartthings.com/oauth/token`)
+- Lights (on / off and dim)
+- Sockets (on / off)
+- Contact sensors (contact alarm)
+- Some features of Samsung washing machines
+- Some features of Samsung TVs
+- Samsung Home / Away detection
 
-Create a SmartThings OAuth app and configure redirect URI:
-
-- `https://callback.athom.com/oauth2/callback`
-
-Pairing flow now starts with Homey's OAuth2 login step on supported drivers.
+Other devices might work if they have those capabilities. However if you have any devices that are not detected then let me know via the forum or GitHub.
