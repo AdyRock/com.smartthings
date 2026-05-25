@@ -112,5 +112,8 @@
 	},
 	"2.0.37": {
 		"en": "Updated readme to reflect new pairing method and added more details to the readme."
+	},
+	"2.0.38": {
+		"en": "Improved error reporting to help track down a crash reported by users."
 	}
 }

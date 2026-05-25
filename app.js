@@ -3119,15 +3119,25 @@ class MyApp extends OAuth2App
         return `${baseUrl}/${String( url ).replace( /^\/+/, '' )}`;
     }
 
+    createAppError( message, statusCode = -1, cause = null )
+    {
+        const error = new Error( message || 'Unknown error' );
+        error.statusCode = statusCode;
+
+        if ( cause !== null && cause !== undefined )
+        {
+            error.cause = cause;
+        }
+
+        return error;
+    }
+
     async getLegacyPATResponse( url, options = {} )
     {
         const token = this.getLegacyBearerToken();
         if ( !token )
         {
-            throw {
-                statusCode: 401,
-                message: 'No SmartThings authentication available. Pair or repair the device again.'
-            };
+            throw this.createAppError( 'No SmartThings authentication available. Pair or repair the device again.', 401 );
         }
 
         const response = await fetch( this.getSmartThingsRequestUrl( url ),
@@ -3167,10 +3177,7 @@ class MyApp extends OAuth2App
             }
         }
 
-        throw {
-            statusCode: response.status,
-            message,
-        };
+        throw this.createAppError( message, response.status );
     }
 
     async GetURL( url )
@@ -3215,10 +3222,7 @@ class MyApp extends OAuth2App
             const message = ( typeof err.message === 'string' )
                 ? err.message
                 : this.varToString( err.message || err );
-            throw {
-                statusCode,
-                message: message || 'OAuth2 Request failed'
-            };
+            throw this.createAppError( message || 'OAuth2 Request failed', statusCode, err );
         }
     }
 
@@ -3270,10 +3274,7 @@ class MyApp extends OAuth2App
         }
         catch ( err )
         {
-            throw {
-                statusCode: err.statusCode || err.status || -1,
-                message: err.message || 'OAuth2 Request failed'
-            };
+            throw this.createAppError( err.message || 'OAuth2 Request failed', err.statusCode || err.status || -1, err );
         }
     }
 
@@ -3316,10 +3317,7 @@ class MyApp extends OAuth2App
         }
         catch ( err )
         {
-            throw {
-                statusCode: err.statusCode || err.status || -1,
-                message: err.message || 'OAuth2 image fetch failed'
-            };
+            throw this.createAppError( err.message || 'OAuth2 image fetch failed', err.statusCode || err.status || -1, err );
         }
     }
 
