@@ -1169,7 +1169,7 @@ const CapabilityMap2 = {
     {
         class: "sensor",
         exclude: "",
-        capabilities: [ 'measure_power' ],
+        capabilities: [ 'meter_power' ],
         icon: "energy.svg",
         iconPriority: 1
     },
@@ -1177,7 +1177,7 @@ const CapabilityMap2 = {
     {
         class: "sensor",
         exclude: "",
-        capabilities: [ 'meter_power' ],
+        capabilities: [ 'measure_power' ],
         icon: "energy.svg",
         iconPriority: 1
     },
