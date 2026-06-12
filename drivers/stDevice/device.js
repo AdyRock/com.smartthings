@@ -688,7 +688,20 @@ class STDevice extends Homey.Device
 
                     if ( !value )
                     {
-						stValue = await this.homey.app.getDeviceCapabilityValue( devData.id, component, selectedCapabilityID );
+						try
+						{
+							stValue = await this.homey.app.getDeviceCapabilityValue( devData.id, component, selectedCapabilityID );
+						}
+						catch ( err )
+						{
+							// The ST device doesn't support this capability, so try the fallback before giving up
+							if ( !mapEntry.fallback )
+							{
+								throw err;
+							}
+
+							stValue = null;
+						}
 
 						if ( !stValue && mapEntry.fallback )
 						{
