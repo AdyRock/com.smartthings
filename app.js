@@ -93,6 +93,13 @@ const CapabilityMap1 = {
     {
 		dataEntry: [ 'powerMeter', 'power', 'value' ],
 		capabilityID: 'powerMeter',
+        fallback:
+        {
+            dataEntry: [ 'powerConsumptionReport', 'powerConsumption', 'value', 'energy' ],
+            capabilityID: 'powerConsumptionReport',
+            divider: 0,
+            diffBetween: 'meter_power'
+        },
         divider: 0,
         boolCompare: '',
         flowTrigger: null,
@@ -111,6 +118,12 @@ const CapabilityMap1 = {
     {
 		dataEntry: [ 'energyMeter', 'energy', 'value' ],
 		capabilityID: 'energyMeter',
+        fallback:
+        {
+            dataEntry: [ 'powerConsumptionReport', 'powerConsumption', 'value', 'energy' ],
+            capabilityID: 'powerConsumptionReport',
+            divider: 1000
+        },
         divider: 0,
         boolCompare: '',
         flowTrigger: null,

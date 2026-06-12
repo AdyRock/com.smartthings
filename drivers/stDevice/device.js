@@ -633,26 +633,50 @@ class STDevice extends Homey.Device
                         continue;
                     }
 
+                    let selectedCapabilityID = mapEntry.capabilityID;
+                    let selectedDataEntry = mapEntry.dataEntry;
+                    let selectedDivider = mapEntry.divider;
+                    let selectedDiffBetween = mapEntry.diffBetween;
+
                     let stValue = null;
                     var value = null;
                     if ( mapEntry.keep )
                     {
                         // Check the cache first
-                        if ( capabilityCache[ mapEntry.capabilityID ] )
+                        if ( capabilityCache[ selectedCapabilityID ] !== undefined )
                         {
-                            stValue = capabilityCache[ mapEntry.capabilityID ];
+                            stValue = capabilityCache[ selectedCapabilityID ];
                             value = stValue;
                         }
                     }
 
                     if ( !value )
                     {
-                        stValue = await this.homey.app.getDeviceCapabilityValue( devData.id, component, mapEntry.capabilityID );
+						stValue = await this.homey.app.getDeviceCapabilityValue( devData.id, component, selectedCapabilityID );
+
+						if ( !stValue && mapEntry.fallback )
+						{
+							selectedCapabilityID = mapEntry.fallback.capabilityID;
+							selectedDataEntry = mapEntry.fallback.dataEntry;
+							selectedDivider = mapEntry.fallback.divider;
+							selectedDiffBetween = mapEntry.fallback.diffBetween;
+
+							if ( mapEntry.keep && ( capabilityCache[ selectedCapabilityID ] !== undefined ) )
+							{
+								stValue = capabilityCache[ selectedCapabilityID ];
+							}
+
+							if ( !stValue )
+							{
+								stValue = await this.homey.app.getDeviceCapabilityValue( devData.id, component, selectedCapabilityID );
+							}
+						}
+
 						if (stValue)
 						{
 							value = stValue;
 
-							if (mapEntry.capabilityID === 'imageCapture')
+							if (selectedCapabilityID === 'imageCapture')
 							{
 								if (this.getCapabilityValue( 'alarm_motion' ) != this.lastMotion)
 								{
@@ -682,14 +706,14 @@ class STDevice extends Homey.Device
 							// cache the data
 							capabilityCache = Object.assign( capabilityCache,
 							{
-								[ mapEntry.capabilityID ]: value
+                                [ selectedCapabilityID ]: value
 							} );
 						}
 
 						let units = value;
-						for ( var i = 1; i < mapEntry.dataEntry.length; i++ )
+                        for ( var i = 1; i < selectedDataEntry.length; i++ )
 						{
-							value = value[ mapEntry.dataEntry[ i ] ];
+                            value = value[ selectedDataEntry[ i ] ];
 
 							if (value === null)
 							{
@@ -704,7 +728,7 @@ class STDevice extends Homey.Device
 
 						if (mapEntry.checkTUnits)
 						{
-                            const unit = this.getTemperatureUnitFromCapabilityStatus( stValue, mapEntry.dataEntry );
+                            const unit = this.getTemperatureUnitFromCapabilityStatus( stValue, selectedDataEntry );
                             if ( unit === 'F' )
                             {
                                 // Homey stores temperatures in C internally.
@@ -712,10 +736,10 @@ class STDevice extends Homey.Device
                             }
 						}
 
-						if ( mapEntry.diffBetween )
+                        if ( selectedDiffBetween )
 						{
-							let  lastValue = this.getCapabilityValue( mapEntry.diffBetween );
-							var mapEntry2 = this.homey.app.getStCapabilitiesForCapability( mapEntry.diffBetween );
+                            let  lastValue = this.getCapabilityValue( selectedDiffBetween );
+                            var mapEntry2 = this.homey.app.getStCapabilitiesForCapability( selectedDiffBetween );
 							if (mapEntry2.divider > 0)
 							{
 								lastValue *= mapEntry2.divider;
@@ -806,9 +830,9 @@ class STDevice extends Homey.Device
 								}
 							}
 
-							if ( mapEntry.divider > 0 )
+                            if ( selectedDivider > 0 )
 							{
-								value /= mapEntry.divider;
+                                value /= selectedDivider;
 							}
 							else if ( mapEntry.dateTime )
 							{
