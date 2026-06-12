@@ -7,9 +7,9 @@ if ( process.env.DEBUG === '1' )
 }
 
 const Homey = require( 'homey' );
-const https = require( "https" );
+const { OAuth2App, fetch } = require( 'homey-oauth2app' );
+const SmartThingsOAuth2Client = require( './lib/SmartThingsOAuth2Client' );
 const nodemailer = require( 'nodemailer' );
-const URL = require( 'url' ).URL;
 const fs = require( 'fs' );
 const path = require('path');
 
@@ -131,6 +131,7 @@ const CapabilityMap1 = {
         capabilityID: 'samsungce.washerCycle',
         divider: 0,
         boolCompare: '',
+        supportValues: 'supportedCycles',
         flowTrigger: null
     },
     "washer_mode_02":
@@ -139,6 +140,7 @@ const CapabilityMap1 = {
         capabilityID: 'samsungce.washerCycle',
         divider: 0,
         boolCompare: '',
+        supportValues: 'supportedCycles',
         flowTrigger: null
     },
     "washer_status":
@@ -252,6 +254,7 @@ const CapabilityMap1 = {
         capabilityID: 'airConditionerMode',
         divider: 0,
         boolCompare: '',
+        supportValues: [ 'availableAcModes', 'supportedAcModes' ],
         flowTrigger: null
     },
     "aircon_fan_mode":
@@ -260,6 +263,7 @@ const CapabilityMap1 = {
         capabilityID: 'airConditionerFanMode',
         divider: 0,
         boolCompare: '',
+        supportValues: [ 'availableAcFanModes', 'supportedAcFanModes' ],
         flowTrigger: null
     },
     "aircon_fan_oscillation_mode":
@@ -268,6 +272,7 @@ const CapabilityMap1 = {
         capabilityID: 'fanOscillationMode',
         divider: 0,
         boolCompare: '',
+        supportValues: [ 'availableFanOscillationModes', 'supportedFanOscillationModes' ],
         flowTrigger: null
     },
     "measure_temperature":
@@ -1527,12 +1532,29 @@ const CapabilityMap2 = {
     },
 };
 
-class MyApp extends Homey.App
+class MyApp extends OAuth2App
 {
-    async onInit()
+    static OAUTH2_CLIENT = SmartThingsOAuth2Client;
+
+    async onOAuth2Init()
     {
         this.diagLog = "";
         this.log( 'SmartThings is starting...' );
+
+        if ( !this._globalErrorHandlersInstalled )
+        {
+            process.on( 'unhandledRejection', ( reason ) =>
+            {
+                this.updateLog( `unhandledRejection: ${this.varToString( reason )}`, true );
+            } );
+
+            process.on( 'uncaughtException', ( error ) =>
+            {
+                this.updateLog( `uncaughtException: ${this.varToString( error )}`, true );
+            } );
+
+            this._globalErrorHandlersInstalled = true;
+        }
 
         if ( process.env.DEBUG === '1' )
         {
@@ -1546,44 +1568,68 @@ class MyApp extends Homey.App
         this.gettingDevices = false;
 		this.logEnabled = this.homey.settings.get( 'logEnabled' );
 
+        this.logOAuth2RestoreDiagnostics();
+
+        if ( this.hasOAuth2Access() )
+        {
+            this.clearLegacyBearerToken();
+        }
+
         this.homeyHash = await this.homey.cloud.getHomeyId();
         this.homeyHash = this.hashCode( this.homeyHash ).toString();
 
-        this.BearerToken = this.homey.settings.get( 'BearerToken' );
 		this.pollInterval = Number(this.homey.settings.get('pollInterval'));
 		if (this.pollInterval < 5 )
         {
+            this.pollInterval = 5;
             this.homey.settings.set( 'pollInterval', 5 );
         }
 		else if (this.pollInterval > 60 )
 		{
+            this.pollInterval = 60;
 			this.homey.settings.set( 'pollInterval', 60 );
 		}
 
-        this.log( "SmartThings has started with Key: " + this.BearerToken + " Polling every " + this.homey.settings.get( 'pollInterval' ) + " seconds" );
+        const authType = this.hasOAuth2Access() ? 'OAuth2' : ( this.hasLegacyPATAccess() ? 'Legacy PAT Fallback' : 'None' );
+        this.log( "SmartThings has started using auth: " + authType + " Polling every " + this.homey.settings.get( 'pollInterval' ) + " seconds" );
 
 		// Time between fetching each capability. This is to prevent overloading Homey and the SmartThings API. It is incremented each time a fetch returns error 429 or a cpuwarn event is received.
 		this.fetchPause = 0;
+        this.pendingDeviceRefreshTimers = new Map();
+        this.commandRefreshDelayMs = 1500;
+        this.initPollingSchedulerState();
+        this.initCapabilityValueCache();
 
         // Callback for app settings changed
         this.homey.settings.on( 'set', async function( setting )
         {
             this.homey.app.updateLog( "Setting " + setting + " has changed." );
 
-            if ( setting === 'BearerToken' )
-            {
-				this.homey.app.BearerToken = this.homey.settings.get( 'BearerToken' );
-            }
-
             if ( setting === 'pollInterval' )
             {
 				this.homey.clearTimeout(this.homey.app.timerID );
-				if (this.homey.app.BearerToken && !this.homey.app.timerProcessing )
+                if ( this.homey.app.hasApiAccess() && !this.homey.app.timerProcessing )
                 {
-					this.homey.app.pollInterval = Number(this.homey.settings.get('pollInterval'));
+                    this.homey.app.pollInterval = Number(this.homey.settings.get('pollInterval'));
+                    if ( Number.isNaN( this.homey.app.pollInterval ) )
+                    {
+                        this.homey.app.pollInterval = 10;
+                        this.homey.settings.set( 'pollInterval', this.homey.app.pollInterval );
+                    }
+                    else if ( this.homey.app.pollInterval < 5 )
+                    {
+                        this.homey.app.pollInterval = 5;
+                        this.homey.settings.set( 'pollInterval', this.homey.app.pollInterval );
+                    }
+                    else if ( this.homey.app.pollInterval > 60 )
+                    {
+                        this.homey.app.pollInterval = 60;
+                        this.homey.settings.set( 'pollInterval', this.homey.app.pollInterval );
+                    }
 					if (this.homey.app.pollInterval > 1 )
                     {
-						this.timerID = this.homey.setTimeout(this.homey.app.onPoll, this.homey.app.pollInterval * 1000 );
+                        const nextDelayMs = this.homey.app.getSchedulerTickDelayMs();
+						this.timerID = this.homey.setTimeout(this.homey.app.onPoll, nextDelayMs );
                     }
                 }
             }
@@ -1592,6 +1638,13 @@ class MyApp extends Homey.App
 			{
 				this.homey.app.logEnabled = this.homey.settings.get( 'logEnabled' );
 			}
+
+            if ( setting === 'alarmPollPriorityFactor' )
+            {
+                this.homey.app.alarmPollPriorityFactor = this.homey.app.normalizeAlarmPollPriorityFactor(
+                    this.homey.settings.get( 'alarmPollPriorityFactor' )
+                );
+            }
         } );
 
 		this.homey.on('memwarn', (data) =>
@@ -1611,17 +1664,30 @@ class MyApp extends Homey.App
 		{
 			if (data)
 			{
+                if ( !this.hasApiAccess() )
+                {
+                    this.homey.clearTimeout( this.timerID );
+                    this.updateLog( 'cpuwarn received while not authenticated; polling remains disabled.', true );
+                    return;
+                }
+
 				this.homey.clearTimeout(this.timerID);
 				this.fetchPause += 10;	// Add a 10ms delay between each capability fetch
 
 				let interval = Number(this.homey.settings.get('pollInterval'));
-				if (interval <= 60)
+                if (Number.isNaN(interval) || interval < 5)
+                {
+                    interval = 5;
+                }
+
+                if (interval < 60)
 				{
-					interval += 5;
+                    interval = Math.min(60, interval + 5);
 					this.homey.settings.set('pollInterval', interval);
 				}
-				this.timerID = this.homey.setTimeout(this.onPoll, interval * 1000);
-				this.updateLog(`cpuwarn! ${data.count} of ${data.limit}: Poll interval = ${interval}, delay = ${this.fetchPause}`, true);
+                const nextDelayMs = this.getSchedulerTickDelayMs();
+                this.timerID = this.homey.setTimeout(this.onPoll, nextDelayMs);
+                this.updateLog(`cpuwarn! ${data.count} of ${data.limit}: Poll interval = ${interval}, fetch delay = ${this.fetchPause}`, true);
 			}
 			else
 			{
@@ -1873,13 +1939,13 @@ class MyApp extends Homey.App
 
         this.onPoll = this.onPoll.bind( this );
 
-        if ( this.BearerToken )
+        if ( this.hasApiAccess() )
         {
             if ( this.homey.settings.get( 'pollInterval' ) > 1 )
             {
                 this.updateLog( "Start Polling" );
 				this.homey.clearTimeout( this.timerID );
-                this.timerID = this.homey.setTimeout( this.onPoll, 10000 );
+                this.timerID = this.homey.setTimeout( this.onPoll, this.getSchedulerTickDelayMs() );
             }
         }
 
@@ -1899,6 +1965,416 @@ class MyApp extends Homey.App
     async asyncDelay(period)
     {
         await new Promise(resolve => this.homey.setTimeout(resolve, period));
+    }
+
+    initPollingSchedulerState()
+    {
+        this.pollingDeviceState = new Map();
+        this.pollingSchedulerTickMs = 1000;
+        this.pollingBatchSize = 4;
+        this.pollingMaxBackoffMs = 60000;
+        this.pollingLagLogThresholdMs = 5000;
+        this.alarmPollPriorityFactor = this.normalizeAlarmPollPriorityFactor(
+            this.homey.settings.get( 'alarmPollPriorityFactor' )
+        );
+    }
+
+    normalizeAlarmPollPriorityFactor( value )
+    {
+        const parsed = Number( value );
+        if ( Number.isNaN( parsed ) )
+        {
+            return 0.5;
+        }
+
+        return Math.min( 1, Math.max( 0.2, parsed ) );
+    }
+
+    initCapabilityValueCache()
+    {
+        this.capabilityValueCache = new Map();
+        this.capabilityCacheTtlById = {
+            'samsungce.washerCycle': 60000,
+        };
+        this.capabilityCacheActiveTtlById = {
+            'samsungce.washerCycle': 15000,
+        };
+        this.washerActivityByDevice = new Map();
+    }
+
+    getCapabilityCacheKey( DeviceID, ComponentID, CapabilityID )
+    {
+        return `${DeviceID}:${ComponentID}:${CapabilityID}`;
+    }
+
+    isWasherDeviceActive( DeviceID )
+    {
+        return this.washerActivityByDevice.get( DeviceID ) === true;
+    }
+
+    updateWasherActivityFromCapabilityValue( DeviceID, CapabilityID, value )
+    {
+        if ( CapabilityID !== 'washerOperatingState' )
+        {
+            return;
+        }
+
+        const machineState = String( value?.machineState?.value || '' ).toLowerCase();
+        if ( !machineState )
+        {
+            return;
+        }
+
+        const inactiveStates = new Set( [
+            'none',
+            'ready',
+            'stop',
+            'stopped',
+            'paused',
+            'finished',
+            'end',
+            'poweroff',
+            'standby',
+        ] );
+
+        this.washerActivityByDevice.set( DeviceID, !inactiveStates.has( machineState ) );
+    }
+
+    getCapabilityCacheTtlMs( DeviceID, CapabilityID )
+    {
+        const baseTtlMs = this.capabilityCacheTtlById?.[ CapabilityID ] || 0;
+        if ( baseTtlMs <= 0 )
+        {
+            return 0;
+        }
+
+        const activeTtlMs = this.capabilityCacheActiveTtlById?.[ CapabilityID ];
+        if ( activeTtlMs && this.isWasherDeviceActive( DeviceID ) )
+        {
+            return activeTtlMs;
+        }
+
+        return baseTtlMs;
+    }
+
+    getCachedCapabilityValue( DeviceID, ComponentID, CapabilityID )
+    {
+        const ttlMs = this.getCapabilityCacheTtlMs( DeviceID, CapabilityID );
+        if ( ttlMs <= 0 )
+        {
+            return null;
+        }
+
+        const cacheKey = this.getCapabilityCacheKey( DeviceID, ComponentID, CapabilityID );
+        const entry = this.capabilityValueCache.get( cacheKey );
+        if ( !entry )
+        {
+            return null;
+        }
+
+        if ( ( Date.now() - entry.timestamp ) > ttlMs )
+        {
+            this.capabilityValueCache.delete( cacheKey );
+            return null;
+        }
+
+        return entry.value;
+    }
+
+    setCachedCapabilityValue( DeviceID, ComponentID, CapabilityID, value )
+    {
+        this.updateWasherActivityFromCapabilityValue( DeviceID, CapabilityID, value );
+
+        const ttlMs = this.getCapabilityCacheTtlMs( DeviceID, CapabilityID );
+        if ( ttlMs <= 0 )
+        {
+            return;
+        }
+
+        const cacheKey = this.getCapabilityCacheKey( DeviceID, ComponentID, CapabilityID );
+        this.capabilityValueCache.set( cacheKey,
+        {
+            timestamp: Date.now(),
+            value,
+        } );
+    }
+
+    invalidateCapabilityCacheForDevice( DeviceID )
+    {
+        const prefix = `${DeviceID}:`;
+        for ( const key of this.capabilityValueCache.keys() )
+        {
+            if ( key.startsWith( prefix ) )
+            {
+                this.capabilityValueCache.delete( key );
+            }
+        }
+
+        this.washerActivityByDevice.delete( DeviceID );
+    }
+
+    getSchedulerTickDelayMs()
+    {
+        const baseTick = Math.max( 250, Number( this.pollingSchedulerTickMs ) || 1000 );
+        const jitterFactor = 0.85 + ( Math.random() * 0.3 );
+        return Math.max( 250, Math.round( baseTick * jitterFactor ) );
+    }
+
+    getDevicePollIntervalMs()
+    {
+        const pollIntervalMs = Math.max( 5000, ( Number( this.pollInterval ) || 10 ) * 1000 );
+        return pollIntervalMs;
+    }
+
+    getDevicePollPriorityFactor( device )
+    {
+        if ( !device || ( typeof device.getCapabilities !== 'function' ) )
+        {
+            return 1;
+        }
+
+        const capabilities = device.getCapabilities() || [];
+        const hasAlarmCapability = capabilities.some( ( capability ) =>
+            ( typeof capability === 'string' ) && capability.startsWith( 'alarm_' )
+        );
+
+        if ( hasAlarmCapability )
+        {
+            // Alarm-oriented devices poll more often. Lower factor = faster polling.
+            return this.alarmPollPriorityFactor;
+        }
+
+        return 1;
+    }
+
+    getPollStateKey( driverId, device )
+    {
+        const data = ( device && typeof device.getData === 'function' ) ? device.getData() : null;
+        if ( !data )
+        {
+            return null;
+        }
+
+        const id = data.id || data.deviceId || '';
+        const component = data.component || data.components || 'main';
+        return `${driverId}:${id}:${component}`;
+    }
+
+    getAllPollableDevices()
+    {
+        const drivers = this.homey.drivers.getDrivers();
+        const pollable = [];
+
+        for ( const driverId in drivers )
+        {
+            const devices = this.homey.drivers.getDriver( driverId ).getDevices();
+            for ( const device of devices )
+            {
+                if ( !device || ( typeof device.getDeviceValues !== 'function' ) )
+                {
+                    continue;
+                }
+
+                const key = this.getPollStateKey( driverId, device );
+                if ( !key )
+                {
+                    continue;
+                }
+
+                const priorityFactor = this.getDevicePollPriorityFactor( device );
+                const pollIntervalMs = Math.max( 2500, Math.round( this.getDevicePollIntervalMs() * priorityFactor ) );
+
+                pollable.push( {
+                    key,
+                    driverId,
+                    device,
+                    priorityFactor,
+                    pollIntervalMs,
+                } );
+            }
+        }
+
+        return pollable;
+    }
+
+    syncPollingDeviceState( pollableDevices )
+    {
+        const now = Date.now();
+        const activeKeys = new Set();
+
+        for ( const entry of pollableDevices )
+        {
+            activeKeys.add( entry.key );
+            if ( this.pollingDeviceState.has( entry.key ) )
+            {
+                continue;
+            }
+
+            this.pollingDeviceState.set( entry.key,
+            {
+                nextDueAt: now + Math.floor( Math.random() * entry.pollIntervalMs ),
+                backoffMs: 0,
+                lastPollAt: 0,
+            } );
+        }
+
+        for ( const key of Array.from( this.pollingDeviceState.keys() ) )
+        {
+            if ( !activeKeys.has( key ) )
+            {
+                this.pollingDeviceState.delete( key );
+            }
+        }
+    }
+
+    async runStaggeredPoll()
+    {
+        const now = Date.now();
+        const pollableDevices = this.getAllPollableDevices();
+        this.syncPollingDeviceState( pollableDevices );
+
+        if ( pollableDevices.length < 1 )
+        {
+            this.updateLog( 'Staggered polling: no pollable devices found.' );
+            return;
+        }
+
+        const due = [];
+
+        for ( const entry of pollableDevices )
+        {
+            const state = this.pollingDeviceState.get( entry.key );
+            if ( state && state.nextDueAt <= now )
+            {
+                due.push( {
+                    ...entry,
+                    state,
+                } );
+            }
+        }
+
+        if ( due.length < 1 )
+        {
+            return;
+        }
+
+        due.sort( ( a, b ) =>
+        {
+            const byDue = a.state.nextDueAt - b.state.nextDueAt;
+            if ( byDue !== 0 )
+            {
+                return byDue;
+            }
+
+            return a.priorityFactor - b.priorityFactor;
+        } );
+        const batch = due.slice( 0, Math.max( 1, Number( this.pollingBatchSize ) || 4 ) );
+
+        for ( const entry of batch )
+        {
+            const state = entry.state;
+            try
+            {
+                await entry.device.getDeviceValues();
+                state.backoffMs = 0;
+                state.lastPollAt = Date.now();
+                state.nextDueAt = state.lastPollAt + entry.pollIntervalMs;
+            }
+            catch ( err )
+            {
+                const statusCode = err?.statusCode || err?.status || 0;
+                if ( statusCode === 429 )
+                {
+                    this.fetchPause += 100;
+                    state.backoffMs = Math.min( this.pollingMaxBackoffMs, Math.max( 10000, state.backoffMs + 10000 ) );
+                }
+                else
+                {
+                    state.backoffMs = Math.min( this.pollingMaxBackoffMs, Math.max( 5000, state.backoffMs + 5000 ) );
+                }
+
+                state.nextDueAt = Date.now() + state.backoffMs;
+                this.updateLog( `Staggered poll error: ${this.varToString( err?.message || err )}` );
+            }
+
+            if ( this.fetchPause > 0 )
+            {
+                await this.asyncDelay( this.fetchPause );
+            }
+        }
+
+        const maxLagMs = batch.reduce( ( maxLag, entry ) => Math.max( maxLag, now - entry.state.nextDueAt ), 0 );
+        if ( maxLagMs > this.pollingLagLogThresholdMs )
+        {
+            this.updateLog( `Staggered polling lag: ${maxLagMs}ms across ${batch.length} device(s).`, true );
+        }
+    }
+
+    async refreshDeviceById( deviceId )
+    {
+        if ( !deviceId || !this.hasApiAccess() || this.timerProcessing || this.gettingDevices )
+        {
+            return false;
+        }
+
+        const drivers = this.homey.drivers.getDrivers();
+        let refreshed = false;
+
+        for ( const driver in drivers )
+        {
+            const devices = this.homey.drivers.getDriver( driver ).getDevices();
+            for ( const device of devices )
+            {
+                if ( !device || typeof device.getDeviceValues !== 'function' )
+                {
+                    continue;
+                }
+
+                const data = device.getData();
+                if ( data && ( data.id === deviceId ) )
+                {
+                    await device.getDeviceValues();
+                    refreshed = true;
+                }
+            }
+        }
+
+        return refreshed;
+    }
+
+    queueDeviceRefresh( deviceId, delayMs = this.commandRefreshDelayMs )
+    {
+        if ( !deviceId || !this.hasApiAccess() )
+        {
+            return;
+        }
+
+        const existingTimer = this.pendingDeviceRefreshTimers.get( deviceId );
+        if ( existingTimer )
+        {
+            this.homey.clearTimeout( existingTimer );
+        }
+
+        const timer = this.homey.setTimeout( async () =>
+        {
+            this.pendingDeviceRefreshTimers.delete( deviceId );
+            try
+            {
+                if ( this.timerProcessing || this.gettingDevices )
+                {
+                    this.queueDeviceRefresh( deviceId, 1000 );
+                    return;
+                }
+
+                await this.refreshDeviceById( deviceId );
+            }
+            catch ( err )
+            {
+                this.updateLog( `Command refresh failed for ${deviceId}: ${this.varToString( err.message || err )}` );
+            }
+        }, Math.max( 250, Number( delayMs ) || this.commandRefreshDelayMs ) );
+
+        this.pendingDeviceRefreshTimers.set( deviceId, timer );
     }
 
     async getDevices( LogOnly = false )
@@ -2363,6 +2839,12 @@ class MyApp extends Homey.App
             }
         }
 
+        const cachedValue = this.getCachedCapabilityValue( DeviceID, ComponentID, CapabilityID );
+        if ( cachedValue )
+        {
+            return cachedValue;
+        }
+
         //https://api.smartthings.com/v1/devices/{deviceId}/components/{componentId}/capabilities/{capabilityId}/status
         let url = "devices/" + DeviceID + "/components/" + ComponentID + "/capabilities/" + CapabilityID + "/status";
         try
@@ -2371,14 +2853,28 @@ class MyApp extends Homey.App
             if ( result )
             {
                 let searchData = JSON.parse( result.body );
-                this.updateLog( "Get device: " + url + "\nResult: " + JSON.stringify( searchData, null, 2 ) );
+                this.updateWasherActivityFromCapabilityValue( DeviceID, CapabilityID, searchData );
+                this.setCachedCapabilityValue( DeviceID, ComponentID, CapabilityID, searchData );
+
+                if ( CapabilityID === 'samsungce.washerCycle' )
+                {
+                    const washerCycle = searchData?.washerCycle?.value || 'unknown';
+                    const cycleType = searchData?.cycleType?.value || 'unknown';
+                    const referenceTable = searchData?.referenceTable?.value?.id || 'unknown';
+                    const supportedCycles = Array.isArray( searchData?.supportedCycles?.value ) ? searchData.supportedCycles.value.length : 0;
+                    this.updateLog( `Get device: ${url}\nResult: washerCycle=${washerCycle}, cycleType=${cycleType}, referenceTable=${referenceTable}, supportedCycles=${supportedCycles}` );
+                }
+                else
+                {
+                    this.updateLog( "Get device: " + url + "\nResult: " + JSON.stringify( searchData, null, 2 ) );
+                }
                 return searchData;
             }
         }
         catch ( err )
         {
-            this.updateLog( "Get device error: " + url + "\nError: " + JSON.stringify( err, null, 2 ) );
-			if (err.statusCode === 422)
+            this.updateLog( "Get device error: " + url + "\nError: " + this.varToString( err ) );
+			if ( ( err.statusCode === 422 ) || ( err.statusCode === 403 ) )
 			{
 				throw err;
 			}
@@ -2401,10 +2897,286 @@ class MyApp extends Homey.App
         {
             let searchData = JSON.parse( result.body );
             this.updateLog( "Set device: " + url + "\nResult: " + JSON.stringify( searchData, null, 2 ) );
+            this.invalidateCapabilityCacheForDevice( DeviceID );
+            this.queueDeviceRefresh( DeviceID );
             return searchData;
         }
 
         return -1;
+    }
+
+    getOAuth2ClientSafe()
+    {
+        try
+        {
+            return this.getFirstSavedOAuth2Client();
+        }
+        catch ( err )
+        {
+            return null;
+        }
+    }
+
+    saveOAuth2Client( { configId, sessionId, client } )
+    {
+        super.saveOAuth2Client( { configId, sessionId, client } );
+
+        try
+        {
+            const sessions = this.getSavedOAuth2Sessions();
+            const token = client?.getToken?.();
+            const sessionCount = Object.keys( sessions || {} ).length;
+
+            this.updateLog( `OAuth2 save: stored session ${sessionId} (${configId}); access token present: ${!!token?.access_token}; refresh token present: ${!!token?.refresh_token}; saved session count: ${sessionCount}`, true );
+        }
+        catch ( err )
+        {
+            this.updateLog( `OAuth2 save logging failed: ${this.varToString( err )}`, true );
+        }
+    }
+
+    deleteOAuth2Client( { sessionId, configId = 'default' } = {} )
+    {
+        super.deleteOAuth2Client( { sessionId, configId } );
+
+        try
+        {
+            const sessions = this.getSavedOAuth2Sessions();
+            const sessionCount = Object.keys( sessions || {} ).length;
+
+            this.updateLog( `OAuth2 delete: removed session ${sessionId} (${configId}); saved session count: ${sessionCount}`, true );
+        }
+        catch ( err )
+        {
+            this.updateLog( `OAuth2 delete logging failed: ${this.varToString( err )}`, true );
+        }
+    }
+
+    hasOAuth2Access()
+    {
+        const client = this.getOAuth2ClientSafe();
+        if ( !client )
+        {
+            return false;
+        }
+
+        const token = client.getToken();
+        return !!( token && token.access_token );
+    }
+
+    getLegacyBearerToken()
+    {
+        const token = this.homey.settings.get( 'BearerToken' );
+        return ( typeof token === 'string' ) ? token.trim() : '';
+    }
+
+    hasLegacyPATAccess()
+    {
+        return !this.hasOAuth2Access() && !!this.getLegacyBearerToken();
+    }
+
+    hasApiAccess()
+    {
+        return this.hasOAuth2Access() || this.hasLegacyPATAccess();
+    }
+
+    getAuthModeLabel()
+    {
+        if ( this.hasOAuth2Access() )
+        {
+            return 'OAuth2';
+        }
+
+        if ( this.hasLegacyPATAccess() )
+        {
+            return 'Legacy PAT Fallback';
+        }
+
+        return 'None';
+    }
+
+    getDiagnosticsHeader()
+    {
+        const lines = [
+            `Auth mode: ${this.getAuthModeLabel()}`,
+        ];
+
+        if ( this.hasLegacyPATAccess() )
+        {
+            lines.push( 'Migration pending: this install is still using the legacy PAT fallback. OAuth2 will be used after the next successful pair or repair flow.' );
+        }
+
+        return `${lines.join( '\r\n' )}\r\n`;
+    }
+
+    isInvalidOAuth2Identifier( value )
+    {
+        if ( typeof value !== 'string' )
+        {
+            return !value;
+        }
+
+        const trimmed = value.trim();
+        return !trimmed || ( trimmed === 'undefined' ) || ( trimmed === 'null' );
+    }
+
+    pruneInvalidSavedOAuth2Sessions()
+    {
+        const sessions = this.getSavedOAuth2Sessions();
+        const cleanedSessions = { ...sessions };
+        const invalidSessionIds = [];
+
+        for ( const [ sessionId, sessionData ] of Object.entries( sessions || {} ) )
+        {
+            const configId = sessionData?.configId;
+            if ( this.isInvalidOAuth2Identifier( sessionId ) || this.isInvalidOAuth2Identifier( configId ) )
+            {
+                invalidSessionIds.push( `${sessionId} (${configId || 'default'})` );
+                delete cleanedSessions[ sessionId ];
+            }
+        }
+
+        if ( invalidSessionIds.length )
+        {
+            this.homey.settings.set( 'OAuth2Sessions', cleanedSessions );
+            this.updateLog( `OAuth2 restore: removed malformed saved sessions: ${invalidSessionIds.join( ', ' )}`, true );
+        }
+
+        return cleanedSessions;
+    }
+
+    logOAuth2RestoreDiagnostics()
+    {
+        try
+        {
+            const sessions = this.pruneInvalidSavedOAuth2Sessions();
+            const entries = Object.entries( sessions || {} );
+
+            if ( entries.length < 1 )
+            {
+                this.updateLog( 'OAuth2 restore: no saved sessions found.', true );
+                return;
+            }
+
+            const sessionSummary = entries.map( ( [ sessionId, sessionData ] ) =>
+            {
+                const configId = sessionData?.configId || 'default';
+                return `${sessionId} (${configId})`;
+            } ).join( ', ' );
+
+            this.updateLog( `OAuth2 restore: saved sessions: ${sessionSummary}`, true );
+
+            const [ sessionId, sessionData ] = entries[ 0 ];
+            const configId = sessionData?.configId || 'default';
+
+            this.updateLog( `OAuth2 restore: attempting session ${sessionId} (${configId})`, true );
+
+            const client = this.getOAuth2Client( {
+                configId,
+                sessionId,
+            } );
+            const token = client.getToken();
+
+            this.updateLog( `OAuth2 restore: restored session ${sessionId} (${configId}); access token present: ${!!token?.access_token}; refresh token present: ${!!token?.refresh_token}`, true );
+        }
+        catch ( err )
+        {
+            this.updateLog( `OAuth2 restore failed: ${this.varToString( err )}`, true );
+        }
+    }
+
+    getFormattedDiagLog()
+    {
+        return `${this.getDiagnosticsHeader()}${this.diagLog || ''}`;
+    }
+
+    clearLegacyBearerToken()
+    {
+        if ( !this.homey.settings.get( 'BearerToken' ) )
+        {
+            return;
+        }
+
+        if ( typeof this.homey.settings.unset === 'function' )
+        {
+            this.homey.settings.unset( 'BearerToken' );
+        }
+        else
+        {
+            this.homey.settings.set( 'BearerToken', '' );
+        }
+    }
+
+    getSmartThingsRequestUrl( url )
+    {
+        if ( /^https?:\/\//i.test( url ) )
+        {
+            return url;
+        }
+
+        const baseUrl = SmartThingsOAuth2Client.API_URL.replace( /\/+$/, '' );
+        return `${baseUrl}/${String( url ).replace( /^\/+/, '' )}`;
+    }
+
+    createAppError( message, statusCode = -1, cause = null )
+    {
+        const error = new Error( message || 'Unknown error' );
+        error.statusCode = statusCode;
+
+        if ( cause !== null && cause !== undefined )
+        {
+            error.cause = cause;
+        }
+
+        return error;
+    }
+
+    async getLegacyPATResponse( url, options = {} )
+    {
+        const token = this.getLegacyBearerToken();
+        if ( !token )
+        {
+            throw this.createAppError( 'No SmartThings authentication available. Pair or repair the device again.', 401 );
+        }
+
+        const response = await fetch( this.getSmartThingsRequestUrl( url ),
+        {
+            ...options,
+            headers:
+            {
+                Authorization: `Bearer ${token}`,
+                ...( options.headers || {} ),
+            },
+        } );
+
+        if ( response.ok )
+        {
+            return response;
+        }
+
+        let message = 'Legacy PAT request failed';
+        try
+        {
+            const body = await response.json();
+            message = body?.message || body?.error_description || body?.error || message;
+        }
+        catch ( err )
+        {
+            try
+            {
+                const text = await response.text();
+                if ( text )
+                {
+                    message = text;
+                }
+            }
+            catch ( readErr )
+            {
+                message = response.statusText || message;
+            }
+        }
+
+        throw this.createAppError( message, response.status );
     }
 
     async GetURL( url )
@@ -2422,95 +3194,35 @@ class MyApp extends Homey.App
 
         this.updateLog( url );
 
-        return new Promise( ( resolve, reject ) =>
+        const oAuth2Client = this.getOAuth2ClientSafe();
+        if ( !oAuth2Client )
         {
-            try
-            {
-                if ( !this.BearerToken )
-                {
-                    reject(
-                    {
-                        statusCode: 401,
-                        message: "No Token specified"
-                    } );
-                }
+            const response = await this.getLegacyPATResponse( url );
+            const text = await response.text();
+            return {
+                body: text || '{}'
+            };
+        }
 
-                let https_options = {
-                    host: "api.smartthings.com",
-                    path: "/v1/" + url,
-                    headers:
-                    {
-                        "Authorization": "Bearer " + this.BearerToken,
-                    },
-                };
-
-                https.get( https_options, ( res ) =>
-                {
-                    if ( res.statusCode === 200 )
-                    {
-                        let body = [];
-                        res.on( 'data', ( chunk ) =>
-                        {
-                            body.push( chunk );
-                        } );
-                        res.on( 'end', () =>
-                        {
-                            resolve(
-                            {
-                                "body": Buffer.concat( body )
-                            } );
-                        } );
-                    }
-                    else
-                    {
-                        let message = "";
-                        if ( res.statusCode === 204 )
-                        {
-                            message = "No Data Found";
-                        }
-                        else if ( res.statusCode === 400 )
-                        {
-                            message = "Bad request";
-                        }
-                        else if ( res.statusCode === 401 )
-                        {
-                            message = "Unauthorized";
-                        }
-                        else if ( res.statusCode === 403 )
-                        {
-                            message = "Forbidden";
-                        }
-                        else if ( res.statusCode === 404 )
-                        {
-                            message = "Not Found";
-                        }
-                        this.updateLog( "HTTPS Error: " + res.statusCode + ": " + message );
-                        reject(
-                        {
-                            statusCode: res.statusCode,
-                            message: "HTTPS Error: " + message
-                        } );
-                    }
-                } ).on( 'error', ( err ) =>
-                {
-                    this.updateLog( this.varToString( err ));
-                    reject(
-                    {
-                        statusCode: -1,
-                        message: "HTTPS Catch : " + err
-                    } );
-                } );
-            }
-            catch ( err )
+        try
+        {
+            const body = await oAuth2Client.get(
             {
-                this.updateLog( err.message );
-                reject(
-                {
-                    statusCode: -2,
-                    message: "HTTPS Catch: " + err.message
-                } );
-            }
-        } );
+                path: `/${url}`,
+            } );
+
+            return {
+                body: JSON.stringify( body )
+            };
+        }
+        catch ( err )
+        {
+            const statusCode = err.statusCode || err.status || -1;
+            const message = ( typeof err.message === 'string' )
+                ? err.message
+                : this.varToString( err.message || err );
+            throw this.createAppError( message || 'OAuth2 Request failed', statusCode, err );
+        }
     }
 
     async PostURL( url, body )
@@ -2528,101 +3240,41 @@ class MyApp extends Homey.App
             }
         }
 
-        return new Promise( ( resolve, reject ) =>
+        const oAuth2Client = this.getOAuth2ClientSafe();
+        if ( !oAuth2Client )
         {
-            try
+            const response = await this.getLegacyPATResponse( url,
             {
-                if ( !this.BearerToken )
+                method: 'POST',
+                headers:
                 {
-                    reject(
-                    {
-                        statusCode: 401,
-                        message: "No Token specified"
-                    } );
-                }
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify( body ),
+            } );
 
-                let https_options = {
-                    host: "api.smartthings.com",
-                    path: "/v1/" + url,
-                    method: "POST",
-                    headers:
-                    {
-                        "Authorization": "Bearer " + this.BearerToken,
-                        "contentType": "application/json; charset=utf-8",
-                        "Content-Length": bodyText.length
-                    },
-                };
+            const text = await response.text();
+            return {
+                body: text || '{}'
+            };
+        }
 
-                let req = https.request( https_options, ( res ) =>
-                {
-                    if ( res.statusCode === 200 )
-                    {
-                        let body = [];
-                        res.on( 'data', ( chunk ) =>
-                        {
-                            body.push( chunk );
-                        } );
-                        res.on( 'end', () =>
-                        {
-                            //                            this.updateLog( "Done PostRUL" );
-                            resolve(
-                            {
-                                "body": Buffer.concat( body )
-                            } );
-                        } );
-                    }
-                    else
-                    {
-                        let message = "";
-                        if ( res.statusCode === 204 )
-                        {
-                            message = "No Data Found";
-                        }
-                        else if ( res.statusCode === 400 )
-                        {
-                            message = "Bad request";
-                        }
-                        else if ( res.statusCode === 401 )
-                        {
-                            message = "Unauthorized";
-                        }
-                        else if ( res.statusCode === 403 )
-                        {
-                            message = "Forbidden";
-                        }
-                        else if ( res.statusCode === 404 )
-                        {
-                            message = "Not Found";
-                        }
-                        this.updateLog( "HTTPS Error: " + res.statusCode + ": " + message );
-                        reject(
-                        {
-                            statusCode: res.statusCode,
-                            message: "HTTPS Error: " + message
-                        } );
-                    }
-                } ).on( 'error', ( err ) =>
-                {
-					this.updateLog(this.varToString(err) );
-                    reject(
-                    {
-                        statusCode: -1,
-                        message: "HTTPS Catch : " + err
-                    } );
-                } );
-                req.write( bodyText );
-                req.end();
-            }
-            catch ( err )
+        try
+        {
+            const response = await oAuth2Client.post(
             {
-                this.updateLog( this.varToString( err.message ) );
-                reject(
-                {
-                    statusCode: -2,
-                    message: "HTTPS Catch: " + err.message
-                } );
-            }
-        } );
+                path: `/${url}`,
+                json: body
+            } );
+
+            return {
+                body: JSON.stringify( response )
+            };
+        }
+        catch ( err )
+        {
+            throw this.createAppError( err.message || 'OAuth2 Request failed', err.statusCode || err.status || -1, err );
+        }
     }
 
     getUserDataPath(filename)
@@ -2634,164 +3286,64 @@ class MyApp extends Homey.App
     {
         this.updateLog( url );
 
-        return new Promise( ( resolve, reject ) =>
+        const oAuth2Client = this.getOAuth2ClientSafe();
+        if ( !oAuth2Client )
         {
-            try
+            const response = await this.getLegacyPATResponse( url );
+            let imageFilename = 'eventImage' + devData.id;
+            imageFilename = imageFilename.replace( /[^a-z0-9]/gi, '_' ).toLowerCase();
+            imageFilename += ".jpg";
+            const eventImagePath = this.getUserDataPath( imageFilename );
+            const imageBuffer = Buffer.from( await response.arrayBuffer() );
+            await fs.promises.writeFile( eventImagePath, imageBuffer );
+            return eventImagePath;
+        }
+
+        try
+        {
+            let imageFilename = 'eventImage' + devData.id;
+            imageFilename = imageFilename.replace( /[^a-z0-9]/gi, '_' ).toLowerCase();
+            imageFilename += ".jpg";
+            const eventImagePath = this.getUserDataPath( imageFilename );
+
+            const imageBuffer = await oAuth2Client.get(
             {
-                if ( !this.BearerToken )
-                {
-                    reject(
-                    {
-                        statusCode: 401,
-                        message: "No Token specified"
-                    } );
-                }
+                path: url,
+            } );
 
-                const urlComponents = new URL( url );
-
-                let https_options = {
-                    host: urlComponents.host,
-                    path: urlComponents.pathname + urlComponents.search,
-                    headers:
-                    {
-                        "Authorization": "Bearer " + this.BearerToken,
-                    },
-                };
-
-                let imageFilename = 'eventImage' + devData.id;
-                imageFilename = imageFilename.replace( /[^a-z0-9]/gi, '_' ).toLowerCase();
-                imageFilename += ".jpg";
-                const eventImagePath = this.getUserDataPath(imageFilename);
-
-                https.get( https_options, ( res ) =>
-                {
-                    if ( res.statusCode === 200 )
-                    {
-                        res.pipe( fs.createWriteStream( eventImagePath ) )
-                            .on( 'error', reject )
-                            .once( 'close', () => resolve( eventImagePath ) );
-                    }
-                    else
-                    {
-                        res.resume();
-                        let message = "";
-                        if ( res.statusCode === 204 )
-                        {
-                            message = "No Data Found";
-                        }
-                        else if ( res.statusCode === 400 )
-                        {
-                            message = "Bad request";
-                        }
-                        else if ( res.statusCode === 401 )
-                        {
-                            message = "Unauthorized";
-                        }
-                        else if ( res.statusCode === 403 )
-                        {
-                            message = "Forbidden";
-                        }
-                        else if ( res.statusCode === 404 )
-                        {
-                            message = "Not Found";
-                        }
-                        this.updateLog( "HTTPS Error: " + res.statusCode + ": " + message );
-                        reject(
-                        {
-                            statusCode: res.statusCode,
-                            message: "HTTPS Error: " + message
-                        } );
-                    }
-                } ).on( 'error', ( err ) =>
-                {
-					this.updateLog(this.varToString(err) );
-                    reject(
-                    {
-                        statusCode: -1,
-                        message: "HTTPS Catch : " + err
-                    } );
-                } );
-            }
-            catch ( err )
-            {
-                this.updateLog( err.message );
-                reject(
-                {
-                    statusCode: -2,
-                    message: "HTTPS Catch: " + err.message
-                } );
-            }
-        } );
+            await fs.promises.writeFile( eventImagePath, imageBuffer );
+            return eventImagePath;
+        }
+        catch ( err )
+        {
+            throw this.createAppError( err.message || 'OAuth2 image fetch failed', err.statusCode || err.status || -1, err );
+        }
     }
 
     async onPoll()
     {
-		var nextInterval = this.homey.app.pollInterval * 1000;
-		if (nextInterval < 1000)
-		{
-			nextInterval = 5000;
-		}
+        if ( !this.hasApiAccess() )
+        {
+            this.homey.clearTimeout( this.timerID );
+            this.timerProcessing = false;
+            this.updateLog( 'Polling skipped: no SmartThings authentication available.', true );
+            return;
+        }
 
-		let showInterval = false;
-
-		if (!this.gettingDevices)
+        if (!this.gettingDevices)
         {
             this.timerProcessing = true;
-            this.updateLog( "!!!!!! Polling started" );
             try
             {
-                // Fetch the list of drivers for this app
-                const drivers = this.homey.drivers.getDrivers();
-                for ( const driver in drivers )
-                {
-                    let devices = this.homey.drivers.getDriver( driver ).getDevices();
-                    for ( var i = 0; i < devices.length; i++ )
-                    {
-                        let device = devices[ i ];
-                        if ( device.getDeviceValues )
-                        {
-							try
-							{
-	                            await device.getDeviceValues();
-							}
-							catch (err)
-							{
-								this.updateLog( "Error getting device values: " + this.varToString( err.message ), true );
-								if (err.statusCode === 429)
-								{
-									// Too many requests so slow down the polling
-									this.fetchPause += 100;
-									nextInterval = 60000;
-									showInterval = true;
-									break;
-								}
-							}
-
-							if (this.fetchPause > 0)
-							{
-								await this.asyncDelay(this.fetchPause)
-							}
-                        }
-                    }
-                }
-
-                this.updateLog( "!!!!!! Polling finished" );
+                await this.runStaggeredPoll();
             }
             catch ( err )
             {
-				if (err.statusCode === 429)
-				{
-					// Too many requests so slow down the polling
-					this.fetchPause += 100;
-					nextInterval = 60000;
-					showInterval = true;
-				}
-				this.updateLog("Polling Error: " + this.varToString(err.message), true );
+				this.updateLog("Staggered polling error: " + this.varToString(err.message), true );
             }
         }
 
-		this.updateLog(`Next Interval = ${nextInterval}, delay = ${this.fetchPause}`, showInterval );
-        this.timerID = this.homey.setTimeout( this.onPoll, nextInterval );
+        this.timerID = this.homey.setTimeout( this.onPoll, this.getSchedulerTickDelayMs() );
         this.timerProcessing = false;
     }
 
@@ -2807,7 +3359,53 @@ class MyApp extends Homey.App
         }
         if ( typeof( source ) === "object" )
         {
-            return JSON.stringify( source, null, 2 );
+            const seen = new WeakSet();
+            const replacer = ( key, value ) =>
+            {
+                if ( value instanceof Error )
+                {
+                    const errorDetails = {
+                        name: value.name,
+                        message: value.message,
+                        stack: value.stack
+                    };
+
+                    for ( const prop of Object.getOwnPropertyNames( value ) )
+                    {
+                        if ( !( prop in errorDetails ) )
+                        {
+                            errorDetails[ prop ] = value[ prop ];
+                        }
+                    }
+
+                    return errorDetails;
+                }
+
+                if ( typeof value === "bigint" )
+                {
+                    return value.toString();
+                }
+
+                if ( value && typeof value === "object" )
+                {
+                    if ( seen.has( value ) )
+                    {
+                        return "[Circular]";
+                    }
+                    seen.add( value );
+                }
+
+                return value;
+            };
+
+            try
+            {
+                return JSON.stringify( source, replacer, 2 );
+            }
+            catch ( err )
+            {
+                return String( source );
+            }
         }
         if ( typeof( source ) === "string" )
         {
@@ -2853,7 +3451,7 @@ class MyApp extends Homey.App
             }
             this.homey.api.realtime( 'com.smartthings.logupdated',
             {
-                'log': this.diagLog
+                'log': this.getFormattedDiagLog()
             } );
         }
     }
@@ -2871,7 +3469,7 @@ class MyApp extends Homey.App
                 if ( logType === 'infoLog' )
                 {
                     subject = `SmartThings Information log`;
-                    text += this.varToString( this.diagLog );
+                    text += this.varToString( this.getFormattedDiagLog() );
                 }
                 else if ( logType === 'deviceLog' )
                 {

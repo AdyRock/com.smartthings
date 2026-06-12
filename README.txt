@@ -1,13 +1,21 @@
 Add devices from SmartThings to Homey
 
-The app requires that you obtain a Personal Access Token (also known as a Bearer Token) by logging in to your Samsung Account at https://account.smartthings.com/login?redirect=https%3A%2F%2Faccount.smartthings.com%2Ftokens
-Once you have logged in you can click on the Generate New Token button. You will have to provide a name for the token, which can be whatever you want, and also assign the permission for the token.
-Make sure you assign at least the following permissions:
+The app uses the updated SmartThings Personal Access Token (PAT) flow during pairing and repair.
+
+New PAT procedure:
+
+1. Start pairing (or repair) in Homey and press the "Get Token" button on the first screen.
+2. This opens the Samsung token page: https://account.smartthings.com/tokens/new
+3. Generate a new Personal Access Token and assign at least the following permissions:
 
 Devices:
   List all devices,
   See all devices,
   Control all devices
+
+Applications:
+	See all apps
+	Manage all apps*
 
 Locations:
   See all locations,
@@ -21,13 +29,21 @@ Custom Capabilities:
   See all custom Capabilities
 
 
-Once those boxes are ticked you can click on the Generate Token button. A long code will be shown and you must copy it before closing or moving away from that page as it will not be shown again.
-When you have copied the code you will need to enter it in the "Configure app" page of this app.
+4. Click "Generate Token". The token is shown only once, so copy it before leaving the page.
+5. Paste the token into the Homey pairing/repair screen and continue.
 
-Samsung put a limit on the number of times the server can be accessed so make sure you don't set the Polling time to low. The actual time will depend on the number of devices you add to this app as each one will need to make an API call to get the current status.
+6. Provided the PAT was given permission to *Manage all apps, you will see the next screen to connect to your account via OAuth
+7. Make sure you accept the permissions on this screen and connect.
 
-Once you have entered the token you can then go to the devices section and perform the normal add devices procedure to find all the devices in your Samsung account.
-Select the items you want to add to Homey and then tap on Next.
+	Note: The PAT token expires in 24 hours, but the OAuth tokens can be refreshed automatically by the app. so steps 6 and 7 are very important.
+
+	Important for existing installs:
+	If you already had devices installed before this change, they will keep using their existing (legacy) PAT after update.
+	Those devices will continue to use the old PAT until that device is repaired.
+
+	Samsung put a limit on the number of times the server can be accessed so make sure you don't set the Polling time to low. The actual time will depend on the number of devices you add to this app as each one will need to make an API call to get the current status.
+
+8. Select the items you want to add to Homey and then tap on Next.
 
 So far the app has been tested with:
   Lights (on / off and dim),

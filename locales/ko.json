@@ -1,0 +1,52 @@
+{
+    "settings":  {
+                     "email":  "Email Address or Forum id",
+                     "emailExplanation":  "If you want me to respond to your log, please enter your email address or forum id here so I know how to contact you.",
+                     "description":  "Description",
+                     "descriptionExplanation":  "Please enter a brief description of the problem or name of the device if you are going to send the log."
+                 },
+    "Refrigerator":  {
+                         "target_temperature_freezer":  "Freezer Temperature",
+                         "target_temperature_cooler":  "Cooler Temperature",
+                         "target_temperature_cvroom":  "CV Room Temperature",
+                         "target_temperature_onedoor":  "One Door Temperature",
+                         "onoff_icemaker":  "Ice Maker",
+                         "onoff_icemaker-02":  "Ice Maker 2",
+                         "alarm_contact_main":  "Door Open",
+                         "alarm_contact_freezer":  "Freezer Door Open",
+                         "alarm_contact_cooler":  "Cooler Door Open",
+                         "alarm_contact_cvroom":  "CV Room Door Open",
+                         "alarm_contact_onedoor":  "One Door Open",
+                         "measure_temperature_freezer":  "Freezer Current Temperature",
+                         "measure_temperature_cooler":  "Cooler Current Temperature",
+                         "measure_temperature_cvroom":  "CV Room Current Temperature"
+                     },
+    "digitalTV":  "Digital TV",
+    "DisplayPort":  "Display Port",
+    "bluetooth":  "Bluetooth",
+    "pause":  "Pause",
+    "run":  "Run",
+    "stop":  "Stop",
+    "rinseHold":  "Rinse Hold",
+    "noSpin":  "No Spin",
+    "pairRepair":  {
+                       "brandAlt":  "SmartThings",
+                       "eyebrow":  "SmartThings Ã¬â€¢Â¡Ã¬â€žÂ¸Ã¬Å Â¤ Ã­â€ Â Ã­ÂÂ°",
+                       "getToken":  "Ã­â€ Â Ã­ÂÂ° Ã«Â°â€ºÃªÂ¸Â°",
+                       "step2":  "\u003cstrong\u003eHomey\u003c/strong\u003e를 이름으로 사용하고 \u003cstrong\u003eApplications\u003c/strong\u003e 체크박스를 활성화하세요.",
+                       "step3":  "\u003cstrong\u003eGenerate Token\u003c/strong\u003eÃ¬Ââ€ž Ã¬â€žÂ Ã­Æ’ÂÃ­â€¢Å“ Ã«â€¹Â¤Ã¬ÂÅ’ Ã­â€ Â Ã­ÂÂ°Ã¬Ââ€ž Ã¬â€”Â¬ÃªÂ¸Â°Ã¬â€”Â Ã«Â³ÂµÃ¬â€šÂ¬Ã­â€¢Â´ Ã«Â¶â„¢Ã¬â€”Â¬Ã«â€žÂ£Ã¬Å“Â¼Ã¬â€žÂ¸Ã¬Å¡â€.",
+                       "continue":  "ÃªÂ³â€žÃ¬â€ Â",
+                       "invalidToken":  "Ã­â€¢Â´Ã«â€¹Â¹ Ã¬â€¢Â¡Ã¬â€žÂ¸Ã¬Å Â¤ Ã­â€ Â Ã­ÂÂ°Ã¬ÂÂ´ Ã¬Å¾â€˜Ã«Ââ„¢Ã­â€¢ËœÃ¬Â§â‚¬ Ã¬â€¢Å Ã¬â€¢ËœÃ¬Å ÂµÃ«â€¹Ë†Ã«â€¹Â¤. Ã«â€¹Â¤Ã¬â€¹Å“ Ã¬â€¹Å“Ã«Ââ€žÃ­â€¢Â´ Ã¬Â£Â¼Ã¬â€žÂ¸Ã¬Å¡â€.",
+                       "pair":  {
+                                    "title":  "SmartThings Ã¬â€”Â°ÃªÂ²Â°",
+                                    "intro":  "Ã­Å½ËœÃ¬â€“Â´Ã«Â§ÂÃ¬Ââ€ž ÃªÂ³â€žÃ¬â€ ÂÃ­â€¢ËœÃ«Â Â¤Ã«Â©Â´ SmartThings ÃªÂ°Å“Ã¬ÂÂ¸ Ã¬â€¢Â¡Ã¬â€žÂ¸Ã¬Å Â¤ Ã­â€ Â Ã­ÂÂ°Ã¬Ââ€ž Ã¬Æ’ÂÃ¬â€žÂ±Ã­â€¢ËœÃ¬â€žÂ¸Ã¬Å¡â€.",
+                                    "hint":  "Ã¬ÂÂ´ Ã­â€ Â Ã­ÂÂ°Ã¬Å“Â¼Ã«Â¡Å“ ÃªÂ³â€žÃ¬Â â€¢Ã¬â€”Â Ã«Â¡Å“ÃªÂ·Â¸Ã¬ÂÂ¸Ã­â€¢ËœÃªÂ³Â  Ã¬â€¢Â±Ã¬ÂÂ´ ÃªÂ¸Â°ÃªÂ¸Â°Ã¬â€”Â Ã¬Â â€˜ÃªÂ·Â¼Ã­â€¢ËœÃ«Ââ€žÃ«Â¡Â Ã¬Å Â¹Ã¬ÂÂ¸Ã­â€¢ËœÃ«Â Â¤Ã«Â©Â´ ÃªÂ³â€žÃ¬â€ ÂÃ¬Ââ€ž Ã«Ë†â€žÃ«Â¥Â´Ã¬â€žÂ¸Ã¬Å¡â€."
+                                },
+                       "repair":  {
+                                      "title":  "SmartThings Ã«â€¹Â¤Ã¬â€¹Å“ Ã¬â€”Â°ÃªÂ²Â°",
+                                      "intro":  "Ã¬â€”Â°ÃªÂ²Â°Ã¬Ââ€ž Ã«Â³ÂµÃªÂµÂ¬Ã­â€¢ËœÃ«Â Â¤Ã«Â©Â´ Ã¬Æ’Ë† SmartThings ÃªÂ°Å“Ã¬ÂÂ¸ Ã¬â€¢Â¡Ã¬â€žÂ¸Ã¬Å Â¤ Ã­â€ Â Ã­ÂÂ°Ã¬Ââ€ž Ã¬Æ’ÂÃ¬â€žÂ±Ã­â€¢ËœÃ¬â€žÂ¸Ã¬Å¡â€.",
+                                      "hint":  "Ã¬ÂÂ´ Ã­â€ Â Ã­ÂÂ°Ã¬Å“Â¼Ã«Â¡Å“ ÃªÂ³â€žÃ¬Â â€¢Ã¬â€”Â Ã«Â¡Å“ÃªÂ·Â¸Ã¬ÂÂ¸Ã­â€¢ËœÃªÂ³Â  Ã¬â€¢Â±Ã¬ÂÂ´ ÃªÂ¸Â°ÃªÂ¸Â°Ã¬â€”Â Ã¬Â â€˜ÃªÂ·Â¼Ã­â€¢ËœÃ«Ââ€žÃ«Â¡Â Ã¬Å Â¹Ã¬ÂÂ¸Ã­â€¢ËœÃ«Â Â¤Ã«Â©Â´ ÃªÂ³â€žÃ¬â€ ÂÃ¬Ââ€ž Ã«Ë†â€žÃ«Â¥Â´Ã¬â€žÂ¸Ã¬Å¡â€.",
+                                      "legacyFallback":  null
+                                  }
+                   }
+}

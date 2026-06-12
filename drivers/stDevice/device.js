@@ -375,10 +375,21 @@ class STDevice extends Homey.Device
 					if (stValue)
 					{
 						// Find the capability object specified in the mapEntry.supportValues
-						const capabilityObj = stValue[mapEntry.supportValues];
+                        const supportValueKeys = Array.isArray(mapEntry.supportValues) ? mapEntry.supportValues : [ mapEntry.supportValues ];
+                        const capabilityObj = supportValueKeys
+                            .map((key) => stValue[key])
+                            .find((entry) => entry && Array.isArray(entry.value) && entry.value.length > 0);
 
 						if (capabilityObj && capabilityObj.value)
 						{
+                            const existingOptions = this.getCapabilityOptions(capability) || {};
+                            const existingValues = Array.isArray(existingOptions.values) ? existingOptions.values : [];
+                            const existingTitlesById = new Map(existingValues.map((entry) =>
+                            {
+                                const title = entry?.title?.en || entry?.title;
+                                return [entry?.id, title];
+                            }));
+
 							// Create an array of the ENUM values in the format using the capabilityObj.value array as the id and value entry:
 							// {
 							// 	values: [
@@ -402,28 +413,36 @@ class STDevice extends Homey.Device
 								let value = capabilityObj.value[i];
 								let name = value;
 								let id = value;
+                                const referenceTableId = stValue?.referenceTable?.value?.id;
 								// Translate the value using the locales files
 								if (typeof value === 'string')
 								{
+                                    if (capability.startsWith('washer_mode') && referenceTableId && !value.startsWith(`${referenceTableId}_`))
+                                    {
+                                        id = `${referenceTableId}_${value}`;
+                                    }
+
 									// Only an array of strings was returned so use the string as the value
-									name = this.homey.__(value);
+                                    name = existingTitlesById.get(id) || this.homey.__(value) || this.homey.__(id);
 									if (!name)
 									{
-										name = value;
+                                        name = id;
 									}
 								}
 								else if (value.name)
 								{
 									// An array of objects was returned so use the name as the value
 									id = value.id;
-									name = this.homey.__(value.name);
+                                    if (capability.startsWith('washer_mode') && referenceTableId && id && !id.startsWith(`${referenceTableId}_`))
+                                    {
+                                        id = `${referenceTableId}_${id}`;
+                                    }
+
+                                    name = existingTitlesById.get(id) || this.homey.__(value.name) || this.homey.__(id);
 									if (!name)
 									{
-										name = value.name;
+                                        name = value.name || id;
 									}
-
-									// Combine the id and name to create the name value
-									name = `${id} - ${name}`;
 								}
 
 								values.push({
@@ -511,6 +530,78 @@ class STDevice extends Homey.Device
         return strDate;
     }
 
+    normalizeTemperatureUnit( unit )
+    {
+        if ( typeof unit !== 'string' )
+        {
+            return null;
+        }
+
+        const normalized = unit.replace( /[^a-z]/gi, '' ).toUpperCase();
+        if ( normalized.startsWith( 'F' ) )
+        {
+            return 'F';
+        }
+        if ( normalized.startsWith( 'C' ) )
+        {
+            return 'C';
+        }
+
+        return null;
+    }
+
+    getTemperatureUnitFromCapabilityStatus( status, dataEntry )
+    {
+        if ( !status || !Array.isArray( dataEntry ) || dataEntry.length < 2 )
+        {
+            return null;
+        }
+
+        let node = status;
+        for ( let i = 1; i < dataEntry.length - 1; i++ )
+        {
+            if ( !node || typeof node !== 'object' )
+            {
+                break;
+            }
+
+            const unit = this.normalizeTemperatureUnit( node.unit || node.units );
+            if ( unit )
+            {
+                return unit;
+            }
+
+            node = node[ dataEntry[ i ] ];
+        }
+
+        if ( node && typeof node === 'object' )
+        {
+            return this.normalizeTemperatureUnit( node.unit || node.units );
+        }
+
+        return null;
+    }
+
+    async getSetpointValueForSmartThings( deviceId, component, capabilityId, attributeName, value )
+    {
+        try
+        {
+            const capabilityStatus = await this.homey.app.getDeviceCapabilityValue( deviceId, component, capabilityId );
+            const attributeStatus = capabilityStatus && capabilityStatus[ attributeName ];
+            const unit = this.normalizeTemperatureUnit( attributeStatus && ( attributeStatus.unit || attributeStatus.units ) );
+            if ( unit === 'F' )
+            {
+                return ( value * 1.8 ) + 32;
+            }
+        }
+        catch ( err )
+        {
+            this.homey.app.updateLog( `${this.getName()} getSetpointValueForSmartThings: ${this.homey.app.varToString( err.message )}` );
+        }
+
+        return value;
+    }
+
     async getDeviceValues()
     {
         const devData = this.getData();
@@ -568,7 +659,7 @@ class STDevice extends Homey.Device
 									this.lastMotion = this.getCapabilityValue( 'alarm_motion' );
 									if (this.lastMotion)
 									{
-										this.takeImage();
+                                        await this.takeImage(component);
 									}
 								}
 
@@ -613,21 +704,12 @@ class STDevice extends Homey.Device
 
 						if (mapEntry.checkTUnits)
 						{
-							// Get the Units from the captured data to see if they are in F
-							for ( var i = 1; i < mapEntry.dataEntry.length - 1; i++ )
-							{
-								units = units[ mapEntry.dataEntry[ i ] ];
-
-								if (units.units)
-								{
-									if (units.units === 'F')
-									{
-										// Convert to C
-										value = (value - 32) / 1.8;
-										break;
-									}
-								}
-							}
+                            const unit = this.getTemperatureUnitFromCapabilityStatus( stValue, mapEntry.dataEntry );
+                            if ( unit === 'F' )
+                            {
+                                // Homey stores temperatures in C internally.
+                                value = ( value - 32 ) / 1.8;
+                            }
 						}
 
 						if ( mapEntry.diffBetween )
@@ -823,7 +905,7 @@ class STDevice extends Homey.Device
             }
             catch ( err )
             {
-				if (err.statusCode && (err.statusCode === 422))
+                if (err.statusCode && ((err.statusCode === 422) || (err.statusCode === 403)))
 				{
 					this.removeCapability( capability );
 				}
@@ -1498,18 +1580,19 @@ class STDevice extends Homey.Device
     {
         try
         {
+            const devData = this.getData();
+            const component = devData.component || 'main';
+            const targetValue = await this.getSetpointValueForSmartThings( devData.id, component, 'thermostatCoolingSetpoint', 'coolingSetpoint', value );
+
             let body = {
                 "commands": [
                 {
-                    "component": "main",
+                    "component": component,
                     "capability": "thermostatCoolingSetpoint",
                     "command": "setCoolingSetpoint",
-                    "arguments": [ value ]
+                    "arguments": [ targetValue ]
                 } ]
             };
-
-            // Get the device information stored during pairing
-            const devData = this.getData();
 
             // Set the dim Value on the device using the unique feature ID stored during pairing
             await this.homey.app.setDeviceCapabilityValue( devData.id, body );
@@ -1527,18 +1610,19 @@ class STDevice extends Homey.Device
     {
         try
         {
+            const devData = this.getData();
+            const component = devData.component || 'main';
+            const targetValue = await this.getSetpointValueForSmartThings( devData.id, component, 'thermostatHeatingSetpoint', 'heatingSetpoint', value );
+
             let body = {
                 "commands": [
                 {
-                    "component": "main",
+                    "component": component,
                     "capability": "thermostatHeatingSetpoint",
                     "command": "setHeatingSetpoint",
-                    "arguments": [ value ]
+                    "arguments": [ targetValue ]
                 } ]
             };
-
-            // Get the device information stored during pairing
-            const devData = this.getData();
 
             // Set the dim Value on the device using the unique feature ID stored during pairing
             await this.homey.app.setDeviceCapabilityValue( devData.id, body );
@@ -2373,7 +2457,7 @@ class STDevice extends Homey.Device
         }
     }
 
-    async takeImage()
+    async takeImage(component = 'main')
     {
         try
         {
@@ -2383,7 +2467,7 @@ class STDevice extends Homey.Device
             let body = {
                 "commands": [
                 {
-                    "component": "main",
+                    "component": component,
                     "capability": "imageCapture",
                     "command": 'take',
                     "arguments": []
@@ -2395,8 +2479,15 @@ class STDevice extends Homey.Device
         }
         catch ( err )
         {
+            if ( err && ( err.statusCode === 403 || err.statusCode === 422 ) )
+            {
+                // Some devices expose image status but reject capture commands.
+                this.homey.app.updateLog( this.getName() + " takeImage ignored: " + this.homey.app.varToString( err.message ) );
+                return;
+            }
+
             //this.setUnavailable();
-            this.homey.app.updateLog( this.getName() + " onCapabilityRobotCleaningTurboMode Error " + this.homey.app.varToString( err.message ) );
+            this.homey.app.updateLog( this.getName() + " takeImage Error " + this.homey.app.varToString( err.message ) );
             throw new Error( err.message );
         }
 

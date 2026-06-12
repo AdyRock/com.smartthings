@@ -1,8 +1,9 @@
 {
     "name": "com.smartthings",
-    "version": "2.0.35",
+    "version": "2.0.39",
     "main": "app.js",
     "dependencies": {
+        "homey-oauth2app": "^3.7.2",
         "lodash": "^4.17.21",
         "nodemailer": "^6.7.7"
     },

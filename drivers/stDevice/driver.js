@@ -2,11 +2,12 @@
 'use strict';
 
 const Homey = require( 'homey' );
+const SmartThingsDriver = require( '../../lib/SmartThingsDriver' );
 
-class STDriver extends Homey.Driver
+class STDriver extends SmartThingsDriver
 {
 
-    onInit()
+    onOAuth2Init()
     {
         this.log( 'STDriver is initialising' );
 
