@@ -2277,7 +2277,7 @@ class MyApp extends OAuth2App
         return fallbackValue;
     }
 
-    async setOAuth2DeviceAvailability( available, reason = null )
+    async setOAuth2DeviceAvailability( available, reason = null, force = false )
     {
         const unavailableReason = reason || this.getLocalizedText(
             'oauth.unavailableReason',
@@ -2293,7 +2293,7 @@ class MyApp extends OAuth2App
             return;
         }
 
-        if ( this.oauth2DevicesUnavailable === targetUnavailable && !available )
+        if ( this.oauth2DevicesUnavailable === targetUnavailable && !force )
         {
             return;
         }
@@ -3224,7 +3224,7 @@ class MyApp extends OAuth2App
         this.oauth2RefreshFailureState = null;
         this.oauth2RefreshFailureCounts.clear();
         this.updateLog( `OAuth2 refresh failure state cleared for ${previousSession}.`, true );
-        this.setOAuth2DeviceAvailability( true ).catch( ( err ) =>
+        this.setOAuth2DeviceAvailability( true, null, true ).catch( ( err ) =>
         {
             this.updateLog( `OAuth2 recovery: unable to set devices available: ${this.varToString( err )}`, true );
         } );
@@ -3249,7 +3249,7 @@ class MyApp extends OAuth2App
 
         if ( this.hasApiAccess() )
         {
-            this.setOAuth2DeviceAvailability( true ).catch( ( err ) =>
+            this.setOAuth2DeviceAvailability( true, null, true ).catch( ( err ) =>
             {
                 this.updateLog( `OAuth2 save recovery: unable to set devices available: ${this.varToString( err )}`, true );
             } );

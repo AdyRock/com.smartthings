@@ -254,6 +254,83 @@
             return Math.max( 0.2, Math.min( 1, factor ) );
         }
 
+        function parseJsonStringIfPresent( value )
+        {
+            if ( typeof value !== 'string' )
+            {
+                return value;
+            }
+
+            const trimmedValue = value.trim();
+            if ( !trimmedValue )
+            {
+                return value;
+            }
+
+            const looksLikeJson = ( trimmedValue.startsWith( '{' ) && trimmedValue.endsWith( '}' ) )
+                || ( trimmedValue.startsWith( '[' ) && trimmedValue.endsWith( ']' ) );
+
+            if ( !looksLikeJson )
+            {
+                return value;
+            }
+
+            try
+            {
+                return JSON.parse( trimmedValue );
+            }
+            catch ( err )
+            {
+                return value;
+            }
+        }
+
+        function normalizeForDisplay( value )
+        {
+            const parsedValue = parseJsonStringIfPresent( value );
+
+            if ( Array.isArray( parsedValue ) )
+            {
+                return parsedValue.map( normalizeForDisplay );
+            }
+
+            if ( parsedValue && typeof parsedValue === 'object' )
+            {
+                const normalizedObject = {};
+                Object.keys( parsedValue ).forEach( function( key )
+                {
+                    normalizedObject[ key ] = normalizeForDisplay( parsedValue[ key ] );
+                } );
+                return normalizedObject;
+            }
+
+            return parsedValue;
+        }
+
+        function formatForTextarea( data )
+        {
+            if ( data === null || typeof data === 'undefined' )
+            {
+                return '';
+            }
+
+            const normalizedData = normalizeForDisplay( data );
+
+            if ( typeof normalizedData === 'string' )
+            {
+                return normalizedData;
+            }
+
+            try
+            {
+                return JSON.stringify( normalizedData, null, 2 );
+            }
+            catch ( err )
+            {
+                return String( normalizedData );
+            }
+        }
+
         var detectedDevicesElement = document.getElementById( 'detectedDevices' );
         var getDeviceLogElement = document.getElementById('getDeviceLog');
         var sendDeviceLogElement = document.getElementById('sendDeviceLog');
@@ -304,7 +381,7 @@
 
             Homey.on( 'com.smartthings.detectedDevicesUpdated', function( data )
             {
-                detectedDevicesElement.value = data.devices;
+                detectedDevicesElement.value = formatForTextarea( data.devices );
             } );
 
             Homey.get( 'pollInterval', function( err, pollInterval )
@@ -358,7 +435,7 @@
                 }
                 else
                 {
-                    detectedDevicesElement.value = result;
+                    detectedDevicesElement.value = formatForTextarea( result );
                 }
             } );
 
@@ -372,7 +449,7 @@
                     }
                     else
                     {
-                        detectedDevicesElement.value = result;
+                        detectedDevicesElement.value = formatForTextarea( result );
                     }
                 });
             });
