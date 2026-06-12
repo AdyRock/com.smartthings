@@ -17,9 +17,6 @@ The app uses the updated SmartThings Personal Access Token (PAT) flow during pai
    - Locations:
      - See all locations
      - Control all locations
-   - Scenes (not currently used but maybe in the future):
-     - See all scenes
-     - Control these scenes
    - Custom capabilities:
      - See all custom capabilities
 
