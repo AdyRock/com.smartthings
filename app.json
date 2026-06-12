@@ -2431,6 +2431,28 @@
         {
           "type": "group",
           "label": {
+            "en": "Energy",
+            "ko": "에너지"
+          },
+          "children": [
+            {
+              "id": "energyCumulative",
+              "type": "checkbox",
+              "label": {
+                "en": "Show as home power meter in the Energy tab",
+                "ko": "Energy 탭에 전력계로 표시"
+              },
+              "value": false,
+              "hint": {
+                "en": "Treat this device as a cumulative meter that measures the whole home, so it is shown as the power meter in the Energy tab.",
+                "ko": "이 기기를 집 전체 사용량을 측정하는 누적 미터로 취급하여 Energy 탭에 전력계로 표시합니다."
+              }
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
             "en": "Date",
             "nl": "RGBW-lamp"
           },

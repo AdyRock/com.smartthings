@@ -73,6 +73,38 @@ class STDevice extends Homey.Device
             this.setClass('lock');
         }
 
+        // Migrate energy meter devices so they show up in the Energy tab as a power meter
+        if ( this.hasCapability( 'meter_power' ) || this.hasCapability( 'measure_power' ) )
+        {
+            if ( hasApiAccessAtInit && !this.hasCapability( 'measure_power' ) )
+            {
+                try
+                {
+                    // Only add live power if the ST device can actually report it
+                    const stValue = await this.homey.app.getDeviceCapabilityValue( devData.id, component, 'powerMeter' );
+                    if ( stValue && stValue.power )
+                    {
+                        await this.addCapability( 'measure_power' );
+                    }
+                }
+                catch ( err )
+                {
+                    this.homey.app.updateLog( `${this.getName()} has no powerMeter capability so live power is not available` );
+                }
+            }
+
+            // One-time migration: default the Energy tab power meter setting for devices paired before the setting existed.
+            // A pure meter device (no switch) measures the home consumption, so treat it as a cumulative meter by default.
+            if ( this.getStoreValue( 'energyCumulativeMigrated' ) === null )
+            {
+                const isPureMeter = ( this.getClass() === 'sensor' ) && !this.hasCapability( 'onoff' );
+                await this.setSettings( { energyCumulative: isPureMeter } ).catch( this.error );
+                await this.setStoreValue( 'energyCumulativeMigrated', true ).catch( this.error );
+            }
+
+            await this.updateEnergyCumulative();
+        }
+
         if (this.hasCapability('tag_button_status') && !this.hasCapability('tag_button_timestamp'))
         {
             this.addCapability('tag_button_timestamp');
@@ -534,6 +566,29 @@ class STDevice extends Homey.Device
             {
                 this.setCapabilityValue('image_capture', this.convertDate(this.captureTime, newSettings)).catch(this.error);
             }
+        }
+
+        if (changedKeys.indexOf("energyCumulative") >= 0)
+        {
+            await this.setEnergy( newSettings.energyCumulative === true ? { cumulative: true } : {} ).catch( this.error );
+        }
+    }
+
+    async updateEnergyCumulative()
+    {
+        try
+        {
+            const cumulative = this.getSetting( 'energyCumulative' ) === true;
+            const energy = this.getEnergy();
+            const currentlyCumulative = ( energy && energy.cumulative === true );
+            if ( currentlyCumulative !== cumulative )
+            {
+                await this.setEnergy( cumulative ? { cumulative: true } : {} );
+            }
+        }
+        catch ( err )
+        {
+            this.error( err );
         }
     }
 
