@@ -1597,9 +1597,18 @@ class MyApp extends OAuth2App
 		// Time between fetching each capability. This is to prevent overloading Homey and the SmartThings API. It is incremented each time a fetch returns error 429 or a cpuwarn event is received.
 		this.fetchPause = 0;
         this.pendingDeviceRefreshTimers = new Map();
+        this.throttledLogTimestamps = new Map();
+        this.oauth2RefreshFailureState = null;
+        this.oauth2RefreshFailureCounts = new Map();
+        this.oauth2DevicesUnavailable = false;
         this.commandRefreshDelayMs = 1500;
         this.initPollingSchedulerState();
         this.initCapabilityValueCache();
+
+        if ( !this.hasApiAccess() )
+        {
+            this.scheduleNoAuthDeviceAvailabilitySync();
+        }
 
         // Callback for app settings changed
         this.homey.settings.on( 'set', async function( setting )
@@ -2198,6 +2207,144 @@ class MyApp extends OAuth2App
         return pollable;
     }
 
+    getAllSmartThingsDevices()
+    {
+        const drivers = this.homey.drivers.getDrivers();
+        const devices = [];
+
+        for ( const driverId in drivers )
+        {
+            const driver = this.homey.drivers.getDriver( driverId );
+            if ( !driver || ( typeof driver.getDevices !== 'function' ) )
+            {
+                continue;
+            }
+
+            for ( const device of driver.getDevices() )
+            {
+                if ( device )
+                {
+                    devices.push( device );
+                }
+            }
+        }
+
+        return devices;
+    }
+
+    scheduleNoAuthDeviceAvailabilitySync( attempt = 1, maxAttempts = 6 )
+    {
+        if ( this.hasApiAccess() )
+        {
+            return;
+        }
+
+        this.setOAuth2DeviceAvailability( false ).catch( ( err ) =>
+        {
+            this.updateLog( `Auth none startup sync failed: ${this.varToString( err )}`, true );
+        } );
+
+        if ( attempt >= maxAttempts )
+        {
+            return;
+        }
+
+        this.homey.setTimeout( () =>
+        {
+            this.scheduleNoAuthDeviceAvailabilitySync( attempt + 1, maxAttempts );
+        }, 1500 );
+    }
+
+    getLocalizedText( key, fallbackValue )
+    {
+        try
+        {
+            const value = this.homey.__( key );
+            if ( typeof value === 'string' )
+            {
+                const trimmed = value.trim();
+                if ( trimmed && ( trimmed !== key ) )
+                {
+                    return trimmed;
+                }
+            }
+        }
+        catch ( err )
+        {
+            // Fall back to the default string when a locale key is missing.
+        }
+
+        return fallbackValue;
+    }
+
+    async setOAuth2DeviceAvailability( available, reason = null )
+    {
+        const unavailableReason = reason || this.getLocalizedText(
+            'oauth.unavailableReason',
+            'SmartThings OAuth authentication failed. Please repair or re-pair to re-authenticate.'
+        );
+        const targetUnavailable = !available;
+        const devices = this.getAllSmartThingsDevices();
+
+        if ( targetUnavailable && ( devices.length < 1 ) )
+        {
+            // Devices may not be initialized yet during early startup.
+            // Keep retrying from callers until at least one device is available.
+            return;
+        }
+
+        if ( this.oauth2DevicesUnavailable === targetUnavailable && !available )
+        {
+            return;
+        }
+
+        this.oauth2DevicesUnavailable = targetUnavailable;
+
+        const updateTasks = devices.map( async ( device ) =>
+        {
+            try
+            {
+                if ( available )
+                {
+                    if ( typeof device.setAvailable === 'function' )
+                    {
+                        await device.setAvailable();
+                    }
+
+                    if ( typeof device.unsetWarning === 'function' )
+                    {
+                        await device.unsetWarning();
+                    }
+                }
+                else if ( typeof device.setUnavailable === 'function' )
+                {
+                    await device.setUnavailable( unavailableReason );
+
+                    if ( typeof device.setWarning === 'function' )
+                    {
+                        await device.setWarning( unavailableReason, null );
+                    }
+                }
+            }
+            catch ( err )
+            {
+                const deviceName = ( typeof device.getName === 'function' ) ? device.getName() : 'unknown device';
+                this.updateLog( `OAuth2 device availability update failed for ${deviceName}: ${this.varToString( err )}`, true );
+            }
+        } );
+
+        await Promise.allSettled( updateTasks );
+
+        if ( available )
+        {
+            this.updateLog( `OAuth2 recovery: marked ${devices.length} SmartThings devices available.`, true );
+        }
+        else
+        {
+            this.updateLog( `OAuth2 failure: marked ${devices.length} SmartThings devices unavailable.`, true );
+        }
+    }
+
     syncPollingDeviceState( pollableDevices )
     {
         const now = Date.now();
@@ -2396,173 +2543,178 @@ class MyApp extends OAuth2App
         }
 
         this.gettingDevices = true;
-        while (this.timerProcessing)
+        try
         {
-            await this.asyncDelay(100);
-        }
-
-        //https://api.smartthings.com/v1/devices
-        const url = "devices";
-        let searchResult = await this.GetURL( url );
-        if ( searchResult )
-        {
-            let searchData = JSON.parse( searchResult.body );
-            this.detectedDevices = JSON.stringify( searchData, null, 2 );
-            if ( LogOnly )
+            while (this.timerProcessing)
             {
-                this.gettingDevices = false;
-                return;
+                await this.asyncDelay(100);
             }
 
-            this.homey.api.realtime( 'com.smartthings.detectedDevicesUpdated',
+            //https://api.smartthings.com/v1/devices
+            const url = "devices";
+            let searchResult = await this.GetURL( url );
+            if ( searchResult )
             {
-                'devices': this.detectedDevices
-            } );
-
-            const devices = [];
-
-            // Create an array of devices
-            for ( const device of searchData.items )
-            {
-                this.updateLog( "Found device: " );
-                this.updateLog( JSON.stringify( device, null, 2 ) );
-
-                var components = device.components;
-                var iconName = "";
-                var iconPriority = 0;
-				const settings = { noDisabledCapabilities: true };
-
-                // Find if 'main - custom.disabledComponents' exists
-                let disabledComponents = null;
-                for ( const component of components )
+                let searchData = JSON.parse( searchResult.body );
+                this.detectedDevices = JSON.stringify( searchData, null, 2 );
+                if ( LogOnly )
                 {
-                    if (component.id === 'main')
-                    {
-                        for ( const deviceCapability of component.capabilities )
-                        {
-                            if (deviceCapability.id === 'custom.disabledComponents')
-                            {
-                                disabledComponents = await this.getDeviceCapabilityValue( device.deviceId, 'main', 'custom.disabledComponents' );
-                                break;
-                            }
-                        }
-                        break;
-                    }
+                    return;
                 }
 
-                for ( const component of components )
+                this.homey.api.realtime( 'com.smartthings.detectedDevicesUpdated',
                 {
-                    if ( disabledComponents && disabledComponents.disabledComponents && disabledComponents.disabledComponents.value && disabledComponents.disabledComponents.value.findIndex( ( element ) => element === component.id ) >= 0 )
+                    'devices': this.detectedDevices
+                } );
+
+                const devices = [];
+
+                // Create an array of devices
+                for ( const device of searchData.items )
+                {
+                    this.updateLog( "Found device: " );
+                    this.updateLog( JSON.stringify( device, null, 2 ) );
+
+                    var components = device.components;
+                    var iconName = "";
+                    var iconPriority = 0;
+					const settings = { noDisabledCapabilities: true };
+
+                    // Find if 'main - custom.disabledComponents' exists
+                    let disabledComponents = null;
+                    for ( const component of components )
                     {
-                        // This component is disabled
-                        this.updateLog( `Component: ${device.label}, ${this.varToString( component )} is disabled` );
-                        continue;
+                        if (component.id === 'main')
+                        {
+                            for ( const deviceCapability of component.capabilities )
+                            {
+                                if (deviceCapability.id === 'custom.disabledComponents')
+                                {
+                                    disabledComponents = await this.getDeviceCapabilityValue( device.deviceId, 'main', 'custom.disabledComponents' );
+                                    break;
+                                }
+                            }
+
+                            break;
+                        }
                     }
 
-                    var data = {};
-                    data = {
-                        "id": device.deviceId,
-                        "component": component.id,
-                    };
-
-                    var capabilities = [];
-                    let className = 'socket';
-
-                    // Find supported capabilities
-                    var deviceCapabilities = component.capabilities;
-                    for ( const deviceCapability of deviceCapabilities )
+                    for ( const component of components )
                     {
-						if (deviceCapability.id === 'custom.disabledComponents')
-						{
-							settings.noDisabledCapabilities = false;
-							continue;
-						}
-
-                        const capabilityMapEntry = CapabilityMap2[ deviceCapability.id ];
-                        if ( capabilityMapEntry )
+                        if ( disabledComponents && disabledComponents.disabledComponents && disabledComponents.disabledComponents.value && disabledComponents.disabledComponents.value.findIndex( ( element ) => element === component.id ) >= 0 )
                         {
-                            // Make sure the entry has no exclusion condition or that the capabilities for the device does not have the excluded item
-                            if ( ( capabilityMapEntry.exclude == "" ) || ( !isExcluded( deviceCapabilities, capabilityMapEntry.exclude ) ) )
+                            // This component is disabled
+                            this.updateLog( `Component: ${device.label}, ${this.varToString( component )} is disabled` );
+                            continue;
+                        }
+
+                        var data = {};
+                        data = {
+                            "id": device.deviceId,
+                            "component": component.id,
+                        };
+
+                        var capabilities = [];
+                        let className = 'socket';
+
+                        // Find supported capabilities
+                        var deviceCapabilities = component.capabilities;
+                        for ( const deviceCapability of deviceCapabilities )
+                        {
+							if (deviceCapability.id === 'custom.disabledComponents')
+							{
+								settings.noDisabledCapabilities = false;
+								continue;
+							}
+
+                            const capabilityMapEntry = CapabilityMap2[ deviceCapability.id ];
+                            if ( capabilityMapEntry )
                             {
-                                //Add to the table
-                                if ( capabilityMapEntry.icon && capabilityMapEntry.iconPriority > iconPriority )
+                                // Make sure the entry has no exclusion condition or that the capabilities for the device does not have the excluded item
+                                if ( ( capabilityMapEntry.exclude == "" ) || ( !isExcluded( deviceCapabilities, capabilityMapEntry.exclude ) ) )
                                 {
-                                    iconName = capabilityMapEntry.icon;
-                                    iconPriority = capabilityMapEntry.iconPriority;
-
-                                    if ( capabilityMapEntry.class != "" )
+                                    //Add to the table
+                                    if ( capabilityMapEntry.icon && capabilityMapEntry.iconPriority > iconPriority )
                                     {
-                                        className = capabilityMapEntry.class;
-                                    }
-                                }
+                                        iconName = capabilityMapEntry.icon;
+                                        iconPriority = capabilityMapEntry.iconPriority;
 
-                                if ( capabilityMapEntry.statusEntry )
-                                {
-                                    // We need to check the value status to get more information about which capability to add
-                                    const capabilityStatus = await this.getDeviceCapabilityValue( device.deviceId, component.id, deviceCapability.id );
-                                    this.updateLog( `Capability status for: ${deviceCapability.id} = ${this.varToString( capabilityStatus )}` );
-                                    if ( capabilityStatus && capabilityStatus[ capabilityMapEntry.statusEntry ] )
-                                    {
-                                        const option = capabilityStatus[ capabilityMapEntry.statusEntry ];
-                                        let found = false;
-                                        for ( let entry = 0; entry < capabilityMapEntry.statusValue.length; entry++ )
+                                        if ( capabilityMapEntry.class != "" )
                                         {
-                                            if ( option.value && option.value.id && ( option.value.id === capabilityMapEntry.statusValue[ entry ] ) )
+                                            className = capabilityMapEntry.class;
+                                        }
+                                    }
+
+                                    if ( capabilityMapEntry.statusEntry )
+                                    {
+                                        // We need to check the value status to get more information about which capability to add
+                                        const capabilityStatus = await this.getDeviceCapabilityValue( device.deviceId, component.id, deviceCapability.id );
+                                        this.updateLog( `Capability status for: ${deviceCapability.id} = ${this.varToString( capabilityStatus )}` );
+                                        if ( capabilityStatus && capabilityStatus[ capabilityMapEntry.statusEntry ] )
+                                        {
+                                            const option = capabilityStatus[ capabilityMapEntry.statusEntry ];
+                                            let found = false;
+                                            for ( let entry = 0; entry < capabilityMapEntry.statusValue.length; entry++ )
                                             {
-                                                capabilities.push( capabilityMapEntry.capabilities[ entry ] );
-                                                found = true;
-                                                break;
+                                                if ( option.value && option.value.id && ( option.value.id === capabilityMapEntry.statusValue[ entry ] ) )
+                                                {
+                                                    capabilities.push( capabilityMapEntry.capabilities[ entry ] );
+                                                    found = true;
+                                                    break;
+                                                }
+                                            }
+
+                                            if (!found)
+                                            {
+                                                this.updateLog( `Capability type unknown: ${deviceCapability.id}, ${capabilityStatus}` );
                                             }
                                         }
-
-                                        if (!found)
+                                        else
                                         {
                                             this.updateLog( `Capability type unknown: ${deviceCapability.id}, ${capabilityStatus}` );
                                         }
                                     }
                                     else
                                     {
-                                        this.updateLog( `Capability type unknown: ${deviceCapability.id}, ${capabilityStatus}` );
+                                        for ( const element of capabilityMapEntry.capabilities )
+                                        {
+                                            capabilities.push( element );
+                                        }
                                     }
                                 }
                                 else
                                 {
-                                    for ( const element of capabilityMapEntry.capabilities )
-                                    {
-                                        capabilities.push( element );
-                                    }
+                                    this.updateLog( "Excluded Capability: " + deviceCapability.id );
                                 }
                             }
-                            else
+                        }
+
+                        if ( capabilities.length > 0 )
+                        {
+                            // Add this device to the table
+                            this.updateLog( `Adding device ${device.label} with ${this.varToString( capabilities )}` );
+                            devices.push(
                             {
-                                this.updateLog( "Excluded Capability: " + deviceCapability.id );
-                            }
+                                "name": device.label + ": " + component.id,
+                                "icon": iconName, // relative to: /drivers/<driver_id>/assets/
+                                "class": className,
+                                "capabilities": capabilities,
+								settings,
+                                data
+                            } );
                         }
                     }
-                    if ( capabilities.length > 0 )
-                    {
-                        // Add this device to the table
-                        this.updateLog( `Adding device ${device.label} with ${this.varToString( capabilities )}` );
-                        devices.push(
-                        {
-                            "name": device.label + ": " + component.id,
-                            "icon": iconName, // relative to: /drivers/<driver_id>/assets/
-                            "class": className,
-                            "capabilities": capabilities,
-							settings,
-                            data
-                        } );
-                    }
                 }
+
+                return devices;
             }
-            this.gettingDevices = false;
-            return devices;
-        }
-        else
-        {
-            this.gettingDevices = false;
+
             this.updateLog( "Getting API Key returned NULL" );
             throw new Error( "HTTPS Error: Nothing returned" );
+        }
+        finally
+        {
+            this.gettingDevices = false;
         }
     }
 
@@ -2918,9 +3070,196 @@ class MyApp extends OAuth2App
         }
     }
 
+    getActiveOAuth2SessionInfo()
+    {
+        const sessions = this.pruneInvalidSavedOAuth2Sessions();
+        const entries = Object.entries( sessions || {} );
+
+        if ( entries.length < 1 )
+        {
+            return null;
+        }
+
+        const [ sessionId, sessionData ] = entries[ 0 ];
+        return {
+            sessionId,
+            configId: sessionData?.configId || 'default',
+        };
+    }
+
+    getActiveOAuth2SessionDiagnostics()
+    {
+        try
+        {
+            const activeSession = this.getActiveOAuth2SessionInfo();
+            if ( !activeSession )
+            {
+                return 'no saved OAuth2 sessions';
+            }
+
+            const { sessionId, configId } = activeSession;
+            const client = this.getOAuth2ClientSafe();
+            const token = client?.getToken?.();
+            const expiresIn = token?.expires_in ?? null;
+            const obtainedAt = Number( token?.obtained_at || 0 );
+            let expiresAt = token?.expires_at ?? token?.expires ?? null;
+            let timeLeft = 'unknown';
+
+            const expiresInSeconds = Number( expiresIn );
+            if ( Number.isFinite( expiresInSeconds ) && ( expiresInSeconds > 0 ) && ( obtainedAt > 0 ) )
+            {
+                const expiresAtMs = obtainedAt + ( expiresInSeconds * 1000 );
+                const timeLeftSeconds = Math.max( 0, Math.floor( ( expiresAtMs - Date.now() ) / 1000 ) );
+                expiresAt = new Date( expiresAtMs ).toISOString();
+                timeLeft = `${timeLeftSeconds}s`;
+            }
+            else if ( Number.isFinite( expiresInSeconds ) && ( expiresInSeconds > 0 ) )
+            {
+                timeLeft = 'unknown (token issue time unavailable)';
+            }
+
+            return `session ${sessionId} (${configId}); access token present: ${!!token?.access_token}; refresh token present: ${!!token?.refresh_token}; expires in: ${expiresIn}; expires at: ${expiresAt}; time left: ${timeLeft}`;
+        }
+        catch ( err )
+        {
+            return `session diagnostics unavailable: ${this.varToString( err )}`;
+        }
+    }
+
+    suspendPollingForOAuth2RefreshFailure( details = {} )
+    {
+        const sessionDiagnostics = this.getActiveOAuth2SessionDiagnostics();
+        const statusCode = details.statusCode || details.status || -1;
+        const reason = details.reason || details.message || 'OAuth2 token refresh failed';
+        const stateKey = `${sessionDiagnostics}:${statusCode}:${reason}`;
+        const activeSession = this.getActiveOAuth2SessionInfo();
+        const activeSessionKey = activeSession ? `${activeSession.sessionId}:${activeSession.configId}` : null;
+        const shouldCountForInvalidation = ( statusCode === 401 ) && ( details.invalidateSession !== false ) && !!activeSessionKey;
+        const invalidationThreshold = 2;
+        let consecutiveRefresh401Failures = 0;
+
+        if ( shouldCountForInvalidation )
+        {
+            const currentCount = this.oauth2RefreshFailureCounts.get( activeSessionKey ) || 0;
+            consecutiveRefresh401Failures = currentCount + 1;
+            this.oauth2RefreshFailureCounts.set( activeSessionKey, consecutiveRefresh401Failures );
+        }
+
+        const shouldInvalidateSession = shouldCountForInvalidation && ( consecutiveRefresh401Failures >= invalidationThreshold );
+
+        if ( this.oauth2RefreshFailureState?.key === stateKey && !shouldInvalidateSession )
+        {
+            if ( shouldCountForInvalidation )
+            {
+                this.updateLog( `OAuth2 refresh failure cleanup: consecutive refresh 401 count ${consecutiveRefresh401Failures}/${invalidationThreshold} for ${activeSession.sessionId} (${activeSession.configId}); waiting before session removal.`, true );
+            }
+            return;
+        }
+
+        this.oauth2RefreshFailureState = {
+            key: stateKey,
+            statusCode,
+            reason,
+            sessionDiagnostics,
+            failedAt: Date.now(),
+        };
+
+        this.homey.clearTimeout( this.timerID );
+        this.timerID = null;
+        this.updateLog( `Polling suspended: SmartThings OAuth refresh is failing for ${sessionDiagnostics}. Re-authentication is required before polling will resume.`, true );
+        this.setOAuth2DeviceAvailability( false ).catch( ( err ) =>
+        {
+            this.updateLog( `OAuth2 failure: unable to set devices unavailable: ${this.varToString( err )}`, true );
+        } );
+
+        if ( shouldCountForInvalidation && !shouldInvalidateSession )
+        {
+            this.updateLog( `OAuth2 refresh failure cleanup: consecutive refresh 401 count ${consecutiveRefresh401Failures}/${invalidationThreshold} for ${activeSession.sessionId} (${activeSession.configId}); waiting before session removal.`, true );
+            return;
+        }
+
+        if ( shouldInvalidateSession )
+        {
+            if ( activeSession )
+            {
+                const { sessionId, configId } = activeSession;
+
+                try
+                {
+                    const client = this.getOAuth2ClientSafe();
+                    if ( client && ( typeof client.destroy === 'function' ) )
+                    {
+                        client.destroy();
+                    }
+                }
+                catch ( err )
+                {
+                    this.updateLog( `OAuth2 refresh failure cleanup: unable to destroy active client for ${sessionId} (${configId}): ${this.varToString( err )}`, true );
+                }
+
+                try
+                {
+                    super.deleteOAuth2Client( { sessionId, configId } );
+                    this.oauth2RefreshFailureCounts.delete( activeSessionKey );
+                    const remainingSessions = this.getSavedOAuth2Sessions();
+                    const sessionCount = Object.keys( remainingSessions || {} ).length;
+                    this.updateLog( `OAuth2 refresh failure cleanup: removed broken session ${sessionId} (${configId}) after ${consecutiveRefresh401Failures} consecutive refresh 401 failures; remaining saved sessions: ${sessionCount}.`, true );
+                }
+                catch ( err )
+                {
+                    this.updateLog( `OAuth2 refresh failure cleanup: failed to remove session ${sessionId} (${configId}): ${this.varToString( err )}`, true );
+                }
+            }
+        }
+    }
+
+    clearOAuth2RefreshFailureState()
+    {
+        if ( !this.oauth2RefreshFailureState )
+        {
+            return;
+        }
+
+        const previousSession = this.oauth2RefreshFailureState.sessionDiagnostics;
+        this.oauth2RefreshFailureState = null;
+        this.oauth2RefreshFailureCounts.clear();
+        this.updateLog( `OAuth2 refresh failure state cleared for ${previousSession}.`, true );
+        this.setOAuth2DeviceAvailability( true ).catch( ( err ) =>
+        {
+            this.updateLog( `OAuth2 recovery: unable to set devices available: ${this.varToString( err )}`, true );
+        } );
+
+        if ( !this.timerID && this.hasApiAccess() && ( this.homey.settings.get( 'pollInterval' ) > 1 ) )
+        {
+            this.updateLog( 'Restarting polling after OAuth2 authentication recovered.' );
+            this.timerID = this.homey.setTimeout( this.onPoll, this.getSchedulerTickDelayMs() );
+        }
+    }
+
+    isPollingSuspendedForOAuth2Failure()
+    {
+        return !!this.oauth2RefreshFailureState;
+    }
+
     saveOAuth2Client( { configId, sessionId, client } )
     {
         super.saveOAuth2Client( { configId, sessionId, client } );
+        this.oauth2RefreshFailureCounts.clear();
+        this.clearOAuth2RefreshFailureState();
+
+        if ( this.hasApiAccess() )
+        {
+            this.setOAuth2DeviceAvailability( true ).catch( ( err ) =>
+            {
+                this.updateLog( `OAuth2 save recovery: unable to set devices available: ${this.varToString( err )}`, true );
+            } );
+
+            if ( !this.timerID && ( this.homey.settings.get( 'pollInterval' ) > 1 ) )
+            {
+                this.updateLog( 'Restarting polling after OAuth2 session was saved.' );
+                this.timerID = this.homey.setTimeout( this.onPoll, this.getSchedulerTickDelayMs() );
+            }
+        }
 
         try
         {
@@ -2939,6 +3278,8 @@ class MyApp extends OAuth2App
     deleteOAuth2Client( { sessionId, configId = 'default' } = {} )
     {
         super.deleteOAuth2Client( { sessionId, configId } );
+        this.oauth2RefreshFailureCounts.clear();
+        this.clearOAuth2RefreshFailureState();
 
         try
         {
@@ -3077,8 +3418,10 @@ class MyApp extends OAuth2App
                 sessionId,
             } );
             const token = client.getToken();
+            const hasClientId = ( typeof token?.client_id === 'string' ) && !!token.client_id.trim() && ( token.client_id.trim() !== 'not_used' );
+            const hasClientSecret = ( typeof token?.client_secret === 'string' ) && !!token.client_secret.trim() && ( token.client_secret.trim() !== 'not_used' );
 
-            this.updateLog( `OAuth2 restore: restored session ${sessionId} (${configId}); access token present: ${!!token?.access_token}; refresh token present: ${!!token?.refresh_token}`, true );
+            this.updateLog( `OAuth2 restore: restored session ${sessionId} (${configId}); access token present: ${!!token?.access_token}; refresh token present: ${!!token?.refresh_token}; client id present: ${hasClientId}; client secret present: ${hasClientSecret}`, true );
         }
         catch ( err )
         {
@@ -3132,11 +3475,29 @@ class MyApp extends OAuth2App
         return error;
     }
 
+    shouldUseLegacyPATFallback( err )
+    {
+        if ( !this.getLegacyBearerToken() )
+        {
+            return false;
+        }
+
+        const statusCode = err?.statusCode || err?.status || err?.cause?.statusCode || err?.cause?.status || -1;
+        if ( statusCode !== 401 )
+        {
+            return false;
+        }
+
+        const message = `${err?.message || ''} ${err?.cause?.message || ''}`.toLowerCase();
+        return message.includes( 'unauthorized' ) || message.includes( 'invalid response' ) || message.includes( 'invalid_grant' );
+    }
+
     async getLegacyPATResponse( url, options = {} )
     {
         const token = this.getLegacyBearerToken();
         if ( !token )
         {
+            await this.setOAuth2DeviceAvailability( false );
             throw this.createAppError( 'No SmartThings authentication available. Pair or repair the device again.', 401 );
         }
 
@@ -3207,6 +3568,11 @@ class MyApp extends OAuth2App
 
         try
         {
+            const sessionDiagnostics = this.getActiveOAuth2SessionDiagnostics();
+            if ( this.shouldLogThrottled( `oauth2-request-using:${sessionDiagnostics}`, 5000 ) )
+            {
+                this.updateLog( `OAuth2 request: using ${sessionDiagnostics}` );
+            }
             const body = await oAuth2Client.get(
             {
                 path: `/${url}`,
@@ -3218,7 +3584,23 @@ class MyApp extends OAuth2App
         }
         catch ( err )
         {
-            const statusCode = err.statusCode || err.status || -1;
+            const sessionDiagnostics = this.getActiveOAuth2SessionDiagnostics();
+            const statusCode = err.statusCode || err.status || err?.cause?.statusCode || err?.cause?.status || -1;
+            if ( this.shouldLogThrottled( `oauth2-request-failed:${statusCode}:${sessionDiagnostics}`, 5000 ) )
+            {
+                this.updateLog( `OAuth2 request failed for ${url} using ${sessionDiagnostics}; error: ${this.varToString( err?.message || err )}`, true );
+            }
+
+            if ( this.shouldUseLegacyPATFallback( err ) )
+            {
+                this.updateLog( 'OAuth2 request unauthorized; falling back to saved legacy PAT.' );
+                const response = await this.getLegacyPATResponse( url );
+                const text = await response.text();
+                return {
+                    body: text || '{}'
+                };
+            }
+
             const message = ( typeof err.message === 'string' )
                 ? err.message
                 : this.varToString( err.message || err );
@@ -3327,9 +3709,31 @@ class MyApp extends OAuth2App
         {
             this.homey.clearTimeout( this.timerID );
             this.timerProcessing = false;
+            this.setOAuth2DeviceAvailability( false ).catch( ( err ) =>
+            {
+                this.updateLog( `Auth none: unable to set devices unavailable: ${this.varToString( err )}`, true );
+            } );
             this.updateLog( 'Polling skipped: no SmartThings authentication available.', true );
             return;
         }
+
+        if ( this.isPollingSuspendedForOAuth2Failure() )
+        {
+            this.homey.clearTimeout( this.timerID );
+            this.timerID = null;
+            this.timerProcessing = false;
+
+            if ( this.shouldLogThrottled( `polling-suspended:${this.oauth2RefreshFailureState.key}`, 30000 ) )
+            {
+                this.updateLog( `Polling remains suspended until SmartThings OAuth is repaired: ${this.oauth2RefreshFailureState.sessionDiagnostics}.`, true );
+            }
+            return;
+        }
+
+        this.setOAuth2DeviceAvailability( true ).catch( ( err ) =>
+        {
+            this.updateLog( `Auth restored: unable to set devices available: ${this.varToString( err )}`, true );
+        } );
 
         if (!this.gettingDevices)
         {
@@ -3344,7 +3748,14 @@ class MyApp extends OAuth2App
             }
         }
 
-        this.timerID = this.homey.setTimeout( this.onPoll, this.getSchedulerTickDelayMs() );
+        if ( !this.isPollingSuspendedForOAuth2Failure() )
+        {
+            this.timerID = this.homey.setTimeout( this.onPoll, this.getSchedulerTickDelayMs() );
+        }
+        else
+        {
+            this.timerID = null;
+        }
         this.timerProcessing = false;
     }
 
@@ -3414,6 +3825,32 @@ class MyApp extends OAuth2App
         }
 
         return source.toString();
+    }
+
+    shouldLogThrottled( key, throttleMs = 5000 )
+    {
+        const now = Date.now();
+        const lastLoggedAt = this.throttledLogTimestamps?.get( key ) || 0;
+
+        if ( ( now - lastLoggedAt ) < throttleMs )
+        {
+            return false;
+        }
+
+        this.throttledLogTimestamps.set( key, now );
+
+        if ( this.throttledLogTimestamps.size > 200 )
+        {
+            for ( const [ entryKey, entryTime ] of this.throttledLogTimestamps.entries() )
+            {
+                if ( ( now - entryTime ) > ( throttleMs * 12 ) )
+                {
+                    this.throttledLogTimestamps.delete( entryKey );
+                }
+            }
+        }
+
+        return true;
     }
 
     updateLog( newMessage, error = false )

@@ -29,6 +29,9 @@
     "stop":  "Stop",
     "rinseHold":  "Rinse Hold",
     "noSpin":  "No Spin",
+    "oauth":  {
+                  "unavailableReason":  "SmartThings OAuth-godkendelse mislykkedes. Reparer eller par enheden igen for at godkende på ny."
+              },
     "pairRepair":  {
                        "brandAlt":  "SmartThings",
                        "eyebrow":  "SmartThings-adgangstoken",

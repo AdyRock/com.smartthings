@@ -29,6 +29,9 @@
     "stop":  "Stop",
     "rinseHold":  "Rinse Hold",
     "noSpin":  "No Spin",
+    "oauth":  {
+                  "unavailableReason":  "Uwierzytelnianie OAuth SmartThings nie powiodło się. Napraw lub sparuj urządzenie ponownie, aby uwierzytelnić się jeszcze raz."
+              },
     "pairRepair":  {
                        "brandAlt":  "SmartThings",
                        "eyebrow":  "Token dostÃ„â„¢pu SmartThings",

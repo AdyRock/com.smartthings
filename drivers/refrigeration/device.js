@@ -84,6 +84,24 @@ class FridgeDevice extends Homey.Device
     {
         this.log( 'FridgeDevice has been initializing' );
         const devData = this.getData();
+        const hasApiAccessAtInit = this.homey.app.hasApiAccess();
+        const unavailableReason = this.homey.app.getLocalizedText(
+            'oauth.unavailableReason',
+            'SmartThings OAuth authentication failed. Please repair or re-pair to re-authenticate.'
+        );
+
+        if ( !hasApiAccessAtInit )
+        {
+            try
+            {
+                await this.setUnavailable( unavailableReason );
+                await this.setWarning( unavailableReason, null );
+            }
+            catch ( err )
+            {
+                this.homey.app.updateLog( `${this.getName()} init no-auth state update failed: ${this.homey.app.varToString( err.message || err )}` );
+            }
+        }
 
         if ( this.hasCapability( 'target_temperature.onedoor' ) )
         {
@@ -154,7 +172,24 @@ class FridgeDevice extends Homey.Device
             }
         }
 
-        //await this.getDeviceValues().catch(this.error);
+        if ( hasApiAccessAtInit )
+        {
+            //await this.getDeviceValues().catch(this.error);
+        }
+        else
+        {
+            try
+            {
+                await this.setUnavailable( unavailableReason );
+                await this.setWarning( unavailableReason, null );
+            }
+            catch ( err )
+            {
+                this.homey.app.updateLog( `${this.getName()} init final no-auth state update failed: ${this.homey.app.varToString( err.message || err )}` );
+            }
+
+            this.homey.app.updateLog( `${this.getName()} init: skipping SmartThings capability bootstrap until authentication is restored.`, true );
+        }
 
         this.log( 'FridgeDevice has been initialized' );
     }

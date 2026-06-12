@@ -21,10 +21,6 @@ Locations:
   See all locations,
   Control all locations
 
-Scenes (not currently used but maybe in the future)
-  See all scenes,
-  Control this scenes
-
 Custom Capabilities:
   See all custom Capabilities
 

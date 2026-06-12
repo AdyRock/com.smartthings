@@ -29,6 +29,9 @@
     "stop":  "Stop",
     "rinseHold":  "Rinse Hold",
     "noSpin":  "No Spin",
+    "oauth":  {
+                  "unavailableReason":  "SmartThings OAuth-authenticatie is mislukt. Repareer of koppel het apparaat opnieuw om opnieuw te authenticeren."
+              },
     "pairRepair":  {
                        "brandAlt":  "SmartThings",
                        "eyebrow":  "SmartThings-toegangstoken",

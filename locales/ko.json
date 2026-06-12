@@ -29,6 +29,9 @@
     "stop":  "Stop",
     "rinseHold":  "Rinse Hold",
     "noSpin":  "No Spin",
+    "oauth":  {
+                  "unavailableReason":  "SmartThings OAuth 인증에 실패했습니다. 다시 인증하려면 기기를 수리하거나 다시 페어링하세요."
+              },
     "pairRepair":  {
                        "brandAlt":  "SmartThings",
                        "eyebrow":  "SmartThings Ã¬â€¢Â¡Ã¬â€žÂ¸Ã¬Å Â¤ Ã­â€ Â Ã­ÂÂ°",

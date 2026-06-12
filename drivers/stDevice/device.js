@@ -21,9 +21,28 @@ class STDevice extends Homey.Device
             component = devData.component;
         }
 
+        const hasApiAccessAtInit = this.homey.app.hasApiAccess();
+        const unavailableReason = this.homey.app.getLocalizedText(
+            'oauth.unavailableReason',
+            'SmartThings OAuth authentication failed. Please repair or re-pair to re-authenticate.'
+        );
+
+        if ( !hasApiAccessAtInit )
+        {
+            try
+            {
+                await this.setUnavailable( unavailableReason );
+                await this.setWarning( unavailableReason, null );
+            }
+            catch ( err )
+            {
+                this.homey.app.updateLog( `${this.getName()} init no-auth state update failed: ${this.homey.app.varToString( err.message || err )}` );
+            }
+        }
+
         try
 		{
-			if (!this.getSetting('noDisabledCapabilities'))
+			if ( hasApiAccessAtInit && !this.getSetting('noDisabledCapabilities') )
 			{
 				const value = await this.homey.app.getDeviceCapabilityValue( devData.id, component, 'custom.disabledCapabilities' );
 				if ( value && value.disabledCapabilities && value.disabledCapabilities.value )
@@ -314,9 +333,26 @@ class STDevice extends Homey.Device
 			this.registerCapabilityListener( 'siren', this.onCapabilitySiren.bind( this ) );
 		}
 
-		await this.updateEnums()
+        if ( hasApiAccessAtInit )
+        {
+            await this.updateEnums()
 
-        this.getDeviceValues();
+            this.getDeviceValues();
+        }
+        else
+        {
+            try
+            {
+                await this.setUnavailable( unavailableReason );
+                await this.setWarning( unavailableReason, null );
+            }
+            catch ( err )
+            {
+                this.homey.app.updateLog( `${this.getName()} init final no-auth state update failed: ${this.homey.app.varToString( err.message || err )}` );
+            }
+
+            this.homey.app.updateLog( `${this.getName()} init: skipping SmartThings capability bootstrap until authentication is restored.`, true );
+        }
     }
 
     async onAdded()
