@@ -73,32 +73,27 @@ class STDevice extends Homey.Device
             this.setClass('lock');
         }
 
-        // Migrate energy meter devices so they show up in the Energy tab as a power meter
+        // Keep power capabilities in sync for devices paired before the mapping was corrected.
         if ( this.hasCapability( 'meter_power' ) || this.hasCapability( 'measure_power' ) )
         {
-            if ( hasApiAccessAtInit && !this.hasCapability( 'measure_power' ) )
+            if ( hasApiAccessAtInit )
             {
-                try
+                if ( !this.hasCapability( 'meter_power' ) && await this.stReportsCumulativeEnergy( devData.id, component ) )
                 {
-                    // Only add live power if the ST device can actually report it
-                    const stValue = await this.homey.app.getDeviceCapabilityValue( devData.id, component, 'powerMeter' );
-                    if ( stValue && stValue.power )
-                    {
-                        await this.addCapability( 'measure_power' );
-                    }
+                    await this.addCapability( 'meter_power' ).catch( this.error );
                 }
-                catch ( err )
+
+                if ( !this.hasCapability( 'measure_power' ) && await this.stReportsLivePower( devData.id, component ) )
                 {
-                    this.homey.app.updateLog( `${this.getName()} has no powerMeter capability so live power is not available` );
+                    await this.addCapability( 'measure_power' ).catch( this.error );
                 }
             }
 
             // One-time migration: default the Energy tab power meter setting for devices paired before the setting existed.
-            // A pure meter device (no switch) measures the home consumption, so treat it as a cumulative meter by default.
             if ( this.getStoreValue( 'energyCumulativeMigrated' ) === null )
             {
-                const isPureMeter = ( this.getClass() === 'sensor' ) && !this.hasCapability( 'onoff' );
-                await this.setSettings( { energyCumulative: isPureMeter } ).catch( this.error );
+                const isCumulativeMeter = ( this.getClass() === 'sensor' ) && !this.hasCapability( 'onoff' ) && this.hasCapability( 'meter_power' );
+                await this.setSettings( { energyCumulative: isCumulativeMeter } ).catch( this.error );
                 await this.setStoreValue( 'energyCumulativeMigrated', true ).catch( this.error );
             }
 
@@ -570,25 +565,79 @@ class STDevice extends Homey.Device
 
         if (changedKeys.indexOf("energyCumulative") >= 0)
         {
-            await this.setEnergy( newSettings.energyCumulative === true ? { cumulative: true } : {} ).catch( this.error );
+            const cumulative = ( newSettings.energyCumulative === true ) && this.hasCapability( 'meter_power' );
+            await this.setEnergy( cumulative ? this.getCumulativeEnergyConfiguration() : {} ).catch( this.error );
         }
+    }
+
+    getCumulativeEnergyConfiguration()
+    {
+        return {
+            cumulative: true,
+            cumulativeImportedCapability: 'meter_power'
+        };
     }
 
     async updateEnergyCumulative()
     {
         try
         {
-            const cumulative = this.getSetting( 'energyCumulative' ) === true;
+            const cumulative = ( this.getSetting( 'energyCumulative' ) === true ) && this.hasCapability( 'meter_power' );
             const energy = this.getEnergy();
             const currentlyCumulative = ( energy && energy.cumulative === true );
-            if ( currentlyCumulative !== cumulative )
+            const cumulativeCapability = energy && energy.cumulativeImportedCapability;
+            if ( currentlyCumulative !== cumulative || ( cumulative && cumulativeCapability !== 'meter_power' ) )
             {
-                await this.setEnergy( cumulative ? { cumulative: true } : {} );
+                await this.setEnergy( cumulative ? this.getCumulativeEnergyConfiguration() : {} );
             }
         }
         catch ( err )
         {
             this.error( err );
+        }
+    }
+
+    async stReportsLivePower( deviceId, component )
+    {
+        try
+        {
+            const stValue = await this.homey.app.getDeviceCapabilityValue( deviceId, component, 'powerMeter' );
+            const power = _.get( stValue, 'power.value' );
+            return ( power !== undefined && power !== null );
+        }
+        catch ( err )
+        {
+            this.homey.app.updateLog( `${this.getName()} has no powerMeter capability so live power is not available` );
+            return false;
+        }
+    }
+
+    async stReportsCumulativeEnergy( deviceId, component )
+    {
+        try
+        {
+            const stValue = await this.homey.app.getDeviceCapabilityValue( deviceId, component, 'energyMeter' );
+            const energy = _.get( stValue, 'energy.value' );
+            if ( energy !== undefined && energy !== null )
+            {
+                return true;
+            }
+        }
+        catch ( err )
+        {
+            // Try the powerConsumptionReport fallback below.
+        }
+
+        try
+        {
+            const stValue = await this.homey.app.getDeviceCapabilityValue( deviceId, component, 'powerConsumptionReport' );
+            const energy = _.get( stValue, 'powerConsumption.value.energy' );
+            return ( energy !== undefined && energy !== null );
+        }
+        catch ( err )
+        {
+            this.homey.app.updateLog( `${this.getName()} does not report cumulative energy, so no kWh total is available` );
+            return false;
         }
     }
 

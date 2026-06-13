@@ -2709,18 +2709,22 @@ class MyApp extends OAuth2App
                         {
                             // Add this device to the table
                             this.updateLog( `Adding device ${device.label} with ${this.varToString( capabilities )}` );
+                            const isCumulativeMeter = isPowerMeterDevice && capabilities.includes( 'meter_power' );
                             const deviceEntry = {
                                 "name": device.label + ": " + component.id,
                                 "icon": iconName, // relative to: /drivers/<driver_id>/assets/
                                 "class": className,
                                 "capabilities": capabilities,
-                                "settings": { ...settings, energyCumulative: isPowerMeterDevice },
+                                "settings": { ...settings, energyCumulative: isCumulativeMeter },
                                 data
                             };
 
-                            if ( isPowerMeterDevice )
+                            if ( isCumulativeMeter )
                             {
-                                deviceEntry.energy = { "cumulative": true };
+                                deviceEntry.energy = {
+                                    "cumulative": true,
+                                    "cumulativeImportedCapability": "meter_power"
+                                };
                             }
 
                             devices.push( deviceEntry );
