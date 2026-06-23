@@ -8,6 +8,6 @@
         "nodemailer": "^9.0.1"
     },
     "devDependencies": {
-        "homey": "^3.9.6"
+        "homey": "^4.3.0"
     }
 }
