@@ -1583,10 +1583,7 @@ class MyApp extends OAuth2App
 
         this.logOAuth2RestoreDiagnostics();
 
-        if ( this.hasOAuth2Access() )
-        {
-            this.clearLegacyBearerToken();
-        }
+        // Keep legacy PAT if present so the app can recover when SmartThings revokes OAuth refresh tokens.
 
         this.homeyHash = await this.homey.cloud.getHomeyId();
         this.homeyHash = this.hashCode( this.homeyHash ).toString();
@@ -1610,6 +1607,13 @@ class MyApp extends OAuth2App
 		this.fetchPause = 0;
         this.pendingDeviceRefreshTimers = new Map();
         this.throttledLogTimestamps = new Map();
+        this.legacyPatTextRequestChain = Promise.resolve();
+        this.legacyPatLastRequestAt = 0;
+        this.legacyPatMinIntervalMs = this.hasLegacyPATAccess() ? 500 : 200;
+        this.legacyPatUrlCooldownUntil = new Map();
+        this.oauth2TextRequestChain = Promise.resolve();
+        this.oauth2LastRequestAt = 0;
+        this.oauth2MinIntervalMs = 200;
         this.oauth2RefreshFailureState = null;
         this.oauth2RefreshFailureCounts = new Map();
         this.oauth2DevicesUnavailable = false;
@@ -1989,11 +1993,90 @@ class MyApp extends OAuth2App
         await new Promise(resolve => this.homey.setTimeout(resolve, period));
     }
 
+    ensureLegacyPatHeaders( headers = {} )
+    {
+        const normalizedHeaders = { ...headers };
+        const hasAcceptEncoding = Object.keys( normalizedHeaders ).some( ( key ) => key.toLowerCase() === 'accept-encoding' );
+
+        if ( !hasAcceptEncoding )
+        {
+            normalizedHeaders[ 'Accept-Encoding' ] = 'identity';
+        }
+
+        return normalizedHeaders;
+    }
+
+    async runSerializedLegacyPatRead( task )
+    {
+        const previous = this.legacyPatTextRequestChain || Promise.resolve();
+        let releaseCurrent;
+
+        this.legacyPatTextRequestChain = new Promise( ( resolve ) =>
+        {
+            releaseCurrent = resolve;
+        } );
+
+        await previous.catch( () => {} );
+
+        try
+        {
+            const minIntervalMs = Math.max( 0, Number( this.legacyPatMinIntervalMs ) || 350 );
+            const elapsedMs = Date.now() - ( Number( this.legacyPatLastRequestAt ) || 0 );
+            const waitMs = Math.max( 0, minIntervalMs - elapsedMs );
+
+            if ( waitMs > 0 )
+            {
+                await this.asyncDelay( waitMs );
+            }
+
+            const result = await task();
+            this.legacyPatLastRequestAt = Date.now();
+            return result;
+        }
+        finally
+        {
+            releaseCurrent();
+        }
+    }
+
+    async runSerializedOAuth2Read( task )
+    {
+        const previous = this.oauth2TextRequestChain || Promise.resolve();
+        let releaseCurrent;
+
+        this.oauth2TextRequestChain = new Promise( ( resolve ) =>
+        {
+            releaseCurrent = resolve;
+        } );
+
+        await previous.catch( () => {} );
+
+        try
+        {
+            const minIntervalMs = Math.max( 0, Number( this.oauth2MinIntervalMs ) || 200 );
+            const elapsedMs = Date.now() - ( Number( this.oauth2LastRequestAt ) || 0 );
+            const waitMs = Math.max( 0, minIntervalMs - elapsedMs );
+
+            if ( waitMs > 0 )
+            {
+                await this.asyncDelay( waitMs );
+            }
+
+            const result = await task();
+            this.oauth2LastRequestAt = Date.now();
+            return result;
+        }
+        finally
+        {
+            releaseCurrent();
+        }
+    }
+
     initPollingSchedulerState()
     {
         this.pollingDeviceState = new Map();
         this.pollingSchedulerTickMs = 1000;
-        this.pollingBatchSize = 4;
+        this.pollingBatchSize = this.hasLegacyPATAccess() ? 1 : 4;
         this.pollingMaxBackoffMs = 60000;
         this.pollingLagLogThresholdMs = 5000;
         this.alarmPollPriorityFactor = this.normalizeAlarmPollPriorityFactor(
@@ -2443,10 +2526,16 @@ class MyApp extends OAuth2App
             catch ( err )
             {
                 const statusCode = err?.statusCode || err?.status || 0;
+                const isTransient = this.isTransientLegacyRequestError( err ) || ( statusCode === 503 );
                 if ( statusCode === 429 )
                 {
                     this.fetchPause += 100;
                     state.backoffMs = Math.min( this.pollingMaxBackoffMs, Math.max( 10000, state.backoffMs + 10000 ) );
+                }
+                else if ( isTransient )
+                {
+                    // Transient transport failures should back off more aggressively than normal capability errors.
+                    state.backoffMs = Math.min( this.pollingMaxBackoffMs, Math.max( 15000, state.backoffMs > 0 ? state.backoffMs * 2 : 15000 ) );
                 }
                 else
                 {
@@ -2454,7 +2543,10 @@ class MyApp extends OAuth2App
                 }
 
                 state.nextDueAt = Date.now() + state.backoffMs;
-                this.updateLog( `Staggered poll error: ${this.varToString( err?.message || err )}` );
+                if ( this.shouldLogThrottled( `staggered-poll-error:${entry.key}:${statusCode || err?.code || err?.errno || 'na'}`, 15000 ) )
+                {
+                    this.updateLog( `Staggered poll error: ${this.varToString( err?.message || err )}; device backoff=${state.backoffMs}ms` );
+                }
             }
 
             if ( this.fetchPause > 0 )
@@ -3038,11 +3130,29 @@ class MyApp extends OAuth2App
         }
         catch ( err )
         {
-            this.updateLog( "Get device error: " + url + "\nError: " + this.varToString( err ) );
-			if ( ( err.statusCode === 422 ) || ( err.statusCode === 403 ) )
+            const statusCode = err?.statusCode || err?.status || 0;
+            const isTransient = this.isTransientLegacyRequestError( err );
+            const shouldThrottleLog = ( statusCode === 429 ) || isTransient;
+
+            if ( !shouldThrottleLog || this.shouldLogThrottled( `get-device-error:${url}:${statusCode || err?.code || err?.errno || 'na'}`, 5000 ) )
+            {
+                this.updateLog( "Get device error: " + url + "\nError: " + this.varToString( err ) );
+            }
+
+			if ( ( statusCode === 422 ) || ( statusCode === 403 ) || ( statusCode === 429 ) )
 			{
 				throw err;
 			}
+
+            if ( isTransient )
+            {
+                if ( !err.statusCode || err.statusCode < 1 )
+                {
+                    err.statusCode = 503;
+                }
+
+                throw err;
+            }
         }
         return null;
     }
@@ -3476,7 +3586,29 @@ class MyApp extends OAuth2App
 
     createAppError( message, statusCode = -1, cause = null )
     {
-        const error = new Error( message || 'Unknown error' );
+        let normalizedMessage = message;
+
+        if ( normalizedMessage instanceof Error )
+        {
+            normalizedMessage = normalizedMessage.message;
+        }
+
+        if ( ( typeof normalizedMessage !== 'string' ) && ( normalizedMessage !== null ) && ( normalizedMessage !== undefined ) )
+        {
+            normalizedMessage = this.varToString( normalizedMessage );
+        }
+
+        if ( typeof normalizedMessage === 'string' )
+        {
+            normalizedMessage = normalizedMessage.trim();
+        }
+
+        if ( !normalizedMessage || ( normalizedMessage === '[object Object]' ) )
+        {
+            normalizedMessage = 'Unknown error';
+        }
+
+        const error = new Error( normalizedMessage );
         error.statusCode = statusCode;
 
         if ( cause !== null && cause !== undefined )
@@ -3485,6 +3617,138 @@ class MyApp extends OAuth2App
         }
 
         return error;
+    }
+
+    isTransientLegacyRequestError( err )
+    {
+        const message = `${err?.message || err || ''}`.toLowerCase();
+        const code = `${err?.code || err?.errno || err?.cause?.code || err?.cause?.errno || ''}`.toUpperCase();
+
+        if ( [ 'ERR_STREAM_PREMATURE_CLOSE', 'ECONNRESET', 'ETIMEDOUT', 'ECONNREFUSED', 'EPIPE', 'UND_ERR_SOCKET', 'UND_ERR_CONNECT_TIMEOUT' ].includes( code ) )
+        {
+            return true;
+        }
+
+        return message.includes( 'premature close' )
+            || message.includes( 'socket hang up' )
+            || message.includes( 'invalid response body' )
+            || message.includes( 'fetch failed' )
+            || message.includes( 'network error' )
+            || message.includes( 'other side closed' );
+    }
+
+    getRetryAfterMs( response, attempt )
+    {
+        const fallbackMs = Math.min( 15000, 1000 * attempt );
+        const retryAfterValue = response?.headers?.get?.( 'retry-after' );
+
+        if ( !retryAfterValue )
+        {
+            return fallbackMs;
+        }
+
+        const numericSeconds = Number( retryAfterValue );
+        if ( Number.isFinite( numericSeconds ) && ( numericSeconds >= 0 ) )
+        {
+            return Math.max( 250, Math.min( 60000, Math.floor( numericSeconds * 1000 ) ) );
+        }
+
+        const asDateMs = Date.parse( retryAfterValue );
+        if ( Number.isFinite( asDateMs ) )
+        {
+            return Math.max( 250, Math.min( 60000, asDateMs - Date.now() ) );
+        }
+
+        return fallbackMs;
+    }
+
+    async getLegacyResponseErrorMessage( response )
+    {
+        let message = 'Legacy PAT request failed';
+
+        try
+        {
+            const body = await response.json();
+            const rawMessage = body?.message ?? body?.error_description ?? body?.error;
+            if ( rawMessage !== undefined && rawMessage !== null )
+            {
+                message = ( typeof rawMessage === 'string' ) ? rawMessage : this.varToString( rawMessage );
+            }
+        }
+        catch ( err )
+        {
+            try
+            {
+                const text = await response.text();
+                if ( text )
+                {
+                    message = text;
+                }
+            }
+            catch ( readErr )
+            {
+                message = response.statusText || message;
+            }
+        }
+
+        return message;
+    }
+
+    parseRetryMsFromTooManyRequestsMessage( message )
+    {
+        if ( !message )
+        {
+            return null;
+        }
+
+        const text = ( typeof message === 'string' ) ? message : this.varToString( message );
+        const match = /retry\s+in\s+(\d+)\s+millis/i.exec( text );
+        if ( !match )
+        {
+            return null;
+        }
+
+        const parsed = Number( match[ 1 ] );
+        if ( !Number.isFinite( parsed ) || parsed < 0 )
+        {
+            return null;
+        }
+
+        return Math.min( 120000, Math.max( 250, Math.floor( parsed ) ) );
+    }
+
+    getLegacyPatUrlCooldownMs( url )
+    {
+        const until = this.legacyPatUrlCooldownUntil.get( url );
+        if ( !until )
+        {
+            return 0;
+        }
+
+        const remaining = until - Date.now();
+        if ( remaining <= 0 )
+        {
+            this.legacyPatUrlCooldownUntil.delete( url );
+            return 0;
+        }
+
+        return remaining;
+    }
+
+    setLegacyPatUrlCooldownMs( url, ms )
+    {
+        const safeMs = Math.min( 120000, Math.max( 250, Math.floor( Number( ms ) || 0 ) ) );
+        if ( safeMs <= 0 )
+        {
+            return;
+        }
+
+        const until = Date.now() + safeMs;
+        const current = this.legacyPatUrlCooldownUntil.get( url ) || 0;
+        if ( until > current )
+        {
+            this.legacyPatUrlCooldownUntil.set( url, until );
+        }
     }
 
     shouldUseLegacyPATFallback( err )
@@ -3513,44 +3777,184 @@ class MyApp extends OAuth2App
             throw this.createAppError( 'No SmartThings authentication available. Pair or repair the device again.', 401 );
         }
 
-        const response = await fetch( this.getSmartThingsRequestUrl( url ),
+        const preCooldownMs = this.getLegacyPatUrlCooldownMs( url );
+        if ( preCooldownMs > 0 )
         {
-            ...options,
-            headers:
+            const waitMs = Math.min( 10000, preCooldownMs );
+            if ( this.shouldLogThrottled( `legacy-url-cooldown:${url}`, 5000 ) )
             {
-                Authorization: `Bearer ${token}`,
-                ...( options.headers || {} ),
-            },
-        } );
-
-        if ( response.ok )
-        {
-            return response;
+                this.updateLog( `Legacy PAT cooldown active for ${url}; waiting ${waitMs}ms before retry.` );
+            }
+            await this.asyncDelay( waitMs );
         }
 
-        let message = 'Legacy PAT request failed';
-        try
+        const maxAttempts = 3;
+        let lastErr = null;
+
+        for ( let attempt = 1; attempt <= maxAttempts; attempt += 1 )
         {
-            const body = await response.json();
-            message = body?.message || body?.error_description || body?.error || message;
+            let response = null;
+            const requestHeaders = this.ensureLegacyPatHeaders( options.headers || {} );
+
+            try
+            {
+                response = await fetch( this.getSmartThingsRequestUrl( url ),
+                {
+                    ...options,
+                    compress: false,
+                    headers:
+                    {
+                        ...requestHeaders,
+                        Authorization: `Bearer ${token}`,
+                    },
+                } );
+            }
+            catch ( err )
+            {
+                lastErr = err;
+
+                if ( this.isTransientLegacyRequestError( err ) && ( attempt < maxAttempts ) )
+                {
+                    const waitMs = Math.min( 5000, attempt * 600 );
+                    this.updateLog( `Legacy PAT request transient error for ${url} (attempt ${attempt}/${maxAttempts}): ${this.varToString( err?.message || err )}. Retrying in ${waitMs}ms.`, true );
+                    await this.asyncDelay( waitMs );
+                    continue;
+                }
+
+                throw this.createAppError( err?.message || 'Legacy PAT request failed', -1, err );
+            }
+
+            if ( response.ok )
+            {
+                return response;
+            }
+
+            if ( response.status === 429 && ( attempt < maxAttempts ) )
+            {
+                const retryAfterMs = this.getRetryAfterMs( response, attempt );
+                const responseMessage = await this.getLegacyResponseErrorMessage( response );
+                const messageRetryMs = this.parseRetryMsFromTooManyRequestsMessage( responseMessage );
+                const waitMs = Math.max( retryAfterMs, messageRetryMs || 0 );
+                this.setLegacyPatUrlCooldownMs( url, waitMs );
+
+                if ( this.shouldLogThrottled( `legacy-429:${url}`, 5000 ) )
+                {
+                    this.updateLog( `Legacy PAT request hit 429 for ${url} (attempt ${attempt}/${maxAttempts}); backing off for ${waitMs}ms.`, true );
+                }
+                await this.asyncDelay( waitMs );
+                continue;
+            }
+
+            const message = await this.getLegacyResponseErrorMessage( response );
+            const error = this.createAppError( message, response.status );
+
+            if ( response.status === 429 )
+            {
+                const retryAfterMs = this.getRetryAfterMs( response, attempt );
+                const messageRetryMs = this.parseRetryMsFromTooManyRequestsMessage( message );
+                const waitMs = Math.max( retryAfterMs, messageRetryMs || 0 );
+                this.setLegacyPatUrlCooldownMs( url, waitMs );
+            }
+
+            if ( ( response.status >= 500 ) && ( attempt < maxAttempts ) )
+            {
+                const waitMs = Math.min( 5000, attempt * 800 );
+                this.updateLog( `Legacy PAT request server error ${response.status} for ${url} (attempt ${attempt}/${maxAttempts}); retrying in ${waitMs}ms.`, true );
+                await this.asyncDelay( waitMs );
+                lastErr = error;
+                continue;
+            }
+
+            throw error;
         }
-        catch ( err )
+
+        throw lastErr || this.createAppError( 'Legacy PAT request failed after retries.', -1 );
+    }
+
+    async getLegacyPATTextResponse( url, options = {} )
+    {
+        const maxAttempts = 3;
+        let lastErr = null;
+
+        for ( let attempt = 1; attempt <= maxAttempts; attempt += 1 )
         {
             try
             {
-                const text = await response.text();
-                if ( text )
+                const text = await this.runSerializedLegacyPatRead( async () =>
                 {
-                    message = text;
-                }
+                    const response = await this.getLegacyPATResponse( url, options );
+                    return ( await response.text() ) || '{}';
+                } );
+
+                return text;
             }
-            catch ( readErr )
+            catch ( err )
             {
-                message = response.statusText || message;
+                lastErr = err;
+
+                if ( this.isTransientLegacyRequestError( err ) && ( attempt < maxAttempts ) )
+                {
+                    const waitMs = Math.min( 8000, 600 * ( 2 ** ( attempt - 1 ) ) );
+                    if ( this.shouldLogThrottled( `legacy-body-retry:${url}`, 5000 ) )
+                    {
+                        this.updateLog( `Legacy PAT response read transient error for ${url} (attempt ${attempt}/${maxAttempts}); retrying in ${waitMs}ms.`, true );
+                    }
+                    await this.asyncDelay( waitMs );
+                    continue;
+                }
+
+                throw err;
             }
         }
 
-        throw this.createAppError( message, response.status );
+        throw lastErr || this.createAppError( 'Legacy PAT response read failed after retries.', -1 );
+    }
+
+    async getOAuth2ResponseBody( client, url )
+    {
+        const maxAttempts = 3;
+        let lastErr = null;
+
+        for ( let attempt = 1; attempt <= maxAttempts; attempt += 1 )
+        {
+            try
+            {
+                const body = await this.runSerializedOAuth2Read( async () => client.get(
+                {
+                    path: `/${url}`,
+                } ) );
+
+                return JSON.stringify( body );
+            }
+            catch ( err )
+            {
+                lastErr = err;
+
+                const statusCode = err?.statusCode || err?.status || err?.cause?.statusCode || err?.cause?.status || -1;
+                const isTransient = this.isTransientLegacyRequestError( err ) || ( statusCode === 429 ) || ( statusCode === 503 );
+
+                if ( isTransient && ( attempt < maxAttempts ) )
+                {
+                    const retryAfterMs = this.parseRetryMsFromTooManyRequestsMessage( err?.message || err?.cause?.message || '' ) || 0;
+                    const waitMs = Math.max( retryAfterMs, Math.min( 8000, 500 * ( 2 ** ( attempt - 1 ) ) ) );
+                    if ( statusCode === 429 )
+                    {
+                        this.setLegacyPatUrlCooldownMs( url, waitMs );
+                    }
+
+                    if ( this.shouldLogThrottled( `oauth2-read-retry:${url}`, 5000 ) )
+                    {
+                        this.updateLog( `OAuth2 request transient error for ${url} (attempt ${attempt}/${maxAttempts}); retrying in ${waitMs}ms: ${this.varToString( err?.message || err )}`, true );
+                    }
+                    await this.asyncDelay( waitMs );
+                    continue;
+                }
+
+                throw err;
+            }
+        }
+
+        throw lastErr || this.createAppError( 'OAuth2 request failed after retries.', -1 );
     }
 
     async GetURL( url )
@@ -3571,8 +3975,7 @@ class MyApp extends OAuth2App
         const oAuth2Client = this.getOAuth2ClientSafe();
         if ( !oAuth2Client )
         {
-            const response = await this.getLegacyPATResponse( url );
-            const text = await response.text();
+            const text = await this.getLegacyPATTextResponse( url );
             return {
                 body: text || '{}'
             };
@@ -3585,13 +3988,8 @@ class MyApp extends OAuth2App
             {
                 this.updateLog( `OAuth2 request: using ${sessionDiagnostics}` );
             }
-            const body = await oAuth2Client.get(
-            {
-                path: `/${url}`,
-            } );
-
             return {
-                body: JSON.stringify( body )
+                body: await this.getOAuth2ResponseBody( oAuth2Client, url )
             };
         }
         catch ( err )
@@ -3606,8 +4004,7 @@ class MyApp extends OAuth2App
             if ( this.shouldUseLegacyPATFallback( err ) )
             {
                 this.updateLog( 'OAuth2 request unauthorized; falling back to saved legacy PAT.' );
-                const response = await this.getLegacyPATResponse( url );
-                const text = await response.text();
+                const text = await this.getLegacyPATTextResponse( url );
                 return {
                     body: text || '{}'
                 };
