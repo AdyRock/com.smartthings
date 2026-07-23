@@ -1,0 +1,33 @@
+const Homey = require('homey');
+const fetch = require('node-fetch');
+
+class SmartThingsDriver extends Homey.Driver {
+  async onPair(session) {
+    let patToken = '';
+
+    // Trin 1: Tjek om token virker
+    session.setHandler('login', async (data) => {
+      patToken = data.password;
+      const res = await fetch('https://api.smartthings.com/v1/devices', {
+        headers: { 'Authorization': 'Bearer ' + patToken }
+      });
+      if (!res.ok) throw new Error('Ugyldig PAT Token. Tjek dine rettigheder.');
+      return true;
+    });
+
+    // Trin 2: Hent enhedslisten
+    session.setHandler('list_devices', async () => {
+      const res = await fetch('https://api.smartthings.com/v1/devices', {
+        headers: { 'Authorization': 'Bearer ' + patToken }
+      });
+      const json = await res.json();
+      
+      return json.items.map(device => ({
+        name: device.label || device.name,
+        data: { id: device.deviceId, token: patToken },
+        store: { capabilities: device.components[0].capabilities.map(c => c.id) }
+      }));
+    });
+  }
+}
+module.exports = SmartThingsDriver;
