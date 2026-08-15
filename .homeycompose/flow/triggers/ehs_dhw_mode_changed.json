@@ -1,0 +1,6 @@
+{
+  "title": { "en": "DHW mode changed" },
+  "titleFormatted": { "en": "DHW mode changed to [[value]]" },
+  "tokens": [ { "name": "value", "type": "string", "title": { "en": "DHW mode" } } ],
+  "args": [ { "name": "device", "type": "device", "filter": "driver_id=samsungEhs&capabilities=ehs_dhw_mode" } ]
+}

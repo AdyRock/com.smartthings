@@ -1,0 +1,12 @@
+{
+  "type": "enum",
+  "title": { "en": "Space mode" },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [
+    { "id": "auto", "title": { "en": "Auto" } },
+    { "id": "cool", "title": { "en": "Cooling" } },
+    { "id": "heat", "title": { "en": "Heating" } }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "title": { "en": "Space mode changed" },
+  "titleFormatted": { "en": "Space mode changed to [[value]]" },
+  "tokens": [ { "name": "value", "type": "string", "title": { "en": "Space mode" } } ],
+  "args": [ { "name": "device", "type": "device", "filter": "driver_id=samsungEhs&capabilities=ehs_space_mode" } ]
+}

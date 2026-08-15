@@ -1,0 +1,12 @@
+{
+  "type": "enum",
+  "title": { "en": "DHW mode" },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "values": [
+    { "id": "eco", "title": { "en": "Eco" } },
+    { "id": "std", "title": { "en": "Standard" } },
+    { "id": "force", "title": { "en": "Forced" } }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "id": "samsungEhs",
+  "$extends": "apikey",
+  "name": { "en": "Samsung EHS Heat Pump" },
+  "class": "thermostat",
+  "capabilities": [
+    "ehs_dhw_onoff",
+    "measure_temperature.dhw",
+    "target_temperature.dhw",
+    "ehs_dhw_mode",
+    "ehs_space_onoff",
+    "measure_temperature.space",
+    "target_temperature.space",
+    "ehs_space_mode",
+    "measure_power",
+    "meter_power",
+    "ehs_interval_energy",
+    "ehs_away_mode",
+    "ehs_valve_position",
+    "ehs_booster_active",
+    "ehs_defrost_active"
+  ],
+  "capabilitiesOptions": {
+    "measure_temperature.dhw": {
+      "title": { "en": "DHW temperature" }
+    },
+    "target_temperature.dhw": {
+      "title": { "en": "DHW setpoint" },
+      "min": 40,
+      "max": 55,
+      "step": 0.5,
+      "decimals": 1
+    },
+    "measure_temperature.space": {
+      "title": { "en": "Space temperature" }
+    },
+    "target_temperature.space": {
+      "title": { "en": "Space setpoint" },
+      "min": 16,
+      "max": 20,
+      "step": 0.5,
+      "decimals": 1
+    },
+    "measure_power": {
+      "title": { "en": "Heat pump power" }
+    },
+    "meter_power": {
+      "title": { "en": "Heat pump energy" }
+    }
+  },
+  "images": {
+    "large": "/drivers/samsungEhs/assets/images/large.png",
+    "small": "/drivers/samsungEhs/assets/images/small.png"
+  }
+}
