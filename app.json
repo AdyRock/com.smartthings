@@ -469,6 +469,38 @@
       },
       {
         "title": {
+          "en": "OAuth refresh failed"
+        },
+        "hint": {
+          "en": "This card starts a Flow when SmartThings OAuth token refresh fails and re-authentication is required."
+        },
+        "tokens": [
+          {
+            "name": "reason",
+            "type": "string",
+            "title": {
+              "en": "Reason"
+            }
+          },
+          {
+            "name": "status_code",
+            "type": "number",
+            "title": {
+              "en": "Status code"
+            }
+          },
+          {
+            "name": "session",
+            "type": "string",
+            "title": {
+              "en": "Session diagnostics"
+            }
+          }
+        ],
+        "id": "oauth_refresh_failed"
+      },
+      {
+        "title": {
           "en": "The presence status has changed"
         },
         "hint": {
