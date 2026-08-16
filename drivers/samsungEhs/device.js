@@ -108,7 +108,7 @@ class SamsungEhsDevice extends Homey.Device
 
     async updateTargetRange( capability, minimum, maximum )
     {
-        if ( !Number.isFinite( minimum ) || !Number.isFinite( maximum ) || minimum >= maximum )
+        if ( !Number.isFinite( minimum ) || !Number.isFinite( maximum ) || minimum > maximum )
         {
             return;
         }
@@ -144,7 +144,7 @@ class SamsungEhsDevice extends Homey.Device
         }
 
         // Samsung EHS reports this field in kW (for example 0.498 = 498 W).
-        return numeric < 100 ? numeric * 1000 : numeric;
+        return numeric * 1000;
     }
 
     normaliseOnOffState( state )
