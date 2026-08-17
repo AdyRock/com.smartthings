@@ -1,0 +1,19 @@
+{
+  "title": { "en": "Reported power is greater than a value" },
+  "titleFormatted": { "en": "Reported power is greater than [[power]] W" },
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=samsungEhs&capabilities=measure_power"
+    },
+    {
+      "name": "power",
+      "type": "number",
+      "min": 0,
+      "max": 20000,
+      "step": 1,
+      "title": { "en": "Power (W)" }
+    }
+  ]
+}

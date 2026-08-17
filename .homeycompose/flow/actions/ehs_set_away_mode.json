@@ -1,0 +1,16 @@
+{
+  "highlight": true,
+  "title": { "en": "Set away mode" },
+  "titleFormatted": { "en": "Set away mode to [[enabled]]" },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=samsungEhs&capabilities=ehs_away_mode" },
+    {
+      "type": "dropdown",
+      "name": "enabled",
+      "values": [
+        { "id": "on", "title": { "en": "On" } },
+        { "id": "off", "title": { "en": "Off" } }
+      ]
+    }
+  ]
+}

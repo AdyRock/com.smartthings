@@ -1,0 +1,9 @@
+{
+  "highlight": true,
+  "title": { "en": "Set space temperature" },
+  "titleFormatted": { "en": "Set space temperature to [[temperature]] °C" },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=samsungEhs&capabilities=target_temperature.space" },
+    { "type": "range", "name": "temperature", "min": 5, "max": 55, "step": 0.5, "label": "°C", "labelDecimals": 1 }
+  ]
+}

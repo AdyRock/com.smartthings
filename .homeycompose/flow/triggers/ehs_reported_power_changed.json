@@ -1,0 +1,19 @@
+{
+  "title": { "en": "Reported heat pump power changed" },
+  "titleFormatted": { "en": "Reported power is now [[value]] W" },
+  "tokens": [
+    {
+      "name": "value",
+      "type": "number",
+      "title": { "en": "Reported power" },
+      "example": 88
+    }
+  ],
+  "args": [
+    {
+      "name": "device",
+      "type": "device",
+      "filter": "driver_id=samsungEhs&capabilities=measure_power"
+    }
+  ]
+}

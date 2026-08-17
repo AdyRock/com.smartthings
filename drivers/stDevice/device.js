@@ -7,6 +7,30 @@ const _ = require("lodash");
 class STDevice extends Homey.Device
 {
 
+    isPollBackoffError( err )
+    {
+        const statusCode = err?.statusCode || err?.status || 0;
+        const code = `${err?.code || err?.errno || err?.cause?.code || err?.cause?.errno || ''}`.toUpperCase();
+        const message = `${err?.message || err || ''}`.toLowerCase();
+
+        if ( ( statusCode === 429 ) || ( statusCode === 503 ) )
+        {
+            return true;
+        }
+
+        if ( [ 'ERR_STREAM_PREMATURE_CLOSE', 'ECONNRESET', 'ETIMEDOUT', 'ECONNREFUSED', 'EPIPE', 'UND_ERR_SOCKET', 'UND_ERR_CONNECT_TIMEOUT' ].includes( code ) )
+        {
+            return true;
+        }
+
+        return message.includes( 'too many requests' )
+            || message.includes( 'premature close' )
+            || message.includes( 'invalid response body' )
+            || message.includes( 'socket hang up' )
+            || message.includes( 'network error' )
+            || message.includes( 'fetch failed' );
+    }
+
     async onInit()
     {
         this.log( 'STDevice is initialising' );
@@ -64,8 +88,12 @@ class STDevice extends Homey.Device
 		}
 		catch (err)
 		{
-			console.log("Error getting disabled capabilities", err);
-			this.setSettings({noDisabledCapabilities: true});
+            this.homey.app.updateLog( `${this.getName()} disabled-capabilities lookup failed: ${this.homey.app.varToString( err.message || err )}` );
+            if ( err && ( err.statusCode === 403 || err.statusCode === 422 ) )
+            {
+                // Only disable this feature permanently when SmartThings reports unsupported/forbidden.
+                this.setSettings({noDisabledCapabilities: true});
+            }
 		}
 
         if (this.hasCapability('locked') && this.getClass() !== 'lock')
@@ -335,9 +363,19 @@ class STDevice extends Homey.Device
 
         if ( hasApiAccessAtInit )
         {
-            await this.updateEnums()
-
-            this.getDeviceValues();
+            const startupDelayMs = 1500 + Math.floor( Math.random() * 2500 );
+            this.homey.setTimeout( async () =>
+            {
+                try
+                {
+                    await this.updateEnums();
+                    await this.getDeviceValues();
+                }
+                catch ( err )
+                {
+                    this.homey.app.updateLog( `${this.getName()} initial getDeviceValues failed: ${this.homey.app.varToString( err.message || err )}` );
+                }
+            }, startupDelayMs );
         }
         else
         {
@@ -434,8 +472,6 @@ class STDevice extends Homey.Device
 							// 			title: { en: 'Value 4' },
 							// 		},
 							// 		{
-							// 			id: 'value5',
-							// 			title: { en: 'Value 5' },
 							// 		},
 							// 		{
 							// 			id: 'value6',
@@ -444,7 +480,7 @@ class STDevice extends Homey.Device
 							// 	],
 
 							const values = [];
-							for (var i = 0; i < capabilityObj.value.length; i++)
+                            for (var i = 0; i < capabilityObj.value.length; i++)
 							{
 								let value = capabilityObj.value[i];
 								let name = value;
@@ -969,6 +1005,11 @@ class STDevice extends Homey.Device
 				{
 					this.removeCapability( capability );
 				}
+
+                if ( this.isPollBackoffError( err ) )
+                {
+                    throw err;
+                }
 
 				this.homey.app.updateLog( "getDeviceValues error: " + this.homey.app.varToString( err.message ) + " for capability: " + this.homey.app.varToString( capability ) );
             }

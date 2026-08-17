@@ -1,0 +1,5 @@
+{
+  "title": { "en": "Defrost state changed" },
+  "tokens": [ { "name": "value", "type": "boolean", "title": { "en": "Defrost active" } } ],
+  "args": [ { "name": "device", "type": "device", "filter": "driver_id=samsungEhs&capabilities=ehs_defrost_active" } ]
+}
