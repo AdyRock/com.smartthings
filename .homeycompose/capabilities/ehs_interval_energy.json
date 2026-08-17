@@ -1,0 +1,10 @@
+{
+  "type": "number",
+  "title": { "en": "Interval energy" },
+  "units": { "en": "Wh" },
+  "decimals": 0,
+  "min": 0,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor"
+}

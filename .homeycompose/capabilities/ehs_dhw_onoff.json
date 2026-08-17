@@ -1,0 +1,7 @@
+{
+  "type": "boolean",
+  "title": { "en": "DHW enabled" },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle"
+}

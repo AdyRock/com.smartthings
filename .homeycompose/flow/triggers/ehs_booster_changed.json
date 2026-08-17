@@ -1,0 +1,5 @@
+{
+  "title": { "en": "Booster state changed" },
+  "tokens": [ { "name": "value", "type": "boolean", "title": { "en": "Booster active" } } ],
+  "args": [ { "name": "device", "type": "device", "filter": "driver_id=samsungEhs&capabilities=ehs_booster_active" } ]
+}

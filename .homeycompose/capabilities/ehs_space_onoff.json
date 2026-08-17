@@ -1,0 +1,7 @@
+{
+  "type": "boolean",
+  "title": { "en": "Space climate enabled" },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle"
+}

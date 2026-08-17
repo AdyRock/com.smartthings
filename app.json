@@ -361,6 +361,126 @@
       },
       {
         "title": {
+          "en": "Booster state changed"
+        },
+        "tokens": [
+          {
+            "name": "value",
+            "type": "boolean",
+            "title": {
+              "en": "Booster active"
+            }
+          }
+        ],
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=samsungEhs&capabilities=ehs_booster_active"
+          }
+        ],
+        "id": "ehs_booster_changed"
+      },
+      {
+        "title": {
+          "en": "Defrost state changed"
+        },
+        "tokens": [
+          {
+            "name": "value",
+            "type": "boolean",
+            "title": {
+              "en": "Defrost active"
+            }
+          }
+        ],
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=samsungEhs&capabilities=ehs_defrost_active"
+          }
+        ],
+        "id": "ehs_defrost_changed"
+      },
+      {
+        "title": {
+          "en": "DHW mode changed"
+        },
+        "titleFormatted": {
+          "en": "DHW mode changed to [[value]]"
+        },
+        "tokens": [
+          {
+            "name": "value",
+            "type": "string",
+            "title": {
+              "en": "DHW mode"
+            }
+          }
+        ],
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=samsungEhs&capabilities=ehs_dhw_mode"
+          }
+        ],
+        "id": "ehs_dhw_mode_changed"
+      },
+      {
+        "title": {
+          "en": "Reported heat pump power changed"
+        },
+        "titleFormatted": {
+          "en": "Reported power is now [[value]] W"
+        },
+        "tokens": [
+          {
+            "name": "value",
+            "type": "number",
+            "title": {
+              "en": "Reported power"
+            },
+            "example": 88
+          }
+        ],
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=samsungEhs&capabilities=measure_power"
+          }
+        ],
+        "id": "ehs_reported_power_changed"
+      },
+      {
+        "title": {
+          "en": "Space mode changed"
+        },
+        "titleFormatted": {
+          "en": "Space mode changed to [[value]]"
+        },
+        "tokens": [
+          {
+            "name": "value",
+            "type": "string",
+            "title": {
+              "en": "Space mode"
+            }
+          }
+        ],
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=samsungEhs&capabilities=ehs_space_mode"
+          }
+        ],
+        "id": "ehs_space_mode_changed"
+      },
+      {
+        "title": {
           "en": "The job status changed"
         },
         "hint": {
@@ -941,6 +1061,32 @@
     "conditions": [
       {
         "title": {
+          "en": "Reported power is greater than a value"
+        },
+        "titleFormatted": {
+          "en": "Reported power is greater than [[power]] W"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=samsungEhs&capabilities=measure_power"
+          },
+          {
+            "name": "power",
+            "type": "number",
+            "min": 0,
+            "max": 20000,
+            "step": 1,
+            "title": {
+              "en": "Power (W)"
+            }
+          }
+        ],
+        "id": "ehs_reported_power_above"
+      },
+      {
+        "title": {
           "en": "The door is !{{open|closed}}",
           "sv": "Porten är !{{öppen|stängd}}"
         },
@@ -1363,6 +1509,175 @@
           }
         ],
         "id": "dryer_status_action"
+      },
+      {
+        "highlight": true,
+        "title": {
+          "en": "Set away mode"
+        },
+        "titleFormatted": {
+          "en": "Set away mode to [[enabled]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=samsungEhs&capabilities=ehs_away_mode"
+          },
+          {
+            "type": "dropdown",
+            "name": "enabled",
+            "values": [
+              {
+                "id": "on",
+                "title": {
+                  "en": "On"
+                }
+              },
+              {
+                "id": "off",
+                "title": {
+                  "en": "Off"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "ehs_set_away_mode"
+      },
+      {
+        "highlight": true,
+        "title": {
+          "en": "Set DHW mode"
+        },
+        "titleFormatted": {
+          "en": "Set DHW mode to [[mode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=samsungEhs&capabilities=ehs_dhw_mode"
+          },
+          {
+            "type": "dropdown",
+            "name": "mode",
+            "values": [
+              {
+                "id": "eco",
+                "title": {
+                  "en": "Eco"
+                }
+              },
+              {
+                "id": "std",
+                "title": {
+                  "en": "Standard"
+                }
+              },
+              {
+                "id": "force",
+                "title": {
+                  "en": "Forced"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "ehs_set_dhw_mode"
+      },
+      {
+        "highlight": true,
+        "title": {
+          "en": "Set DHW temperature"
+        },
+        "titleFormatted": {
+          "en": "Set DHW temperature to [[temperature]] °C"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=samsungEhs&capabilities=target_temperature.dhw"
+          },
+          {
+            "type": "range",
+            "name": "temperature",
+            "min": 40,
+            "max": 55,
+            "step": 0.5,
+            "label": "°C",
+            "labelDecimals": 1
+          }
+        ],
+        "id": "ehs_set_dhw_temperature"
+      },
+      {
+        "highlight": true,
+        "title": {
+          "en": "Set space mode"
+        },
+        "titleFormatted": {
+          "en": "Set space mode to [[mode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=samsungEhs&capabilities=ehs_space_mode"
+          },
+          {
+            "type": "dropdown",
+            "name": "mode",
+            "values": [
+              {
+                "id": "auto",
+                "title": {
+                  "en": "Auto"
+                }
+              },
+              {
+                "id": "cool",
+                "title": {
+                  "en": "Cooling"
+                }
+              },
+              {
+                "id": "heat",
+                "title": {
+                  "en": "Heating"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "ehs_set_space_mode"
+      },
+      {
+        "highlight": true,
+        "title": {
+          "en": "Set space temperature"
+        },
+        "titleFormatted": {
+          "en": "Set space temperature to [[temperature]] °C"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=samsungEhs&capabilities=target_temperature.space"
+          },
+          {
+            "type": "range",
+            "name": "temperature",
+            "min": 5,
+            "max": 55,
+            "step": 0.5,
+            "label": "°C",
+            "labelDecimals": 1
+          }
+        ],
+        "id": "ehs_set_space_temperature"
       },
       {
         "title": {
@@ -2368,6 +2683,103 @@
         "measure_temperature.freezer",
         "measure_temperature.cooler"
       ]
+    },
+    {
+      "images": {
+        "large": "/drivers/samsungEhs/assets/images/large.png",
+        "small": "/drivers/samsungEhs/assets/images/small.png"
+      },
+      "pair": [
+        {
+          "id": "apikey"
+        },
+        {
+          "id": "login_oauth2",
+          "template": "login_oauth2"
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "repair": [
+        {
+          "id": "apikey"
+        },
+        {
+          "id": "login_oauth2",
+          "template": "login_oauth2"
+        }
+      ],
+      "id": "samsungEhs",
+      "name": {
+        "en": "Samsung EHS Heat Pump"
+      },
+      "class": "thermostat",
+      "capabilities": [
+        "ehs_dhw_onoff",
+        "measure_temperature.dhw",
+        "target_temperature.dhw",
+        "ehs_dhw_mode",
+        "ehs_space_onoff",
+        "measure_temperature.space",
+        "target_temperature.space",
+        "ehs_space_mode",
+        "measure_power",
+        "meter_power",
+        "ehs_interval_energy",
+        "ehs_away_mode",
+        "ehs_valve_position",
+        "ehs_booster_active",
+        "ehs_defrost_active"
+      ],
+      "capabilitiesOptions": {
+        "measure_temperature.dhw": {
+          "title": {
+            "en": "DHW temperature"
+          }
+        },
+        "target_temperature.dhw": {
+          "title": {
+            "en": "DHW setpoint"
+          },
+          "min": 40,
+          "max": 55,
+          "step": 0.5,
+          "decimals": 1
+        },
+        "measure_temperature.space": {
+          "title": {
+            "en": "Space temperature"
+          }
+        },
+        "target_temperature.space": {
+          "title": {
+            "en": "Space setpoint"
+          },
+          "min": 5,
+          "max": 55,
+          "step": 0.5,
+          "decimals": 1
+        },
+        "measure_power": {
+          "title": {
+            "en": "Heat pump power"
+          }
+        },
+        "meter_power": {
+          "title": {
+            "en": "Heat pump energy"
+          }
+        }
+      }
     },
     {
       "images": {
@@ -3390,6 +3802,132 @@
       "icon": "/assets/partical.svg",
       "getable": true,
       "setable": false
+    },
+    "ehs_away_mode": {
+      "type": "boolean",
+      "title": {
+        "en": "Away mode"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "toggle"
+    },
+    "ehs_booster_active": {
+      "type": "boolean",
+      "title": {
+        "en": "Booster active"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor"
+    },
+    "ehs_defrost_active": {
+      "type": "boolean",
+      "title": {
+        "en": "Defrost active"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor"
+    },
+    "ehs_dhw_mode": {
+      "type": "enum",
+      "title": {
+        "en": "DHW mode"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "eco",
+          "title": {
+            "en": "Eco"
+          }
+        },
+        {
+          "id": "std",
+          "title": {
+            "en": "Standard"
+          }
+        },
+        {
+          "id": "force",
+          "title": {
+            "en": "Forced"
+          }
+        }
+      ]
+    },
+    "ehs_dhw_onoff": {
+      "type": "boolean",
+      "title": {
+        "en": "DHW enabled"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "toggle"
+    },
+    "ehs_interval_energy": {
+      "type": "number",
+      "title": {
+        "en": "Interval energy"
+      },
+      "units": {
+        "en": "Wh"
+      },
+      "decimals": 0,
+      "min": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor"
+    },
+    "ehs_space_mode": {
+      "type": "enum",
+      "title": {
+        "en": "Space mode"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "auto",
+          "title": {
+            "en": "Auto"
+          }
+        },
+        {
+          "id": "cool",
+          "title": {
+            "en": "Cooling"
+          }
+        },
+        {
+          "id": "heat",
+          "title": {
+            "en": "Heating"
+          }
+        }
+      ]
+    },
+    "ehs_space_onoff": {
+      "type": "boolean",
+      "title": {
+        "en": "Space climate enabled"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "toggle"
+    },
+    "ehs_valve_position": {
+      "type": "string",
+      "title": {
+        "en": "Valve position"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor"
     },
     "error_alarm_state": {
       "type": "string",
