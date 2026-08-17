@@ -1,0 +1,17 @@
+{
+  "highlight": true,
+  "title": { "en": "Set space mode" },
+  "titleFormatted": { "en": "Set space mode to [[mode]]" },
+  "args": [
+    { "type": "device", "name": "device", "filter": "driver_id=samsungEhs&capabilities=ehs_space_mode" },
+    {
+      "type": "dropdown",
+      "name": "mode",
+      "values": [
+        { "id": "auto", "title": { "en": "Auto" } },
+        { "id": "cool", "title": { "en": "Cooling" } },
+        { "id": "heat", "title": { "en": "Heating" } }
+      ]
+    }
+  ]
+}

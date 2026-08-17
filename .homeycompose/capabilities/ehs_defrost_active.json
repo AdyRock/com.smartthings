@@ -1,0 +1,7 @@
+{
+  "type": "boolean",
+  "title": { "en": "Defrost active" },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor"
+}

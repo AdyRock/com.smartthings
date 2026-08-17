@@ -1617,6 +1617,7 @@ class MyApp extends OAuth2App
         this.oauth2RefreshFailureState = null;
         this.oauth2RefreshFailureCounts = new Map();
         this.oauth2DevicesUnavailable = false;
+        this.oauthRefreshFailedTriggerCard = this.homey.flow.getTriggerCard( 'oauth_refresh_failed' );
         this.commandRefreshDelayMs = 1500;
         this.initPollingSchedulerState();
         this.initCapabilityValueCache();
@@ -3289,6 +3290,15 @@ class MyApp extends OAuth2App
         this.homey.clearTimeout( this.timerID );
         this.timerID = null;
         this.updateLog( `Polling suspended: SmartThings OAuth refresh is failing for ${sessionDiagnostics}. Re-authentication is required before polling will resume.`, true );
+        this.triggerOAuthRefreshFailedFlow( {
+            reason,
+            statusCode,
+            sessionDiagnostics,
+            responseDiagnostics: details.responseDiagnostics || '',
+        } ).catch( ( err ) =>
+        {
+            this.updateLog( `OAuth2 refresh failure trigger error: ${this.varToString( err )}`, true );
+        } );
         this.setOAuth2DeviceAvailability( false ).catch( ( err ) =>
         {
             this.updateLog( `OAuth2 failure: unable to set devices unavailable: ${this.varToString( err )}`, true );
@@ -3333,6 +3343,30 @@ class MyApp extends OAuth2App
                 }
             }
         }
+    }
+
+    async triggerOAuthRefreshFailedFlow( details = {} )
+    {
+        if ( !this.oauthRefreshFailedTriggerCard )
+        {
+            return;
+        }
+
+        const parsedStatusCode = Number( details.statusCode );
+        const tokens = {
+            reason: ( typeof details.reason === 'string' ) ? details.reason : this.varToString( details.reason || 'OAuth2 token refresh failed' ),
+            status_code: Number.isFinite( parsedStatusCode ) ? parsedStatusCode : -1,
+            session: ( typeof details.sessionDiagnostics === 'string' ) ? details.sessionDiagnostics : this.varToString( details.sessionDiagnostics || 'unknown session' ),
+        };
+
+        const state = {
+            reason: tokens.reason,
+            statusCode: tokens.status_code,
+            sessionDiagnostics: tokens.session,
+            responseDiagnostics: ( typeof details.responseDiagnostics === 'string' ) ? details.responseDiagnostics : this.varToString( details.responseDiagnostics || '' ),
+        };
+
+        await this.oauthRefreshFailedTriggerCard.trigger( tokens, state );
     }
 
     clearOAuth2RefreshFailureState()

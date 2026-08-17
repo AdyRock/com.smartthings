@@ -42,6 +42,7 @@ So far the app has been tested with:
 - Contact sensors (contact alarm)
 - Some features of Samsung washing machines
 - Some features of Samsung TVs
+- Samsung EHS heat pumps, including DHW and space-climate controls, operating modes, away mode, and reported power and energy
 - Samsung Home / Away detection
 
 Other devices might work if they have those capabilities. However if you have any devices that are not detected then let me know via the forum or GitHub.
