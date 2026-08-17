@@ -1169,7 +1169,7 @@ const CapabilityMap2 = {
     {
         class: "sensor",
         exclude: "",
-        capabilities: [ 'measure_power' ],
+        capabilities: [ 'meter_power' ],
         icon: "energy.svg",
         iconPriority: 1
     },
@@ -1177,7 +1177,7 @@ const CapabilityMap2 = {
     {
         class: "sensor",
         exclude: "",
-        capabilities: [ 'meter_power' ],
+        capabilities: [ 'measure_power' ],
         icon: "energy.svg",
         iconPriority: 1
     },
@@ -2724,6 +2724,10 @@ class MyApp extends OAuth2App
 
                         // Find supported capabilities
                         var deviceCapabilities = component.capabilities;
+
+                        // A device that measures power / energy but has no switch is a meter, so show it in the Energy tab as a (cumulative) power meter
+                        const hasSTCapability = ( id ) => deviceCapabilities.findIndex( ( element ) => element.id === id ) >= 0;
+                        const isPowerMeterDevice = ( hasSTCapability( 'energyMeter' ) || hasSTCapability( 'powerMeter' ) ) && !hasSTCapability( 'switch' );
                         for ( const deviceCapability of deviceCapabilities )
                         {
 							if (deviceCapability.id === 'custom.disabledComponents')
@@ -2798,15 +2802,25 @@ class MyApp extends OAuth2App
                         {
                             // Add this device to the table
                             this.updateLog( `Adding device ${device.label} with ${this.varToString( capabilities )}` );
-                            devices.push(
-                            {
+                            const isCumulativeMeter = isPowerMeterDevice && capabilities.includes( 'meter_power' );
+                            const deviceEntry = {
                                 "name": device.label + ": " + component.id,
                                 "icon": iconName, // relative to: /drivers/<driver_id>/assets/
                                 "class": className,
                                 "capabilities": capabilities,
-								settings,
+                                "settings": { ...settings, energyCumulative: isCumulativeMeter },
                                 data
-                            } );
+                            };
+
+                            if ( isCumulativeMeter )
+                            {
+                                deviceEntry.energy = {
+                                    "cumulative": true,
+                                    "cumulativeImportedCapability": "meter_power"
+                                };
+                            }
+
+                            devices.push( deviceEntry );
                         }
                     }
                 }
